@@ -21,12 +21,14 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 6 · History: D1 calendar + selected day + past cycles (`(tabs)/history.tsx`, `MonthCalendar` in `src/components/Calendar.tsx`), D2 Day detail (`src/app/day/[date].tsx`, delete asks first), D3 Cycle details (`src/app/cycle/[start].tsx`: period-share ring, breakdown incl. flow per day, average banner, Edit dates → C2 `?start=`, Delete cycle asks first), D4 empty. Derivations in `src/state/history.ts`. New `GhostDanger` button, `CycleRing` options `knob` / `dayRole` / optional label. `showPredicted` setting in the store (G2 will toggle it).
 
+- [x] Step 7 · Insights: E1 (`(tabs)/insights.tsx`: averages, range and count tiles, cycle length bars for the last 6 cycles, most logged symptoms, not-medical-advice banner) and E2 (fewer than 2 completed cycles: progress "n of 2"). Maths in `src/state/insights.ts` on top of `pastCycles`.
+
 ## Open
-- Step 6 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 7 from main.
+- Step 7 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 8 from main.
 - Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Nothing is persisted yet (step 9), so the app restarts at onboarding with no logs. Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later). Week starts on Sunday until G2 adds the setting.
+- Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet.
 
 ## Next
-- [ ] Step 7 · Insights E1–E2.
 - [ ] Step 8 · Me / settings / data F*, G*, H* (destructive actions two-step).
 - [ ] Step 9 · Local data layer (encrypted on device) + local notifications (I2 copy).
 - [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
