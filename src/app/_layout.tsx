@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { LockGate } from '../components';
 import { color, fontAssets } from '../theme';
 
 export default function RootLayout() {
@@ -12,7 +13,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color['bg/canvas'] } }} />
+      <LockGate>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color['bg/canvas'] } }} />
+      </LockGate>
     </SafeAreaProvider>
   );
 }

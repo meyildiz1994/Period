@@ -1,14 +1,13 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Divider, Icon, ListRow, Page } from '../../components';
+import { Icon, ListRow, Page } from '../../components';
 import { useLog } from '../../state/log';
 import { color, radius, type } from '../../theme';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-// H1 Your data. Export and account backup arrive in step 8b (rows shown, not wired yet);
-// Delete account appears once accounts exist.
+// H1 Your data. v1 has no accounts, so Account backup and Delete account are left out.
 export default function YourData() {
   const { periods, days } = useLog();
   const logged = Object.keys(days).length;
@@ -29,9 +28,7 @@ export default function YourData() {
 
       <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>Keep a copy</Text>
       <View style={styles.card}>
-        <ListRow title="Export data" subtitle="Download a CSV or JSON file" icon="download" />
-        <Divider inset={0} />
-        <ListRow title="Account backup" subtitle="Restore on a new phone" icon="refresh" trailing="Value" value="Off" />
+        <ListRow title="Export data" subtitle="Download a CSV or JSON file" icon="download" onPress={() => router.push('/data/export')} />
       </View>
 
       <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>Delete</Text>

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Banner, Button, Icon, Page } from '../../components';
+import { resetLock } from '../../state/lock';
 import { resetLog, useLog } from '../../state/log';
 import { resetOnboarding } from '../../state/onboarding';
 import { color, type } from '../../theme';
@@ -27,6 +28,7 @@ export default function DeleteAll() {
             onPress={() => {
               resetLog();
               resetOnboarding();
+              resetLock();
               router.dismissAll();
               router.replace('/');
             }}
@@ -42,7 +44,7 @@ export default function DeleteAll() {
       <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>
         This permanently removes {plural(periods.length, 'cycle', 'cycles')} and {plural(logged, 'daily log', 'daily logs')}. It can’t be undone.
       </Text>
-      <Banner message="Want a copy first? Export your data before deleting." />
+      <Banner message="Want a copy first? Export your data before deleting." action="Export" onAction={() => router.push('/data/export')} />
     </Page>
   );
 }

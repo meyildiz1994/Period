@@ -4,15 +4,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar, Button, Divider, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { APP_VERSION } from '../../lib/app';
+import { useBiometricKind } from '../../lib/biometrics';
+import { resetLock, useLock } from '../../state/lock';
 import { resetLog } from '../../state/log';
 import { resetOnboarding, useOnboarding } from '../../state/onboarding';
 import { color, layout, radius, type } from '../../theme';
 
-// G1 Me. Account backup, app lock and export land in step 8b; their rows are shown but not wired yet.
+// G1 Me. v1 has no accounts, so the design's "Back up with an account" button is left out.
 export default function Me() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { name, reminder } = useOnboarding();
+  const lock = useLock();
+  const kind = useBiometricKind();
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -25,7 +29,6 @@ export default function Me() {
             <View style={styles.dot} />
             <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>Saved on this device</Text>
           </View>
-          <Button label="Back up with an account" iconLeft="refresh" size="Medium" />
         </View>
 
         <SectionHeader title="Settings" />
@@ -34,9 +37,9 @@ export default function Me() {
           <Divider inset={0} />
           <ListRow title="Reminders" icon="bell-ring" trailing="Value" value={reminder.enabled ? 'On' : 'Off'} onPress={() => router.push('/settings/reminders')} />
           <Divider inset={0} />
-          <ListRow title="Your data" subtitle="Export, backup or delete" icon="folder-user" onPress={() => router.push('/data')} />
+          <ListRow title="Your data" subtitle="Export or delete" icon="folder-user" onPress={() => router.push('/data')} />
           <Divider inset={0} />
-          <ListRow title="App lock" icon="lock" trailing="Value" value="Off" />
+          <ListRow title="App lock" icon="lock" trailing="Value" value={lock.enabled ? (lock.biometrics && kind ? kind[0].toUpperCase() + kind.slice(1) : 'Passcode') : 'Off'} onPress={() => router.push('/settings/lock')} />
         </View>
 
         <SectionHeader title="About" />
@@ -60,6 +63,7 @@ export default function Me() {
               onPress={() => {
                 resetOnboarding();
                 resetLog();
+                resetLock();
                 router.replace('/');
               }}
             />

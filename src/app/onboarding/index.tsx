@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, CycleRing, Icon } from '../../components';
@@ -32,13 +32,6 @@ export default function Welcome() {
           <Text style={[type('Caption'), { color: color['text/secondary'] }]}>No account needed. Your logs stay on this phone.</Text>
         </View>
         <Button label="Get started" fullWidth onPress={() => router.push('/onboarding/goal')} />
-        <View style={styles.signIn}>
-          <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>Already backed up?</Text>
-          {/* F3 Sign in arrives with the account screens in step 8. */}
-          <Pressable accessibilityRole="button" onPress={() => {}} hitSlop={12} style={styles.link}>
-            <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>Sign in</Text>
-          </Pressable>
-        </View>
       </View>
     </View>
   );
@@ -54,6 +47,4 @@ const styles = StyleSheet.create({
   body: { marginTop: 12, textAlign: 'center', color: color['text/secondary'] },
   footer: { paddingHorizontal: 24, gap: 16 },
   privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  signIn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 36 },
-  link: { paddingHorizontal: 12, minHeight: 44, justifyContent: 'center' },
 });
