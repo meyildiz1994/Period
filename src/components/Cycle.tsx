@@ -13,13 +13,17 @@ type CycleRingProps = {
   phase: Phase;
   /** 0–1 progress through the cycle. Ignored for Empty; Late draws a full ring. */
   progress: number;
-  label: string;
+  label?: string;
   day: string;
   caption: string;
   size?: number;
+  /** Today's marker at the end of the arc. Off for D3, where the arc is the period's share. */
+  knob?: boolean;
+  /** Overrides the size-based day text (D3 shows "28" in Display at 200). */
+  dayRole?: 'Display' | 'Title/Large';
 };
 
-export function CycleRing({ phase, progress, label, day, caption, size = 260 }: CycleRingProps) {
+export function CycleRing({ phase, progress, label, day, caption, size = 260, knob = true, dayRole }: CycleRingProps) {
   // 20 at the 260 hero size, scaled down for Home (220) and Cycle details (200).
   const stroke = Math.round(size / 13);
   // Home's 220 ring uses smaller day and caption text than the 260 hero ring.
@@ -30,10 +34,10 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260 }: 
   const p = phase === 'Empty' ? 0 : phase === 'Late' ? 1 : Math.min(Math.max(progress, 0), 1);
   const arcColor = color[phase === 'Late' ? 'surface/brand-soft' : 'surface/brand'];
   const angle = p * 2 * Math.PI - Math.PI / 2;
-  const knob = { x: c + r * Math.cos(angle), y: c + r * Math.sin(angle) };
+  const dot = { x: c + r * Math.cos(angle), y: c + r * Math.sin(angle) };
 
   return (
-    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${label}. ${day}. ${caption}`}>
+    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${label ? `${label}. ` : ''}${day}. ${caption}`}>
       <Svg width={size} height={size}>
         <Circle cx={c} cy={c} r={r} stroke={color['surface/strong']} strokeWidth={stroke} fill="none" />
         {p > 0 ? (
@@ -44,11 +48,11 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260 }: 
             transform={`rotate(-90 ${c} ${c})`}
           />
         ) : null}
-        {p > 0 && p < 1 ? <Circle cx={knob.x} cy={knob.y} r={12} fill={color['surface/brand']} stroke={color['surface/default']} strokeWidth={4} /> : null}
+        {knob && p > 0 && p < 1 ? <Circle cx={dot.x} cy={dot.y} r={12} fill={color['surface/brand']} stroke={color['surface/default']} strokeWidth={4} /> : null}
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.ringCenter, { paddingHorizontal: stroke + 4 }]}>
-        <Text style={[type('Body/Default', 'Medium'), styles.centerText, { color: color['text/secondary'] }]}>{label}</Text>
-        <Text style={[type(phase === 'Late' || compact ? 'Title/Large' : 'Display', 'Bold'), styles.centerText, { color: color['text/brand'] }]}>{day}</Text>
+        {label ? <Text style={[type('Body/Default', 'Medium'), styles.centerText, { color: color['text/secondary'] }]}>{label}</Text> : null}
+        <Text style={[type(dayRole ?? (phase === 'Late' || compact ? 'Title/Large' : 'Display'), 'Bold'), styles.centerText, { color: color['text/brand'] }]}>{day}</Text>
         <Text style={[type(compact ? 'Caption' : 'Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text>
       </View>
     </View>

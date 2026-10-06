@@ -5,7 +5,7 @@ import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
 
 // Figma: Button (Type × Size × State). Pill shaped. One Primary per screen.
-export type ButtonType = 'Primary' | 'Secondary' | 'Outline' | 'Ghost' | 'Destructive';
+export type ButtonType = 'Primary' | 'Secondary' | 'Outline' | 'Ghost' | 'GhostDanger' | 'Destructive';
 export type ButtonSize = 'Large' | 'Medium' | 'Small';
 
 type Tone = { bg?: ColorToken; fg: ColorToken; pressed: ColorToken; border?: ColorToken; dBg?: ColorToken; dFg: ColorToken; dBorder?: ColorToken };
@@ -15,6 +15,8 @@ const TYPES: Record<ButtonType, Tone> = {
   Secondary: { bg: 'surface/muted', fg: 'text/brand', pressed: 'surface/strong', dBg: 'surface/subtle', dFg: 'text/disabled' },
   Outline: { bg: 'surface/default', fg: 'text/brand', pressed: 'surface/subtle', border: 'border/default', dBg: 'surface/default', dFg: 'text/disabled', dBorder: 'border/subtle' },
   Ghost: { fg: 'text/brand', pressed: 'surface/muted', dFg: 'text/disabled' },
+  // Text-only destructive action ("Delete this day"); the real delete still asks first.
+  GhostDanger: { fg: 'feedback/danger', pressed: 'feedback/danger-subtle', dFg: 'text/disabled' },
   Destructive: { bg: 'feedback/danger', fg: 'text/on-brand', pressed: 'feedback/danger-strong', dBg: 'feedback/danger-subtle', dFg: 'text/disabled' },
 };
 

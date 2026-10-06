@@ -52,6 +52,15 @@ export function updateDay(date: string, patch: Partial<Omit<DayLog, 'loggedAt'>>
   saveDay(date, { ...current, ...patch });
 }
 
+export function deletePeriod(start: string) {
+  set({ ...state, periods: state.periods.filter((p) => p.start !== start) });
+}
+
+export function deleteDay(date: string) {
+  const { [date]: _, ...days } = state.days;
+  set({ ...state, days });
+}
+
 export function resetLog() {
   set(initial);
 }

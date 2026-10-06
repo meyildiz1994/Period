@@ -51,3 +51,32 @@ export function weekdayInitial(d: Date) {
 export function formatDay(d: Date) {
   return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
 }
+
+/** "Nov 14" */
+export function formatMonthDay(d: Date) {
+  return `${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
+}
+
+/** "November 14" */
+export function formatMonthDayLong(d: Date) {
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+}
+
+/** "November 2026" */
+export function formatMonthYear(d: Date) {
+  return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/** "8:42 PM" */
+export function formatTime(d: Date) {
+  const h = d.getHours() % 12 || 12;
+  return `${h}:${String(d.getMinutes()).padStart(2, '0')} ${d.getHours() < 12 ? 'AM' : 'PM'}`;
+}
+
+export function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+export function addMonths(d: Date, n: number) {
+  return new Date(d.getFullYear(), d.getMonth() + n, 1);
+}

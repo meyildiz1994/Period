@@ -19,12 +19,13 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 5 · Log: C1 Quick Log sheet (from "+", in `(tabs)/_layout.tsx`, generic `BottomSheet` + `SheetOption` in `src/components/Sheet.tsx`), C2 Log period (`src/app/log/period.tsx`: start wheel, "Has it ended?" with end date and end-before-start error, flow today), C3 Daily log (`src/app/log/daily.tsx`, optional `?date=`; flow, pain, mood, symptoms with "Add", note), C4/C5 error toast "Couldn't save…" with Retry on both. Shared pushed-page frame `Page`. Periods and daily logs live in `src/state/log.ts` (in memory); onboarding's last period becomes the first logged period; Home reads cycle settings via `useCycleSettings()` and shows today's log.
 
+- [x] Step 6 · History: D1 calendar + selected day + past cycles (`(tabs)/history.tsx`, `MonthCalendar` in `src/components/Calendar.tsx`), D2 Day detail (`src/app/day/[date].tsx`, delete asks first), D3 Cycle details (`src/app/cycle/[start].tsx`: period-share ring, breakdown incl. flow per day, average banner, Edit dates → C2 `?start=`, Delete cycle asks first), D4 empty. Derivations in `src/state/history.ts`. New `GhostDanger` button, `CycleRing` options `knob` / `dayRole` / optional label. `showPredicted` setting in the store (G2 will toggle it).
+
 ## Open
-- Step 5 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 6 from main.
-- Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Nothing is persisted yet (step 9), so the app restarts at onboarding with no logs. Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later). C1 "History" link and the Home calendar button go to the History tab placeholder until step 6.
+- Step 6 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 7 from main.
+- Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Nothing is persisted yet (step 9), so the app restarts at onboarding with no logs. Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later). Week starts on Sunday until G2 adds the setting.
 
 ## Next
-- [ ] Step 6 · History D1–D4.
 - [ ] Step 7 · Insights E1–E2.
 - [ ] Step 8 · Me / settings / data F*, G*, H* (destructive actions two-step).
 - [ ] Step 9 · Local data layer (encrypted on device) + local notifications (I2 copy).

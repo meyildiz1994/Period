@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,20 +8,23 @@ import { getLog, latestPeriod, savePeriod, updateDay } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, radius, type } from '../../theme';
 
-// C2 Log period. Edits the current period while it is still open (no end yet, same cycle);
-// otherwise starts a new one today.
+// C2 Log period. With `?start=` (D3 Edit dates) it edits that period; otherwise it edits the
+// current period while it is still open (no end yet, same cycle) or starts a new one today.
 export default function LogPeriod() {
+  const params = useLocalSearchParams<{ start?: string }>();
   const { cycleLength, periodLength } = useOnboarding();
   const [today] = useState(() => new Date());
   const [editing] = useState(() => {
-    const latest = latestPeriod(getLog());
+    const log = getLog();
+    if (params.start) return log.periods.find((p) => p.start === params.start) ?? null;
+    const latest = latestPeriod(log);
     return latest && !latest.end && diffDays(fromISODate(latest.start), today) < cycleLength ? latest : null;
   });
   const todayKey = toISODate(today);
 
   const [start, setStart] = useState(() => (editing ? fromISODate(editing.start) : today));
-  const [ended, setEnded] = useState(false);
-  const [end, setEnd] = useState(today);
+  const [ended, setEnded] = useState(() => !!editing?.end);
+  const [end, setEnd] = useState(() => (editing?.end ? fromISODate(editing.end) : today));
   const [pickingEnd, setPickingEnd] = useState(false);
   const [flow, setFlow] = useState<FlowLevelName | null>(() => getLog().days[todayKey]?.flow ?? null);
   const [failed, setFailed] = useState(false);

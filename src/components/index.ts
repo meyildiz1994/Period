@@ -1,4 +1,5 @@
 export * from './Button';
+export * from './Calendar';
 export * from './Controls';
 export * from './Cycle';
 export * from './Display';
