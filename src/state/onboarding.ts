@@ -15,7 +15,11 @@ export type OnboardingState = {
   regularity: Regularity;
   symptoms: string[];
   reminder: { enabled: boolean; daysBefore: ReminderLead };
+  /** Shown in the Home greeting and avatar. Not asked in onboarding; set from Me later. */
+  name: string | null;
   done: boolean;
+  /** False while saved data is being read (B3 loading). Always true until the on-device store in step 9. */
+  hydrated: boolean;
 };
 
 const initial: OnboardingState = {
@@ -26,7 +30,9 @@ const initial: OnboardingState = {
   regularity: 'regular',
   symptoms: [],
   reminder: { enabled: false, daysBefore: 1 },
+  name: null,
   done: false,
+  hydrated: true,
 };
 
 let state = initial;
@@ -52,16 +58,4 @@ function subscribe(l: () => void) {
 
 export function useOnboarding() {
   return useSyncExternalStore(subscribe, getOnboarding, getOnboarding);
-}
-
-// Local calendar dates as YYYY-MM-DD (no time zone shifts).
-export function toISODate(d: Date) {
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${m}-${day}`;
-}
-
-export function fromISODate(s: string) {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y, m - 1, d);
 }

@@ -20,7 +20,10 @@ type CycleRingProps = {
 };
 
 export function CycleRing({ phase, progress, label, day, caption, size = 260 }: CycleRingProps) {
-  const stroke = 20;
+  // 20 at the 260 hero size, scaled down for Home (220) and Cycle details (200).
+  const stroke = Math.round(size / 13);
+  // Home's 220 ring uses smaller day and caption text than the 260 hero ring.
+  const compact = size < 240;
   const r = (size - stroke) / 2;
   const c = size / 2;
   const circumference = 2 * Math.PI * r;
@@ -43,10 +46,10 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260 }: 
         ) : null}
         {p > 0 && p < 1 ? <Circle cx={knob.x} cy={knob.y} r={12} fill={color['surface/brand']} stroke={color['surface/default']} strokeWidth={4} /> : null}
       </Svg>
-      <View style={[StyleSheet.absoluteFill, styles.ringCenter]}>
+      <View style={[StyleSheet.absoluteFill, styles.ringCenter, { paddingHorizontal: stroke + 4 }]}>
         <Text style={[type('Body/Default', 'Medium'), styles.centerText, { color: color['text/secondary'] }]}>{label}</Text>
-        <Text style={[type(phase === 'Late' ? 'Title/Large' : 'Display', 'Bold'), styles.centerText, { color: color['text/brand'] }]}>{day}</Text>
-        <Text style={[type('Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text>
+        <Text style={[type(phase === 'Late' || compact ? 'Title/Large' : 'Display', 'Bold'), styles.centerText, { color: color['text/brand'] }]}>{day}</Text>
+        <Text style={[type(compact ? 'Caption' : 'Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text>
       </View>
     </View>
   );
@@ -136,7 +139,7 @@ export function KeypadKey({ digit, icon, label, onPress }: { digit?: string; ico
 
 const styles = StyleSheet.create({
   centerText: { textAlign: 'center' },
-  ringCenter: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 35, gap: 4 },
+  ringCenter: { alignItems: 'center', justifyContent: 'center', gap: 4 },
   day: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', gap: 2 },
   marker: { position: 'absolute', bottom: 6, width: 4, height: 4, borderRadius: 999, backgroundColor: color['surface/brand'] },
   flow: { width: 62, height: 72, gap: 4, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },

@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, DateWheel, Icon, OnboardingStep } from '../../components';
-import { fromISODate, getOnboarding, setOnboarding, toISODate } from '../../state/onboarding';
+import { fromISODate, toISODate } from '../../lib/dates';
+import { getOnboarding, setOnboarding } from '../../state/onboarding';
 import { color, type } from '../../theme';
 
 // A3 · Step 2 of 5. Defaults to today; the wheel never lists future dates.
