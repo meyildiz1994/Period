@@ -12,6 +12,9 @@ Read this first when resuming. Update it in every PR.
 ## Done
 - [x] Step 1 · Scaffold + tokens: Expo app, colour/space/radius/elevation tokens (`src/theme/tokens.ts`), Plus Jakarta Sans type roles (`src/theme/typography.ts`), 102 icons (`src/theme/icons.ts`, `src/components/Icon.tsx`), temporary token preview screen (`src/app/index.tsx`).
 
+## Open
+- PR #1 (branch `step-2-components`): Step 2 core components + dev gallery. Merge it first, then start Step 3.
+
 ## Next
 - [ ] Step 2 · Core components from 1 · Temeller › 05 Bileşenler: Button, IconButton, Card, ListRow, Field, Chip/Segmented, Sheet, TabBar (Home | History | + | Insights | Me, fixed), Cycle Ring (Phase variants incl. Empty).
 - [ ] Step 3 · Onboarding A1… + I1 Splash.
