@@ -13,14 +13,15 @@ Read this first when resuming. Update it in every PR.
 - [x] Step 1 · Scaffold + tokens: Expo app, colour/space/radius/elevation tokens (`src/theme/tokens.ts`), Plus Jakarta Sans type roles (`src/theme/typography.ts`), 102 icons (`src/theme/icons.ts`, `src/components/Icon.tsx`), temporary token preview screen (`src/app/index.tsx`).
 - [x] Step 2 · Core components (`src/components/`, all exported from `index.ts`): Button, IconButton, Choice, Toggle, Checkbox, Radio, OptionCard, Stepper, Input, TextArea, Card, Tag, IconBadge, Avatar, ListRow, Divider, SectionHeader, StatTile, Skeleton, Banner, Toast, Dialog, EmptyState, TopBar, TabBar, ProgressSteps, CycleRing, DayCell, FlowLevel, PasscodeDot, KeypadKey. Dev gallery at `src/app/gallery.tsx` (temporary). Bottom sheet is still to do (comes with Quick Log in step 5).
 
-- [x] Step 3 · I1 Splash (`src/app/index.tsx`) → A1 Welcome → A2–A6 setup steps → A7 All set (`src/app/onboarding/`). Shared frame `OnboardingStep`, day/month/year `DateWheel` (also for C2), answers in an in-memory store `src/state/onboarding.ts` (symptom list in `src/state/symptoms.ts`). Token preview moved to `/tokens`; `/home` is a temporary landing until step 4. ESLint added (`eslint.config.js`) and existing lint errors fixed.
+- [x] Step 3 · I1 Splash (`src/app/index.tsx`) → A1 Welcome → A2–A6 setup steps → A7 All set (`src/app/onboarding/`). Shared frame `OnboardingStep`, day/month/year `DateWheel` (also for C2), answers in an in-memory store `src/state/onboarding.ts` (symptom list in `src/state/symptoms.ts`). Token preview moved to `/tokens`. ESLint added (`eslint.config.js`) and existing lint errors fixed.
+
+- [x] Step 4 · Main tabs (`src/app/(tabs)/`, Expo Router `expo-router/js-tabs` with our floating `TabBar`) and Home B1 in cycle / B2 empty / B3 loading / B4 late (`(tabs)/home.tsx`, pieces in `src/components/Home.tsx`). Cycle maths in `src/state/cycle.ts` (cycle day, period day, phase, next start, late days, week strip), date helpers in `src/lib/dates.ts`. Cycle Ring stroke and text scale with size (220 on Home). History / Insights / Me are placeholders; Me keeps the dev links (gallery, tokens, restart onboarding).
 
 ## Open
-- Step 3 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 4 from main.
-- Loose ends from step 3, to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Onboarding answers are not persisted yet (step 9), so the app restarts at onboarding.
+- Step 4 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 5 from main.
+- Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Onboarding answers are not persisted yet (step 9), so the app restarts at onboarding. Home: "+", "Log period" and "Edit" open the Log screens (step 5); Today's log shows dashes until daily logs exist (step 5). Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later).
 
 ## Next
-- [ ] Step 4 · Home B1–B4 (no scroll, fits 844) + Cycle Ring.
 - [ ] Step 5 · Log C1–C5 (Quick Log sheet, Period start/end, Daily Log).
 - [ ] Step 6 · History D1–D4.
 - [ ] Step 7 · Insights E1–E2.
