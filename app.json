@@ -33,7 +33,13 @@
           "faceIDPermission": "Period uses Face ID to unlock the app when App lock is on."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#80244E"
+        }
+      ]
     ],
     "scheme": "period",
     "backgroundColor": "#FCF5F6"
