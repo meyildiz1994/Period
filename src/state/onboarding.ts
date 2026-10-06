@@ -15,6 +15,8 @@ export type OnboardingState = {
   regularity: Regularity;
   symptoms: string[];
   reminder: { enabled: boolean; daysBefore: ReminderLead };
+  /** Dashed predicted days on the History calendar (G2 Cycle settings). */
+  showPredicted: boolean;
   /** Shown in the Home greeting and avatar. Not asked in onboarding; set from Me later. */
   name: string | null;
   done: boolean;
@@ -30,6 +32,7 @@ const initial: OnboardingState = {
   regularity: 'regular',
   symptoms: [],
   reminder: { enabled: false, daysBefore: 1 },
+  showPredicted: true,
   name: null,
   done: false,
   hydrated: true,
