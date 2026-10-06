@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { color, elevation, radius, type } from '../theme';
 
@@ -58,23 +58,12 @@ export function DateWheel({ value, onChange, max, minYear, rows = 5 }: Props) {
 function Column({ label, labels, index, side, onSelect }: {
   label: string; labels: string[]; index: number; side: number; onSelect: (i: number) => void;
 }) {
-  // PanResponder is created once, so read the latest props through a ref.
-  const latest = useRef({ index, count: labels.length, onSelect });
-  latest.current = { index, count: labels.length, onSelect };
-  const start = useRef(0);
-
-  const pan = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dy) > 4,
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: () => { start.current = latest.current.index; },
-      onPanResponderMove: (_, g) => {
-        const { index: cur, count, onSelect: select } = latest.current;
-        const next = Math.max(0, Math.min(count - 1, start.current - Math.round(g.dy / ROW)));
-        if (next !== cur) select(next);
-      },
-    }),
-  ).current;
+  // Drag: every ROW of vertical travel moves one item. Captured so rows don't keep the touch.
+  const drag = useRef({ y: 0, index: 0 });
+  const onDragMove = (pageY: number) => {
+    const next = Math.max(0, Math.min(labels.length - 1, drag.current.index - Math.round((pageY - drag.current.y) / ROW)));
+    if (next !== index) onSelect(next);
+  };
 
   const offsets = Array.from({ length: side * 2 + 1 }, (_, i) => i - side);
   const step = (delta: number) => {
@@ -85,7 +74,11 @@ function Column({ label, labels, index, side, onSelect }: {
   return (
     <View
       style={styles.column}
-      {...pan.panHandlers}
+      onTouchStart={(e) => { drag.current.y = e.nativeEvent.pageY; }}
+      onMoveShouldSetResponderCapture={(e) => Math.abs(e.nativeEvent.pageY - drag.current.y) > 4}
+      onResponderTerminationRequest={() => false}
+      onResponderGrant={(e) => { drag.current = { y: e.nativeEvent.pageY, index }; }}
+      onResponderMove={(e) => onDragMove(e.nativeEvent.pageY)}
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={label}
