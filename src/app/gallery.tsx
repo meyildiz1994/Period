@@ -27,11 +27,14 @@ export default function Gallery() {
       <ScrollView contentContainerStyle={styles.content}>
         <H>Cycle Ring</H>
         <View style={styles.center}>
-          <CycleRing phase="Menstrual" progress={39 / 360} label="Period" day="Day 3" caption="Period day 3 of 5" />
+          <CycleRing phase="Menstrual" progress={3 / 28} day="Day 3" />
         </View>
         <View style={styles.rowWrap}>
-          <CycleRing size={160} phase="Luteal" progress={283 / 360} label="Luteal" day="22" caption="estimate" />
-          <CycleRing size={160} phase="Empty" progress={0} label="No data" day="–" caption="Log to begin" />
+          <CycleRing size={160} phase="Follicular" progress={8 / 28} day="Day 8" />
+          <CycleRing size={160} phase="Ovulation" progress={14 / 28} day="Day 14" />
+          <CycleRing size={160} phase="Luteal" progress={22 / 28} day="Day 22" />
+          <CycleRing size={160} phase="Late" progress={1} label="Period expected" day="2 days late" />
+          <CycleRing size={160} phase="Empty" progress={0} label="No cycle data yet" day="–" />
         </View>
 
         <H>Buttons</H>

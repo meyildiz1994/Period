@@ -26,6 +26,13 @@ export const palette = {
   'green/50': '#E4F3EB',
   'amber/700': '#8A5A00',
   'amber/50': '#FFF3DC',
+  // Cycle phases (Figma Cycle Ring, 2026-10-06).
+  'forest/900': '#2A3F32',
+  'forest/100': '#D6EDE6',
+  'violet/800': '#591D87',
+  'violet/100': '#F1E9FD',
+  'rose/500': '#D45E9C',
+  'rose/100': '#F9E9F1',
 } as const;
 
 const p = palette;
@@ -72,6 +79,15 @@ export const color = {
   'feedback/success-subtle': p['green/50'],
   'feedback/warning': p['amber/700'],
   'feedback/warning-subtle': p['amber/50'],
+  // Cycle Ring phases: arc / Day text colour and the ring track behind it.
+  'phase/menstrual': p['plum/700'],
+  'phase/menstrual-track': p['rose/100'],
+  'phase/follicular': p['forest/900'],
+  'phase/follicular-track': p['forest/100'],
+  'phase/ovulation': p['violet/800'],
+  'phase/ovulation-track': p['violet/100'],
+  'phase/luteal': p['rose/500'],
+  'phase/luteal-track': p['rose/100'],
   // Scrim behind sheets and dialogs (text/primary at 45%).
   scrim: 'rgba(42, 21, 32, 0.45)',
 } as const;

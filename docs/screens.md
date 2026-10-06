@@ -48,6 +48,11 @@ Shared patterns
 - E1: Root "Insights", "Based on 6 logged cycles". StatTile grid: Average cycle 28 days (calendar), Average period 5 days (drop), Cycle range 27–29 days (arrows-lr), Logged cycles 6 cycles (history). "Cycle length" + "Last 6": bar chart card (bars surface/strong, latest surface/brand, value above, month label below; latest label text/brand), caption "Your cycle length varied by 2 days over this period." "Most logged symptoms" + "Last 6 cycles": rows name + "9 days", progress bar 8 high (surface/brand-soft on surface/muted). Banner "Insights are estimates from your own logs, not medical advice."
 - E2 empty: card badge 72 chart, "Insights need 2 cycles", "Keep logging. After two full cycles you'll see averages and patterns here." Card "Cycles logged" + "1 of 2" text/brand + progress bar.
 
+## Cycle Ring v2 (component update, 2026-10-06)
+- Each phase has its own colours (arc + Day text + drop / track): Menstrual #80244E / #F9E9F1, Follicular #2A3F32 / #D6EDE6, Ovulation #591D87 / #F1E9FD, Luteal #D45E9C / #F9E9F1. Late: full #80244E ring, "Period expected" / "2 days late". Empty: #FAD7E4 ring, grey drop, "No cycle data yet" / "–".
+- Centre: teardrop in the phase colour with a white highlight, label "<Phase> Phase", "Day N". No caption line. Knob in the arc colour with a white ring at today.
+- Phases are calendar estimates: Menstrual during the period, Ovulation = cycle length − 14 ± 1 day (13–15 on a 28-day cycle), Follicular before, Luteal after.
+
 ## v1 decisions (2026-10-06)
 - No accounts in v1 (user's call): F1–F7, H6–H7, "Back up with an account" (G1), "Already backed up? Sign in" (A1), "Account backup" (H1) are not built. A7 "Backup is optional" became "Export anytime"; Privacy "Where it lives" says there is no account or cloud backup; Terms drops "Your account".
 - Export failed (H4) copy is generic ("couldn't be saved… free space") because the real cause isn't always known.

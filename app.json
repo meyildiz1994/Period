@@ -39,6 +39,14 @@
         {
           "color": "#80244E"
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 88,
+          "backgroundColor": "#80244E"
+        }
       ]
     ],
     "scheme": "period",
