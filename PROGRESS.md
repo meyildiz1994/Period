@@ -10,7 +10,7 @@ Read this first when resuming. Update it in every PR.
 - Process: small steps, one PR each, commit + push often.
 
 ## Done
-- [x] Step 1 · Scaffold + tokens: Expo app, colour/space/radius/elevation tokens (`src/theme/tokens.ts`), Plus Jakarta Sans type roles (`src/theme/typography.ts`), 89 icons (`src/theme/icons.ts`, `src/components/Icon.tsx`), temporary token preview screen (`src/app/index.tsx`).
+- [x] Step 1 · Scaffold + tokens: Expo app, colour/space/radius/elevation tokens (`src/theme/tokens.ts`), Plus Jakarta Sans type roles (`src/theme/typography.ts`), 102 icons (`src/theme/icons.ts`, `src/components/Icon.tsx`), temporary token preview screen (`src/app/index.tsx`).
 
 ## Next
 - [ ] Step 2 · Core components from 1 · Temeller › 05 Bileşenler: Button, IconButton, Card, ListRow, Field, Chip/Segmented, Sheet, TabBar (Home | History | + | Insights | Me, fixed), Cycle Ring (Phase variants incl. Empty).
@@ -24,5 +24,4 @@ Read this first when resuming. Update it in every PR.
 - [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
 
 ## Notes for the next session
-- Figma has 102 icons; the source script only carried 89 named SVGs. Add missing ones when a screen needs them.
 - In the cloud container `api.expo.dev` is blocked: use `EXPO_OFFLINE=1 npx expo install <pkg>`. Verify with `npx tsc --noEmit` and `EXPO_OFFLINE=1 npx expo export --platform ios`.
