@@ -48,7 +48,12 @@ Shared patterns
 - E1: Root "Insights", "Based on 6 logged cycles". StatTile grid: Average cycle 28 days (calendar), Average period 5 days (drop), Cycle range 27–29 days (arrows-lr), Logged cycles 6 cycles (history). "Cycle length" + "Last 6": bar chart card (bars surface/strong, latest surface/brand, value above, month label below; latest label text/brand), caption "Your cycle length varied by 2 days over this period." "Most logged symptoms" + "Last 6 cycles": rows name + "9 days", progress bar 8 high (surface/brand-soft on surface/muted). Banner "Insights are estimates from your own logs, not medical advice."
 - E2 empty: card badge 72 chart, "Insights need 2 cycles", "Keep logging. After two full cycles you'll see averages and patterns here." Card "Cycles logged" + "1 of 2" text/brand + progress bar.
 
-## F · Account (optional)
+## v1 decisions (2026-10-06)
+- No accounts in v1 (user's call): F1–F7, H6–H7, "Back up with an account" (G1), "Already backed up? Sign in" (A1), "Account backup" (H1) are not built. A7 "Backup is optional" became "Export anytime"; Privacy "Where it lives" says there is no account or cloud backup; Terms drops "Your account".
+- Export failed (H4) copy is generic ("couldn't be saved… free space") because the real cause isn't always known.
+- Passcode setup (not in Figma) reuses the G6 layout: "Choose a passcode" → "Enter it again"; Change passcode asks for the current one first. Five wrong tries lock the keypad for 30 s.
+
+## F · Account (optional, not in v1)
 - F1 Create account (Back "Back up your data"): "Create an account" Title/Medium Bold, "Optional. An account lets you restore your logs on a new phone. Period works fully without one." Inputs Email (mail), Password (lock, eye toggle) helper "At least 8 characters." Checkbox "I agree to the Terms of Service and Privacy Policy". Primary "Create account", "Already have an account? Sign in".
 - F2 errors: "Enter a full email address, like name@example.com.", "Use at least 8 characters.", checkbox helper "Required to create an account.", Error banner "Fix the 3 highlighted fields to continue.", button disabled.
 - F3 Sign in (Back "Sign in"): "Welcome back" / "Sign in to restore your backed-up logs." Email, Password, link "Forgot password?" right aligned. Primary "Sign in", "New to Period? Create account".

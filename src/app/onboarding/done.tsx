@@ -8,7 +8,7 @@ import { color, type, type IconName } from '../../theme';
 
 const POINTS: { icon: IconName; title: string; body: string }[] = [
   { icon: 'smartphone', title: 'Saved on this phone', body: 'You can use everything without an account.' },
-  { icon: 'refresh', title: 'Backup is optional', body: 'Create an account later to restore on a new phone.' },
+  { icon: 'download', title: 'Export anytime', body: 'Download a copy of your logs from Your data.' },
   { icon: 'shield-check', title: 'Never sold or shared', body: 'No ads and no selling of your data.' },
 ];
 

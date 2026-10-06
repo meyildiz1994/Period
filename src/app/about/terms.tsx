@@ -7,7 +7,6 @@ import { color, type } from '../../theme';
 const ITEMS = [
   ['Using Period', 'Period is a personal log. Estimates are based on what you enter.'],
   ['Not medical advice', 'Nothing in the app replaces advice from a healthcare professional.'],
-  ['Your account', 'Keep your sign-in details private. You can delete your account at any time.'],
   ['Changes', 'If these terms change, we’ll tell you in the app first.'],
 ] as const;
 

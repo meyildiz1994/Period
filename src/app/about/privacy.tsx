@@ -6,7 +6,7 @@ import { color, type } from '../../theme';
 
 const SECTIONS = [
   ['What we collect', 'Only what you log: period dates, flow, pain, mood, symptoms and notes. Nothing else.'],
-  ['Where it lives', 'On this phone by default. If you create an account, an encrypted backup is kept so you can restore it.'],
+  ['Where it lives', 'On this phone only. There’s no account or cloud backup, so nothing leaves your phone unless you export it.'],
   ['What we never do', 'We don’t sell your data, show ads or share logs with anyone.'],
   ['Your control', 'Export or delete everything at any time in Your data.'],
 ] as const;

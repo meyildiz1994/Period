@@ -25,14 +25,16 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 8a · Me and settings: G1 Me (`(tabs)/me.tsx`, dev links only in `__DEV__`), G2 Cycle settings (`src/app/settings/cycle.tsx`: lengths with "Your average", show predicted days, week starts Sunday/Monday), G3 Reminders (`settings/reminders.tsx`: toggle, timing, time picker sheet), G7–G9 About / Privacy / Terms (`src/app/about/`), H1 Your data (`src/app/data/index.tsx`), H5 Delete all data (`data/delete.tsx`, resets everything and returns to onboarding). Shared `LengthRow` (A4, G2) and `ReminderTiming` (A6, G3).
 
+- [x] Step 8b · No accounts in v1 (user's decision, see `docs/screens.md` › v1 decisions): account entry points removed. App lock: G5 (`settings/lock.tsx`), passcode setup/change (`settings/passcode.tsx`), G6 lock screen over the whole app (`LockGate` in the root layout, locks again after the chosen background time; 5 wrong tries → 30 s wait), Face ID / Touch ID / fingerprint via `expo-local-authentication` (`src/lib/biometrics.ts`). Export H2–H4 (`data/export.tsx`, `src/lib/export.ts`: CSV or JSON written with `expo-file-system`, shared with `expo-sharing`; fails on web by design). Lock settings in `src/state/lock.ts`.
+
 ## Open
-- Step 8a PR on `claude/eager-newton-ippaxr`. Merge it, then start step 8b from main.
-- Not wired yet (8b): "Back up with an account", App lock row, Export data and Account backup rows. Step 9: reminder permission (G4), scheduling, persistence.
-- Loose ends: A1 "Sign in" link → F3 (8b). Greeting is "Hi there" because no name is collected yet (`name` in the store).
+- Step 8b PR on `claude/eager-newton-ippaxr`. Merge it, then start step 9 from main.
+- Step 9 must persist: onboarding/settings, log, lock (passcode in secure storage, hashed). Plus notification permission (G4 state on Reminders), scheduling the reminder, and the I2 notification taps.
+- Greeting is "Hi there" because no name is collected yet (`name` in the store).
 - Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet.
+- The user runs the app in Expo Go on their phone (`git pull`, `npx expo start` in the cloned folder).
 
 ## Next
-- [ ] Step 8b · Account F1–F7 (no backend in v1: decide with the user), app lock G5–G6 (`expo-local-authentication`), Export H2–H4 (`expo-file-system`, `expo-sharing`), Delete account H6–H7.
 - [ ] Step 9 · Local data layer (encrypted on device) + local notifications (I2 copy).
 - [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
 

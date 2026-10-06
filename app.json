@@ -25,7 +25,14 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-sharing",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Period uses Face ID to unlock the app when App lock is on."
+        }
+      ]
     ],
     "scheme": "period",
     "backgroundColor": "#FCF5F6"
