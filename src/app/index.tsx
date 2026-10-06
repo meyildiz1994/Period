@@ -1,7 +1,8 @@
+import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Icon } from '../components/Icon';
+import { Button, Icon } from '../components';
 import { color, ICONS, layout, overline, radius, space, type, type IconName } from '../theme';
 
 // Temporary start screen: shows the ported design tokens so they can be checked on a phone.
@@ -22,6 +23,7 @@ export default function TokenPreview() {
         <Text style={[type('Body/Default'), { color: color['text/secondary'] }]}>
           Tokens, type and icons ported from Figma. Screens come next.
         </Text>
+        <Button label="See components" size="Medium" iconRight="arrow-right" onPress={() => router.push('/gallery')} />
 
         <Text style={[overline(12), styles.section]}>Colour</Text>
         <View style={styles.grid}>

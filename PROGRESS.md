@@ -11,9 +11,9 @@ Read this first when resuming. Update it in every PR.
 
 ## Done
 - [x] Step 1 · Scaffold + tokens: Expo app, colour/space/radius/elevation tokens (`src/theme/tokens.ts`), Plus Jakarta Sans type roles (`src/theme/typography.ts`), 102 icons (`src/theme/icons.ts`, `src/components/Icon.tsx`), temporary token preview screen (`src/app/index.tsx`).
+- [x] Step 2 · Core components (`src/components/`, all exported from `index.ts`): Button, IconButton, Choice, Toggle, Checkbox, Radio, OptionCard, Stepper, Input, TextArea, Card, Tag, IconBadge, Avatar, ListRow, Divider, SectionHeader, StatTile, Skeleton, Banner, Toast, Dialog, EmptyState, TopBar, TabBar, ProgressSteps, CycleRing, DayCell, FlowLevel, PasscodeDot, KeypadKey. Dev gallery at `src/app/gallery.tsx` (temporary). Bottom sheet is still to do (comes with Quick Log in step 5).
 
 ## Next
-- [ ] Step 2 · Core components from 1 · Temeller › 05 Bileşenler: Button, IconButton, Card, ListRow, Field, Chip/Segmented, Sheet, TabBar (Home | History | + | Insights | Me, fixed), Cycle Ring (Phase variants incl. Empty).
 - [ ] Step 3 · Onboarding A1… + I1 Splash.
 - [ ] Step 4 · Home B1–B4 (no scroll, fits 844) + Cycle Ring.
 - [ ] Step 5 · Log C1–C5 (Quick Log sheet, Period start/end, Daily Log).
@@ -24,4 +24,5 @@ Read this first when resuming. Update it in every PR.
 - [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
 
 ## Notes for the next session
-- In the cloud container `api.expo.dev` is blocked: use `EXPO_OFFLINE=1 npx expo install <pkg>`. Verify with `npx tsc --noEmit` and `EXPO_OFFLINE=1 npx expo export --platform ios`.
+- In the cloud container `api.expo.dev` is blocked: use `EXPO_OFFLINE=1 npx expo install <pkg>`. Verify with `npx tsc --noEmit` and `EXPO_OFFLINE=1 npx expo export --platform ios`. Visual check: `EXPO_OFFLINE=1 npx expo export --platform web`, serve the folder, screenshot at 390×844 with Playwright.
+- Figma pink naming trap: Figma script's `C.p100` = pink/200 = `surface/muted`, `C.p200` = pink/300 = `surface/strong`, `C.p50` = pink/100 = `surface/subtle`, `C.p300` = pink/400 = `border/default`.
