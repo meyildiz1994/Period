@@ -46,3 +46,8 @@ export function formatLong(d: Date) {
 export function weekdayInitial(d: Date) {
   return WEEKDAYS[d.getDay()][0];
 }
+
+/** "Saturday, Nov 14" */
+export function formatDay(d: Date) {
+  return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
+}

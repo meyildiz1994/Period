@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, EmptyState, TopBar, useTabBarSpace } from '../../components';
+import { resetLog } from '../../state/log';
 import { resetOnboarding } from '../../state/onboarding';
 import { color, layout } from '../../theme';
 
@@ -23,6 +24,7 @@ export default function Me() {
           size="Medium"
           onPress={() => {
             resetOnboarding();
+            resetLog();
             router.replace('/');
           }}
         />

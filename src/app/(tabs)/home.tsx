@@ -5,8 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Banner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
-import { formatLong, formatShort } from '../../lib/dates';
-import { cycleStatus, weekStrip } from '../../state/cycle';
+import { formatLong, formatShort, toISODate } from '../../lib/dates';
+import { cycleStatus, periodSpan, useCycleSettings, weekStrip } from '../../state/cycle';
+import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, type } from '../../theme';
 
@@ -17,15 +18,16 @@ const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
 export default function Home() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
-  const settings = useOnboarding();
+  const profile = useOnboarding();
+  const settings = useCycleSettings();
+  const { days: logs } = useLog();
   const today = new Date();
   const status = cycleStatus(settings, today);
-  // Daily logs arrive with C3 in step 5; until then Today's log shows dashes.
-  // Log period / Edit / the + button open the Log screens built in step 5.
-  const openLog = () => {};
+  const todayLog = logs[toISODate(today)];
+  const openLog = () => router.push('/log/period');
 
   let body;
-  if (!settings.hydrated) {
+  if (!profile.hydrated) {
     body = <HomeSkeleton />;
   } else if (status.kind === 'empty') {
     body = (
@@ -74,17 +76,17 @@ export default function Home() {
             size={220}
             label={s.periodDay ? 'Period' : 'Today'}
             day={`Day ${s.cycleDay}`}
-            caption={s.periodDay ? `Period day ${s.periodDay} of ${settings.periodLength}` : `Next period ${s.daysUntilNext === 1 ? 'tomorrow' : `in ${days(s.daysUntilNext)}`}`}
+            caption={s.periodDay ? `Period day ${s.periodDay} of ${periodSpan(settings)}` : `Next period ${s.daysUntilNext === 1 ? 'tomorrow' : `in ${days(s.daysUntilNext)}`}`}
           />
         </View>
         <WeekStrip days={weekStrip(settings, today)} />
         <NextPeriodCard title={next} subtitle={`Around ${formatShort(s.nextStart)} · estimate`} onCalendar={() => router.navigate('/history')} />
         <TodayLogCard
-          onEdit={openLog}
+          onEdit={() => router.push('/log/daily')}
           items={[
-            { label: 'Flow', value: null, icon: 'drop-fill' },
-            { label: 'Pain', value: null, icon: 'bandage' },
-            { label: 'Mood', value: null, icon: 'meh' },
+            { label: 'Flow', value: todayLog?.flow ?? null, icon: 'drop-fill' },
+            { label: 'Pain', value: todayLog?.pain ?? null, icon: 'bandage' },
+            { label: 'Mood', value: todayLog?.mood ?? null, icon: 'meh' },
           ]}
         />
       </>
@@ -93,7 +95,7 @@ export default function Home() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <TopBar kind="Root" title={settings.name ? `Hi, ${settings.name}` : 'Hi there'} userName={settings.name ?? undefined} onAvatar={() => router.navigate('/me')} />
+      <TopBar kind="Root" title={profile.name ? `Hi, ${profile.name}` : 'Hi there'} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom }]}>
         {body}
       </ScrollView>
