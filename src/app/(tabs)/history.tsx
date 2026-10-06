@@ -15,7 +15,7 @@ export default function History() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { periods, days } = useLog();
-  const { cycleLength, periodLength: usual, showPredicted, name } = useOnboarding();
+  const { cycleLength, periodLength: usual, showPredicted, weekStartsOn, name } = useOnboarding();
   const [today] = useState(() => new Date());
   const [month, setMonth] = useState(() => startOfMonth(today));
   const [selected, setSelected] = useState(today);
@@ -39,6 +39,7 @@ export default function History() {
           onPrev={() => setMonth((m) => addMonths(m, -1))}
           onNext={() => setMonth((m) => addMonths(m, 1))}
           legend={periods.length > 0}
+          weekStartsOn={weekStartsOn}
         />
 
         {periods.length === 0 ? (

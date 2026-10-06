@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from 'react';
 
+import type { ReminderLead } from '../components/ReminderTiming';
+
 // Answers collected in onboarding (A2–A6). Kept in memory for now; the encrypted
 // on-device store in step 9 will persist this and the `done` flag.
 export type Goal = 'track' | 'predict' | 'symptoms' | 'irregular';
 export type Regularity = 'regular' | 'irregular' | 'unsure';
-export type ReminderLead = 1 | 2 | 3;
+export type { ReminderLead };
 
 export type OnboardingState = {
   goal: Goal | null;
@@ -14,9 +16,11 @@ export type OnboardingState = {
   periodLength: number;
   regularity: Regularity;
   symptoms: string[];
-  reminder: { enabled: boolean; daysBefore: ReminderLead };
+  reminder: { enabled: boolean; daysBefore: ReminderLead; /** 24 h "HH:MM" */ time: string };
   /** Dashed predicted days on the History calendar (G2 Cycle settings). */
   showPredicted: boolean;
+  /** First column of the History calendar: 0 Sunday, 1 Monday (G2). */
+  weekStartsOn: 0 | 1;
   /** Shown in the Home greeting and avatar. Not asked in onboarding; set from Me later. */
   name: string | null;
   done: boolean;
@@ -31,8 +35,9 @@ const initial: OnboardingState = {
   periodLength: 5,
   regularity: 'regular',
   symptoms: [],
-  reminder: { enabled: false, daysBefore: 1 },
+  reminder: { enabled: false, daysBefore: 1, time: '09:00' },
   showPredicted: true,
+  weekStartsOn: 0,
   name: null,
   done: false,
   hydrated: true,

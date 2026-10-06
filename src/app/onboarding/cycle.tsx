@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, OnboardingStep, Radio, Stepper } from '../../components';
+import { Button, Card, CYCLE_RANGE, LengthRow, OnboardingStep, PERIOD_RANGE, Radio } from '../../components';
 import { setOnboarding, useOnboarding, type Regularity } from '../../state/onboarding';
 import { color, type } from '../../theme';
 
@@ -31,8 +31,8 @@ export default function CycleStep() {
           subtitle="First day of one period to the next"
           hint="Most cycles are 21–35 days"
           value={cycleLength}
-          min={15}
-          max={60}
+          min={CYCLE_RANGE.min}
+          max={CYCLE_RANGE.max}
           onChange={(v) => setOnboarding({ cycleLength: v })}
         />
         <View style={styles.divider} />
@@ -41,8 +41,8 @@ export default function CycleStep() {
           subtitle="Days of bleeding"
           hint="Usually 3–7 days"
           value={periodLength}
-          min={1}
-          max={14}
+          min={PERIOD_RANGE.min}
+          max={PERIOD_RANGE.max}
           onChange={(v) => setOnboarding({ periodLength: v })}
         />
       </Card>
@@ -74,24 +74,8 @@ export default function CycleStep() {
   );
 }
 
-function LengthRow({ title, subtitle, hint, value, min, max, onChange }: {
-  title: string; subtitle: string; hint: string; value: number; min: number; max: number; onChange: (v: number) => void;
-}) {
-  return (
-    <View style={styles.lengthRow}>
-      <View style={{ flex: 1 }}>
-        <Text style={[type('Body/Large', 'SemiBold'), { color: color['text/primary'] }]}>{title}</Text>
-        <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{subtitle}</Text>
-        <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{hint}</Text>
-      </View>
-      <Stepper value={value} unit="days" min={min} max={max} onChange={onChange} />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   card: { borderWidth: 1, borderColor: color['border/subtle'] },
-  lengthRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 20, paddingVertical: 20 },
   divider: { height: 1, marginHorizontal: 20, backgroundColor: color['surface/divider'] },
   section: { marginTop: 24, marginBottom: 12, color: color['text/primary'] },
   radioCard: { paddingVertical: 4 },

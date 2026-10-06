@@ -23,13 +23,16 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 7 · Insights: E1 (`(tabs)/insights.tsx`: averages, range and count tiles, cycle length bars for the last 6 cycles, most logged symptoms, not-medical-advice banner) and E2 (fewer than 2 completed cycles: progress "n of 2"). Maths in `src/state/insights.ts` on top of `pastCycles`.
 
+- [x] Step 8a · Me and settings: G1 Me (`(tabs)/me.tsx`, dev links only in `__DEV__`), G2 Cycle settings (`src/app/settings/cycle.tsx`: lengths with "Your average", show predicted days, week starts Sunday/Monday), G3 Reminders (`settings/reminders.tsx`: toggle, timing, time picker sheet), G7–G9 About / Privacy / Terms (`src/app/about/`), H1 Your data (`src/app/data/index.tsx`), H5 Delete all data (`data/delete.tsx`, resets everything and returns to onboarding). Shared `LengthRow` (A4, G2) and `ReminderTiming` (A6, G3).
+
 ## Open
-- Step 7 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 8 from main.
-- Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Nothing is persisted yet (step 9), so the app restarts at onboarding with no logs. Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later). Week starts on Sunday until G2 adds the setting.
+- Step 8a PR on `claude/eager-newton-ippaxr`. Merge it, then start step 8b from main.
+- Not wired yet (8b): "Back up with an account", App lock row, Export data and Account backup rows. Step 9: reminder permission (G4), scheduling, persistence.
+- Loose ends: A1 "Sign in" link → F3 (8b). Greeting is "Hi there" because no name is collected yet (`name` in the store).
 - Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet.
 
 ## Next
-- [ ] Step 8 · Me / settings / data F*, G*, H* (destructive actions two-step).
+- [ ] Step 8b · Account F1–F7 (no backend in v1: decide with the user), app lock G5–G6 (`expo-local-authentication`), Export H2–H4 (`expo-file-system`, `expo-sharing`), Delete account H6–H7.
 - [ ] Step 9 · Local data layer (encrypted on device) + local notifications (I2 copy).
 - [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
 

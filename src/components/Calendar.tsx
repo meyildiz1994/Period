@@ -9,8 +9,8 @@ import { DayCell, type DayState } from './Cycle';
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const LABEL: Partial<Record<DayState, string>> = { Period: 'period', Predicted: 'predicted period', Logged: 'logged' };
 
-// Month calendar card for History (D1, D4). Weeks start on Sunday.
-export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPrev, onNext, legend = true }: {
+// Month calendar card for History (D1, D4). Weeks start on Sunday or Monday (G2 setting).
+export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPrev, onNext, legend = true, weekStartsOn = 0 }: {
   month: Date;
   stateOf: (d: Date) => DayState;
   selected: Date | null;
@@ -19,9 +19,11 @@ export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPre
   onPrev: () => void;
   onNext: () => void;
   legend?: boolean;
+  weekStartsOn?: 0 | 1;
 }) {
   const first = startOfMonth(month);
-  const lead = first.getDay();
+  const lead = (first.getDay() - weekStartsOn + 7) % 7;
+  const weekdays = [...WEEKDAYS.slice(weekStartsOn), ...WEEKDAYS.slice(0, weekStartsOn)];
   const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
   const cells: (Date | null)[] = [
     ...Array.from({ length: lead }, () => null),
@@ -38,7 +40,7 @@ export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPre
         <IconButton icon="chevron-right" label="Next month" type="Tonal" size="Small" onPress={onNext} />
       </View>
       <View style={styles.week}>
-        {WEEKDAYS.map((d, i) => (
+        {weekdays.map((d, i) => (
           <Text key={i} style={[type('Caption'), styles.cell, styles.weekday]}>{d}</Text>
         ))}
       </View>

@@ -1,13 +1,7 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, Choice, IconBadge, OnboardingStep } from '../../components';
-import { setOnboarding, useOnboarding, type ReminderLead } from '../../state/onboarding';
-import { color, overline, type } from '../../theme';
-
-const LEADS: ReminderLead[] = [1, 2, 3];
-const lead = (n: ReminderLead) => (n === 1 ? '1 day before' : `${n} days before`);
-const preview = (n: ReminderLead) => (n === 1 ? 'Your period may start tomorrow' : `Your period may start in ${n} days`);
+import { Button, OnboardingStep, ReminderTiming } from '../../components';
+import { setOnboarding, useOnboarding } from '../../state/onboarding';
 
 // A6 · Step 5 of 5. Off unless the user turns it on. The system permission prompt and the
 // scheduled local notification come with the data layer in step 9.
@@ -31,29 +25,7 @@ export default function RemindersStep() {
         </>
       }
     >
-      <Card padded={false} style={styles.card}>
-        <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/primary'] }]}>Remind me</Text>
-        <View style={styles.chips} accessibilityRole="radiogroup">
-          {LEADS.map((n) => (
-            <Choice key={n} label={lead(n)} selected={reminder.daysBefore === n} onPress={() => setOnboarding({ reminder: { ...reminder, daysBefore: n } })} />
-          ))}
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.preview}>
-          <IconBadge icon="bell" />
-          <View style={{ flex: 1 }}>
-            <Text style={[overline(12), { color: color['text/tertiary'] }]}>Preview</Text>
-            <Text style={[type('Body/Medium'), { color: color['text/primary'] }]}>{preview(reminder.daysBefore)}</Text>
-          </View>
-        </View>
-      </Card>
+      <ReminderTiming value={reminder.daysBefore} onChange={(n) => setOnboarding({ reminder: { ...reminder, daysBefore: n } })} />
     </OnboardingStep>
   );
 }
-
-const styles = StyleSheet.create({
-  card: { padding: 20, borderWidth: 1, borderColor: color['border/subtle'] },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
-  divider: { height: 1, marginVertical: 16, backgroundColor: color['surface/divider'] },
-  preview: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-});
