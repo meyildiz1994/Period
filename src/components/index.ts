@@ -7,4 +7,5 @@ export * from './Icon';
 export * from './Inputs';
 export * from './Navigation';
 export * from './DateWheel';
+export * from './Home';
 export * from './OnboardingStep';

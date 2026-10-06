@@ -83,6 +83,12 @@ export function TabBar({ active, onTab, onLog }: { active?: TabName; onTab: (t: 
   );
 }
 
+/** Bottom padding a tab screen needs so its last content clears the floating Tab Bar. */
+export function useTabBarSpace() {
+  const insets = useSafeAreaInsets();
+  return 8 + 68 + Math.max(insets.bottom, 24) + 12;
+}
+
 // Figma: Progress Steps (Step). Five-step onboarding progress.
 export function ProgressSteps({ step, total = 5 }: { step: number; total?: number }) {
   return (
