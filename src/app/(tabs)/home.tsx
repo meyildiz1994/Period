@@ -6,7 +6,7 @@ import {
   Banner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { formatLong, formatShort, toISODate } from '../../lib/dates';
-import { cycleStatus, periodSpan, useCycleSettings, weekStrip } from '../../state/cycle';
+import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, type } from '../../theme';
@@ -33,7 +33,7 @@ export default function Home() {
     body = (
       <>
         <View style={styles.ring}>
-          <CycleRing phase="Empty" progress={0} size={220} label="No cycle data yet" day="–" caption="Log your last period to begin" />
+          <CycleRing phase="Empty" progress={0} size={220} label="No cycle data yet" day="–" />
         </View>
         <EmptyState
           icon="drop-plus"
@@ -55,7 +55,6 @@ export default function Home() {
             progress={1}
             label="Period expected"
             day={late === 0 ? 'Today' : `${days(late)} late`}
-            caption="Log it when it starts"
           />
         </View>
         {late > 0 ? (
@@ -74,9 +73,7 @@ export default function Home() {
             phase={s.phase}
             progress={s.progress}
             size={220}
-            label={s.periodDay ? 'Period' : 'Today'}
             day={`Day ${s.cycleDay}`}
-            caption={s.periodDay ? `Period day ${s.periodDay} of ${periodSpan(settings)}` : `Next period ${s.daysUntilNext === 1 ? 'tomorrow' : `in ${days(s.daysUntilNext)}`}`}
           />
         </View>
         <WeekStrip days={weekStrip(settings, today)} />

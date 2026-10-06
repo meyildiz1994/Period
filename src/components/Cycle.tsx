@@ -1,61 +1,94 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
 
-// Figma: Cycle Ring (Phase). Signature component. The arc shows progress through the
-// estimated cycle; phases are calendar estimates, not medical readings.
-export type Phase = 'Menstrual' | 'Follicular' | 'Luteal' | 'Late' | 'Empty';
+// Figma: Cycle Ring (Phase). Signature component. Each phase has its own arc colour, drop and
+// "Day N" colour; the arc ends in a knob at today. Phases are calendar estimates, not medical
+// readings, and the screen reader label says so.
+export type Phase = 'Menstrual' | 'Follicular' | 'Ovulation' | 'Luteal' | 'Late' | 'Empty';
+
+const PHASE_COLOR: Record<Phase, { arc: ColorToken; track: ColorToken; drop: ColorToken; day: ColorToken }> = {
+  Menstrual: { arc: 'phase/menstrual', track: 'phase/menstrual-track', drop: 'phase/menstrual', day: 'phase/menstrual' },
+  Follicular: { arc: 'phase/follicular', track: 'phase/follicular-track', drop: 'phase/follicular', day: 'phase/follicular' },
+  Ovulation: { arc: 'phase/ovulation', track: 'phase/ovulation-track', drop: 'phase/ovulation', day: 'phase/ovulation' },
+  Luteal: { arc: 'phase/luteal', track: 'phase/luteal-track', drop: 'phase/luteal', day: 'phase/luteal' },
+  Late: { arc: 'phase/menstrual', track: 'phase/menstrual-track', drop: 'phase/menstrual', day: 'phase/menstrual' },
+  Empty: { arc: 'surface/strong', track: 'surface/strong', drop: 'surface/neutral', day: 'text/accent' },
+};
 
 type CycleRingProps = {
   phase: Phase;
   /** 0–1 progress through the cycle. Ignored for Empty; Late draws a full ring. */
   progress: number;
+  /** Defaults to "<Phase> Phase". */
   label?: string;
   day: string;
-  caption: string;
+  /** Extra line under the day (D3 "days"). The phase rings themselves have none. */
+  caption?: string;
   size?: number;
   /** Today's marker at the end of the arc. Off for D3, where the arc is the period's share. */
   knob?: boolean;
+  /** Phase drop above the label. Off for D3. */
+  icon?: boolean;
   /** Overrides the size-based day text (D3 shows "28" in Display at 200). */
   dayRole?: 'Display' | 'Title/Large';
 };
 
-export function CycleRing({ phase, progress, label, day, caption, size = 260, knob = true, dayRole }: CycleRingProps) {
+export function CycleRing({ phase, progress, label, day, caption, size = 260, knob = true, icon = true, dayRole }: CycleRingProps) {
   // 20 at the 260 hero size, scaled down for Home (220) and Cycle details (200).
   const stroke = Math.round(size / 13);
-  // Home's 220 ring uses smaller day and caption text than the 260 hero ring.
+  // Home's 220 ring uses smaller text than the 260 hero ring.
   const compact = size < 240;
   const r = (size - stroke) / 2;
   const c = size / 2;
   const circumference = 2 * Math.PI * r;
   const p = phase === 'Empty' ? 0 : phase === 'Late' ? 1 : Math.min(Math.max(progress, 0), 1);
-  const arcColor = color[phase === 'Late' ? 'surface/brand-soft' : 'surface/brand'];
+  const tone = PHASE_COLOR[phase];
   const angle = p * 2 * Math.PI - Math.PI / 2;
   const dot = { x: c + r * Math.cos(angle), y: c + r * Math.sin(angle) };
+  const title = label ?? `${phase} Phase`;
+  const estimate = phase === 'Empty' || phase === 'Late' ? '' : ', estimate';
 
   return (
-    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${label ? `${label}. ` : ''}${day}. ${caption}`}>
+    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${title}${estimate}. ${day}.${caption ? ` ${caption}` : ''}`}>
       <Svg width={size} height={size}>
-        <Circle cx={c} cy={c} r={r} stroke={color['surface/strong']} strokeWidth={stroke} fill="none" />
+        <Circle cx={c} cy={c} r={r} stroke={color[tone.track]} strokeWidth={stroke} fill="none" />
         {p > 0 ? (
           <Circle
             cx={c} cy={c} r={r}
-            stroke={arcColor} strokeWidth={stroke} fill="none" strokeLinecap="butt"
+            stroke={color[tone.arc]} strokeWidth={stroke} fill="none" strokeLinecap="butt"
             strokeDasharray={`${circumference * p} ${circumference}`}
             transform={`rotate(-90 ${c} ${c})`}
           />
         ) : null}
-        {knob && p > 0 && p < 1 ? <Circle cx={dot.x} cy={dot.y} r={12} fill={color['surface/brand']} stroke={color['surface/default']} strokeWidth={4} /> : null}
+        {knob && p > 0 && p < 1 ? (
+          <Circle cx={dot.x} cy={dot.y} r={size * 0.046} fill={color[tone.arc]} stroke={color['surface/default']} strokeWidth={size * 0.016} />
+        ) : null}
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.ringCenter, { paddingHorizontal: stroke + 4 }]}>
-        {label ? <Text style={[type('Body/Default', 'Medium'), styles.centerText, { color: color['text/secondary'] }]}>{label}</Text> : null}
-        <Text style={[type(dayRole ?? (phase === 'Late' || compact ? 'Title/Large' : 'Display'), 'Bold'), styles.centerText, { color: color['text/brand'] }]}>{day}</Text>
-        <Text style={[type(compact ? 'Caption' : 'Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text>
+        {icon ? <PhaseDrop size={size * 0.2} fill={color[tone.drop]} /> : null}
+        {label !== '' ? (
+          <Text style={[type(compact ? 'Caption' : 'Body/Small', 'Medium'), styles.centerText, { color: color['text/secondary'], marginTop: icon ? size * 0.03 : 0 }]}>
+            {title}
+          </Text>
+        ) : null}
+        <Text style={[type(dayRole ?? (compact ? 'Title/Large' : 'Display'), 'Bold'), styles.centerText, { color: color[tone.day] }]}>{day}</Text>
+        {caption ? <Text style={[type(compact ? 'Caption' : 'Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text> : null}
       </View>
     </View>
+  );
+}
+
+// Teardrop with a light highlight, drawn to the height given (as in the Cycle Ring and app icon).
+export function PhaseDrop({ size, fill }: { size: number; fill: string }) {
+  return (
+    <Svg width={size * 0.74} height={size} viewBox="-1.1 -1.9 2.2 2.98">
+      <Path d="M0 -1.82 C0.38 -1.32 1 -0.72 1 0 A1 1 0 0 1 -1 0 C-1 -0.72 -0.38 -1.32 0 -1.82 Z" fill={fill} stroke={fill} strokeWidth={0.12} strokeLinejoin="round" />
+      <Path d="M-0.5 -0.32 L-0.28 -0.68" stroke="#FFFFFF" strokeOpacity={0.85} strokeWidth={0.13} strokeLinecap="round" />
+    </Svg>
   );
 }
 
@@ -143,7 +176,7 @@ export function KeypadKey({ digit, icon, label, onPress }: { digit?: string; ico
 
 const styles = StyleSheet.create({
   centerText: { textAlign: 'center' },
-  ringCenter: { alignItems: 'center', justifyContent: 'center', gap: 4 },
+  ringCenter: { alignItems: 'center', justifyContent: 'center' },
   day: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', gap: 2 },
   marker: { position: 'absolute', bottom: 6, width: 4, height: 4, borderRadius: 999, backgroundColor: color['surface/brand'] },
   flow: { width: 62, height: 72, gap: 4, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },

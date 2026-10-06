@@ -51,8 +51,16 @@ export function cycleStatus(s: CycleSettings, today: Date): CycleStatus {
   if (daysUntilNext <= 0) return { kind: 'late', daysLate: -daysUntilNext, expected: nextStart, lastStart };
 
   const periodDay = cycleDay <= periodSpan(s) ? cycleDay : null;
-  const phase: Phase = periodDay ? 'Menstrual' : cycleDay <= s.cycleLength - 14 ? 'Follicular' : 'Luteal';
-  return { kind: 'cycle', cycleDay, periodDay, phase, progress: cycleDay / s.cycleLength, nextStart, daysUntilNext, lastStart };
+  return { kind: 'cycle', cycleDay, periodDay, phase: phaseOf(cycleDay, periodDay !== null, s.cycleLength), progress: cycleDay / s.cycleLength, nextStart, daysUntilNext, lastStart };
+}
+
+/** Calendar estimate: ovulation is taken as 14 days before the next period, ±1 day. */
+export function phaseOf(cycleDay: number, inPeriod: boolean, cycleLength: number): Phase {
+  if (inPeriod) return 'Menstrual';
+  const ovulation = cycleLength - 14;
+  if (cycleDay < ovulation - 1) return 'Follicular';
+  if (cycleDay <= ovulation + 1) return 'Ovulation';
+  return 'Luteal';
 }
 
 export type StripDay = { date: Date; state: 'Default' | 'Period' | 'Predicted' | 'Selected' };

@@ -34,7 +34,7 @@ Read this first when resuming. Update it in every PR.
 - [x] Step 10a · Icons and launch screen: `assets/` replaced the Expo placeholders with the I3 teardrop on #80244E (store icon 1024 RGB without alpha, Android adaptive foreground/background/monochrome, favicon) and the I1 mark as `splash-icon.png`; `expo-splash-screen` shows it at 88 pt on #80244E and the in-app Splash uses the same image. Teardrop path (bbox x −1..1, y −1.82..1, tip rounded with a 0.12 stroke): `M0 -1.82 C0.38 -1.32 1 -0.72 1 0 A1 1 0 0 1 -1 0 C-1 -0.72 -0.38 -1.32 0 -1.82 Z`. `eas.json` with `preview` (internal, Android APK) and `production` (auto-increment) profiles.
 
 ## Open
-- Step 10a PR on `claude/eager-newton-ippaxr`. Merge it.
+- Step 10a PR on `claude/eager-newton-ippaxr` also carries the Cycle Ring v2 update (phase colours, drop, Ovulation phase; `docs/screens.md` › Cycle Ring v2). Merge it.
 - Step 10b needs the user's accounts: Expo (free) for `eas build`, Apple Developer (99 USD/yr) for TestFlight, Google Play Console (25 USD once) for internal testing. Asked which ones exist / which platform first.
 - Greeting is "Hi there" because no name is collected yet (`name` in the store).
 - Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet. The splash image is now an asset: publish `assets/assets/splash-icon*.png` too.

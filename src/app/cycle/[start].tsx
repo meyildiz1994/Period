@@ -55,7 +55,7 @@ export default function CycleDetails() {
         <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>
           {formatMonthDay(c.start)} – {formatMonthDay(c.end)}, {c.end.getFullYear()}
         </Text>
-        <CycleRing phase="Menstrual" progress={c.periodDays / c.length} size={200} knob={false} day={String(c.length)} caption="days" dayRole="Display" />
+        <CycleRing phase="Menstrual" progress={c.periodDays / c.length} size={200} knob={false} icon={false} label="" day={String(c.length)} caption="days" dayRole="Display" />
         <View style={styles.legend}>
           <View style={styles.legendItem}>
             <View style={[styles.dot, { backgroundColor: color['surface/brand'] }]} />
