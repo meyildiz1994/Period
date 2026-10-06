@@ -81,11 +81,13 @@ type ListRowProps = {
   value?: string;
   toggled?: boolean;
   onToggle?: (v: boolean) => void;
+  /** Greys out the toggle (e.g. reminders while notifications are off). */
+  disabled?: boolean;
   destructive?: boolean;
   onPress?: () => void;
 };
 
-export function ListRow({ title, subtitle, icon = 'drop', trailing = 'Chevron', value, toggled = false, onToggle, destructive, onPress }: ListRowProps) {
+export function ListRow({ title, subtitle, icon = 'drop', trailing = 'Chevron', value, toggled = false, onToggle, disabled, destructive, onPress }: ListRowProps) {
   const content = (
     <>
       <View style={[styles.center, styles.lead40, { backgroundColor: color[destructive ? 'feedback/danger-subtle' : 'surface/muted'] }]}>
@@ -95,7 +97,7 @@ export function ListRow({ title, subtitle, icon = 'drop', trailing = 'Chevron', 
         <Text style={[type('Body/Medium', 'Medium'), { color: color[destructive ? 'feedback/danger' : 'text/primary'] }]}>{title}</Text>
         {subtitle ? <Text numberOfLines={2} style={[type('Caption'), { color: color['text/secondary'] }]}>{subtitle}</Text> : null}
       </View>
-      {trailing === 'Toggle' ? <Toggle value={toggled} onChange={onToggle} label={title} /> : null}
+      {trailing === 'Toggle' ? <Toggle value={toggled} onChange={onToggle} label={title} disabled={disabled} /> : null}
       {trailing === 'Value' ? <Text style={[type('Body/Default', 'Medium'), { color: color['text/brand'] }]}>{value}</Text> : null}
       {trailing === 'Chevron' || trailing === 'Value' ? <Icon name="chevron-right" size={20} color="text/tertiary" /> : null}
     </>

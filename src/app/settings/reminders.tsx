@@ -1,35 +1,65 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { AppState, Linking, Platform, StyleSheet, View } from 'react-native';
 
 import { Banner, BottomSheet, Choice, ListRow, Page, ReminderTiming } from '../../components';
 import { formatClock } from '../../lib/dates';
+import { notificationAccess, requestNotificationAccess, type NotificationAccess } from '../../lib/notifications';
 import { setOnboarding, useOnboarding } from '../../state/onboarding';
 import { color, radius } from '../../theme';
 
 const TIMES = ['07:00', '08:00', '09:00', '12:00', '18:00', '20:00', '21:00'];
 
-// G3 Reminders. Changes apply right away. The permission prompt, the "notifications are off"
-// state (G4) and the scheduled notification arrive with the notification work in step 9.
+// G3 Reminders, and G4 when notifications are turned off for Period in the phone's settings.
 export default function Reminders() {
   const { reminder } = useOnboarding();
   const [picking, setPicking] = useState(false);
+  const [access, setAccess] = useState<NotificationAccess>('undetermined');
   const update = (patch: Partial<typeof reminder>) => setOnboarding({ reminder: { ...reminder, ...patch } });
+
+  // Check again whenever the app comes back, e.g. from the phone's settings.
+  const refresh = useCallback(() => {
+    notificationAccess().then(setAccess).catch(() => {});
+  }, []);
+  useEffect(() => {
+    refresh();
+    const sub = AppState.addEventListener('change', (s) => s === 'active' && refresh());
+    return () => sub.remove();
+  }, [refresh]);
+
+  const blocked = access === 'denied';
+  const on = reminder.enabled && !blocked;
 
   return (
     <Page title="Reminders" onBack={router.back}>
+      {blocked ? (
+        <Banner
+          kind="Warning"
+          title="Notifications are off for Period"
+          message={`Notifications are off for Period in ${Platform.OS === 'ios' ? 'iPhone Settings' : 'your phone’s settings'}, so reminders can’t reach you.`}
+          action="Open Settings"
+          onAction={() => Linking.openSettings().catch(() => {})}
+        />
+      ) : null}
+
       <View style={styles.card}>
         <ListRow
           title="Period reminder"
           subtitle="Before your estimated start date"
-          icon="bell-ring"
+          icon={blocked ? 'bell-off' : 'bell-ring'}
           trailing="Toggle"
-          toggled={reminder.enabled}
-          onToggle={(v) => update({ enabled: v })}
+          toggled={on}
+          disabled={blocked}
+          onToggle={async (v) => {
+            if (!v) return update({ enabled: false });
+            const result = await requestNotificationAccess();
+            setAccess(result);
+            if (result === 'granted' || result === 'unsupported') update({ enabled: true });
+          }}
         />
       </View>
 
-      {reminder.enabled ? (
+      {on ? (
         <>
           <ReminderTiming value={reminder.daysBefore} onChange={(n) => update({ daysBefore: n })} />
           <View style={styles.card}>

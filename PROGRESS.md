@@ -29,15 +29,15 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 9a · Encrypted on-device storage (`src/state/persist.ts`): onboarding/settings, log and lock saved as one AES-256-GCM file (`@noble/ciphers`) in the document folder; the key lives in the Keychain/Keystore via `expo-secure-store` (this device only). Loads at launch (`hydrate()` in the root layout; Splash waits; lock shows if on), saves 300 ms after any change; C2/C3 and Delete all await `flush()` so failures show. Passcode stored only as a salted SHA-256 hash (`expo-crypto`). Web preview falls back to plain localStorage.
 
+- [x] Step 9b · Local notifications (`src/lib/notifications.ts`, `expo-notifications`): permission asked from A6 "Turn on reminders" and the G3 toggle; G4 state (warning banner + Open Settings, disabled toggle) when notifications are blocked; reminders rescheduled whenever settings or logs change: heads-up N days before at the chosen time, "expected today", "2 days late" (I2 copy). Tapping one opens Home or Log period, also from a cold start. Android channel "Period reminders" with private lock-screen visibility.
+
 ## Open
-- Step 9a PR on `claude/eager-newton-ippaxr`. Merge it, then start step 9b from main.
-- Step 9b: `expo-notifications` — permission from A6 / G3, G4 "notifications are off" state with Open Settings, schedule the reminder (lead days + time) and I2 messages, reschedule on changes, notification taps open the I2 targets.
+- Step 9b PR on `claude/eager-newton-ippaxr`. Merge it, then start step 10 from main.
 - Greeting is "Hi there" because no name is collected yet (`name` in the store).
 - Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet.
 - The user runs the app in Expo Go on their phone (`git pull`, `npm install`, `npx expo start` in the cloned folder).
 
 ## Next
-- [ ] Step 9b · Local notifications (I2 copy) and the reminder permission states (G4).
 - [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
 
 ## Notes for the next session

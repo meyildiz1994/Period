@@ -1,14 +1,16 @@
 import { router } from 'expo-router';
 
 import { Button, OnboardingStep, ReminderTiming } from '../../components';
+import { requestNotificationAccess } from '../../lib/notifications';
 import { setOnboarding, useOnboarding } from '../../state/onboarding';
 
-// A6 · Step 5 of 5. Off unless the user turns it on. The system permission prompt and the
-// scheduled local notification come with the data layer in step 9.
+// A6 · Step 5 of 5. Off unless the user turns it on; "Turn on reminders" asks for permission
+// and keeps the reminder off if it's declined (Reminders in Me shows how to fix that).
 export default function RemindersStep() {
   const { reminder } = useOnboarding();
-  const finish = (enabled: boolean) => {
-    setOnboarding({ reminder: { ...reminder, enabled } });
+  const finish = async (wanted: boolean) => {
+    const access = wanted ? await requestNotificationAccess() : null;
+    setOnboarding({ reminder: { ...reminder, enabled: access === 'granted' || access === 'unsupported' } });
     router.push('/onboarding/done');
   };
 

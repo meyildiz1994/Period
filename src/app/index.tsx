@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '../components';
 import { color, type } from '../theme';
+import { startReminders } from '../lib/notifications';
 import { getOnboarding, useOnboarding } from '../state/onboarding';
 
 // I1 Splash: brand mark on surface/brand for 0.8 s, then A1 Welcome or Home once saved data is read.
@@ -13,7 +14,11 @@ export default function Splash() {
   const [shownAt] = useState(() => Date.now());
   useEffect(() => {
     if (!hydrated) return;
-    const t = setTimeout(() => router.replace(getOnboarding().done ? '/home' : '/onboarding'), Math.max(0, 800 - (Date.now() - shownAt)));
+    const t = setTimeout(() => {
+      router.replace(getOnboarding().done ? '/home' : '/onboarding');
+      // After the first screen is in place, so a tapped notification can open its screen on top.
+      startReminders();
+    }, Math.max(0, 800 - (Date.now() - shownAt)));
     return () => clearTimeout(t);
   }, [hydrated, shownAt]);
 
