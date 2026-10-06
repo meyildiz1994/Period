@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 
 import { authenticate, unlockLabel, useBiometricKind } from '../lib/biometrics';
-import { getLock, setLock, useLock } from '../state/lock';
+import { checkPasscode, getLock, setLock, useLock } from '../state/lock';
 import { Button } from './Button';
 import { PASSCODE_LENGTH, PasscodePad } from './Passcode';
 
@@ -41,7 +41,7 @@ export function LockGate({ children }: { children: ReactNode }) {
 }
 
 function LockScreen() {
-  const { passcode, biometrics } = useLock();
+  const { biometrics } = useLock();
   const kind = useBiometricKind();
   const [entered, setEntered] = useState('');
   const [tries, setTries] = useState(MAX_TRIES);
@@ -71,11 +71,15 @@ function LockScreen() {
     return () => clearInterval(t);
   }, [waiting]);
 
-  const onDigit = (d: string) => {
+  const onDigit = async (d: string) => {
+    // A full code is being checked; ignore extra taps until it's done.
+    if (!wrong && entered.length >= PASSCODE_LENGTH) return;
     const next = (wrong ? '' : entered) + d;
     setWrong(false);
     if (next.length < PASSCODE_LENGTH) return setEntered(next);
-    if (next === passcode) {
+    setEntered(next);
+    if (await checkPasscode(next)) {
+      setEntered('');
       setLock({ locked: false });
       return;
     }

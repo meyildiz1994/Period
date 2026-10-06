@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { IconButton, PASSCODE_LENGTH, PasscodePad } from '../../components';
-import { getLock, setLock } from '../../state/lock';
+import { checkPasscode, setPasscode } from '../../state/lock';
 
 type Stage = 'current' | 'new' | 'confirm';
 const TITLES: Record<Stage, string> = { current: 'Enter current passcode', new: 'Choose a passcode', confirm: 'Enter it again' };
@@ -16,19 +16,19 @@ export default function SetPasscode() {
   const [first, setFirst] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const onDigit = (d: string) => {
+  const onDigit = async (d: string) => {
     const next = entered + d;
     setError(null);
     if (next.length < PASSCODE_LENGTH) return setEntered(next);
     setEntered('');
     if (stage === 'current') {
-      if (next === getLock().passcode) setStage('new');
+      if (await checkPasscode(next)) setStage('new');
       else setError('That’s not your current passcode.');
     } else if (stage === 'new') {
       setFirst(next);
       setStage('confirm');
     } else if (next === first) {
-      setLock({ enabled: true, passcode: next, locked: false });
+      await setPasscode(next);
       router.back();
     } else {
       setFirst('');

@@ -2,8 +2,8 @@ import { useSyncExternalStore } from 'react';
 
 import type { FlowLevelName } from '../components/Cycle';
 
-// Logged periods and daily logs. In memory for now; step 9 moves this into the
-// encrypted on-device store, so callers already treat saves as fallible.
+// Logged periods and daily logs. Saved by persist.ts; screens await `flush()` so a failed
+// write can be shown (C4/C5).
 export type Period = { start: string; end: string | null };
 export type Pain = 'None' | 'Mild' | 'Moderate' | 'Severe';
 export type Mood = 'Good' | 'Okay' | 'Low' | 'Irritable' | 'Anxious';
@@ -17,7 +17,7 @@ export type DayLog = {
   loggedAt: string;
 };
 
-type LogState = {
+export type LogState = {
   /** Newest first. Dates are YYYY-MM-DD. */
   periods: Period[];
   days: Record<string, DayLog>;
@@ -61,6 +61,11 @@ export function deleteDay(date: string) {
   set({ ...state, days });
 }
 
+/** Replaces everything at once (loading saved data). */
+export function replaceLog(next: LogState) {
+  set(next);
+}
+
 export function resetLog() {
   set(initial);
 }
@@ -73,11 +78,11 @@ export function latestPeriod(s: LogState = state): Period | null {
   return s.periods[0] ?? null;
 }
 
-function subscribe(l: () => void) {
+export function subscribeLog(l: () => void) {
   listeners.add(l);
   return () => listeners.delete(l);
 }
 
 export function useLog() {
-  return useSyncExternalStore(subscribe, getLog, getLog);
+  return useSyncExternalStore(subscribeLog, getLog, getLog);
 }

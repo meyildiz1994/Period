@@ -7,6 +7,7 @@ import { diffDays, formatDay, fromISODate, toISODate } from '../../lib/dates';
 import { periodSpan, useCycleSettings } from '../../state/cycle';
 import { getLog, saveDay, type Mood, type Pain } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
+import { flush } from '../../state/persist';
 import { SYMPTOMS } from '../../state/symptoms';
 import { color, type, type IconName } from '../../theme';
 
@@ -43,9 +44,10 @@ export default function DailyLog() {
   const offered = SYMPTOMS.filter((s) => showAll || quick.includes(s.label) || symptoms.includes(s.label));
   const toggle = (s: string) => setSymptoms((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
 
-  const save = () => {
+  const save = async () => {
     try {
       saveDay(dateKey, { flow, pain, mood, symptoms, note: note.trim() });
+      await flush();
       router.back();
     } catch {
       setFailed(true);
