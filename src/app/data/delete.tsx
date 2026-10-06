@@ -5,6 +5,7 @@ import { Banner, Button, Icon, Page } from '../../components';
 import { resetLock } from '../../state/lock';
 import { resetLog, useLog } from '../../state/log';
 import { resetOnboarding } from '../../state/onboarding';
+import { flush } from '../../state/persist';
 import { color, type } from '../../theme';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -25,10 +26,11 @@ export default function DeleteAll() {
             label="Delete all data"
             type="Destructive"
             fullWidth
-            onPress={() => {
+            onPress={async () => {
               resetLog();
               resetOnboarding();
               resetLock();
+              await flush().catch(() => {});
               router.dismissAll();
               router.replace('/');
             }}

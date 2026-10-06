@@ -2,8 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 import type { ReminderLead } from '../components/ReminderTiming';
 
-// Answers collected in onboarding (A2–A6). Kept in memory for now; the encrypted
-// on-device store in step 9 will persist this and the `done` flag.
+// Answers collected in onboarding (A2–A6) plus app settings. Saved by persist.ts.
 export type Goal = 'track' | 'predict' | 'symptoms' | 'irregular';
 export type Regularity = 'regular' | 'irregular' | 'unsure';
 export type { ReminderLead };
@@ -24,7 +23,7 @@ export type OnboardingState = {
   /** Shown in the Home greeting and avatar. Not asked in onboarding; set from Me later. */
   name: string | null;
   done: boolean;
-  /** False while saved data is being read (B3 loading). Always true until the on-device store in step 9. */
+  /** False while saved data is being read at launch (Splash waits, Home shows B3). */
   hydrated: boolean;
 };
 
@@ -40,7 +39,7 @@ const initial: OnboardingState = {
   weekStartsOn: 0,
   name: null,
   done: false,
-  hydrated: true,
+  hydrated: false,
 };
 
 let state = initial;
@@ -51,19 +50,20 @@ export function setOnboarding(patch: Partial<OnboardingState>) {
   listeners.forEach((l) => l());
 }
 
+/** Back to first-launch answers; the saved data stays loaded. */
 export function resetOnboarding() {
-  setOnboarding(initial);
+  setOnboarding({ ...initial, hydrated: true });
 }
 
 export function getOnboarding() {
   return state;
 }
 
-function subscribe(l: () => void) {
+export function subscribeOnboarding(l: () => void) {
   listeners.add(l);
   return () => listeners.delete(l);
 }
 
 export function useOnboarding() {
-  return useSyncExternalStore(subscribe, getOnboarding, getOnboarding);
+  return useSyncExternalStore(subscribeOnboarding, getOnboarding, getOnboarding);
 }

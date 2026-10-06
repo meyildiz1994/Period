@@ -1,18 +1,21 @@
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '../components';
 import { color, type } from '../theme';
-import { getOnboarding } from '../state/onboarding';
+import { getOnboarding, useOnboarding } from '../state/onboarding';
 
-// I1 Splash: brand mark on surface/brand, then A1 Welcome after 0.8 s (Home once onboarding is done).
+// I1 Splash: brand mark on surface/brand for 0.8 s, then A1 Welcome or Home once saved data is read.
 export default function Splash() {
+  const { hydrated } = useOnboarding();
+  const [shownAt] = useState(() => Date.now());
   useEffect(() => {
-    const t = setTimeout(() => router.replace(getOnboarding().done ? '/home' : '/onboarding'), 800);
+    if (!hydrated) return;
+    const t = setTimeout(() => router.replace(getOnboarding().done ? '/home' : '/onboarding'), Math.max(0, 800 - (Date.now() - shownAt)));
     return () => clearTimeout(t);
-  }, []);
+  }, [hydrated, shownAt]);
 
   return (
     <View style={styles.screen} accessible accessibilityLabel="Period. Track, understand, manage.">

@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button, DateWheel, FLOW_LEVELS, FlowLevel, Icon, Page, Tag, Toast, Toggle, type FlowLevelName } from '../../components';
 import { addDays, diffDays, formatShort, fromISODate, toISODate } from '../../lib/dates';
 import { getLog, latestPeriod, savePeriod, updateDay } from '../../state/log';
+import { flush } from '../../state/persist';
 import { useOnboarding } from '../../state/onboarding';
 import { color, radius, type } from '../../theme';
 
@@ -32,10 +33,11 @@ export default function LogPeriod() {
   const endError = ended && diffDays(start, end) < 0;
   const minYear = today.getFullYear() - 2;
 
-  const save = () => {
+  const save = async () => {
     try {
       savePeriod({ start: toISODate(start), end: ended ? toISODate(end) : null }, editing?.start);
       if (flow) updateDay(todayKey, { flow });
+      await flush();
       router.back();
     } catch {
       setFailed(true);

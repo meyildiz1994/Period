@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Banner, BottomSheet, Choice, Divider, ListRow, Page } from '../../components';
 import { authenticate, useBiometricKind } from '../../lib/biometrics';
-import { LOCK_AFTER_LABEL, setLock, useLock, type LockAfter } from '../../state/lock';
+import { LOCK_AFTER_LABEL, setLock, turnOffLock, useLock, type LockAfter } from '../../state/lock';
 import { color, radius } from '../../theme';
 
 const LOCK_AFTER: LockAfter[] = [0, 60, 300];
@@ -25,7 +25,7 @@ export default function AppLock() {
           icon="lock"
           trailing="Toggle"
           toggled={lock.enabled}
-          onToggle={(on) => (on ? router.push('/settings/passcode') : setLock({ enabled: false, passcode: null, biometrics: false, locked: false }))}
+          onToggle={(on) => (on ? router.push('/settings/passcode') : turnOffLock())}
         />
         {lock.enabled && kind ? (
           <>
