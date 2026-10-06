@@ -13,6 +13,9 @@ Read this first when resuming. Update it in every PR.
 - [x] Step 1 · Scaffold + tokens: Expo app, colour/space/radius/elevation tokens (`src/theme/tokens.ts`), Plus Jakarta Sans type roles (`src/theme/typography.ts`), 102 icons (`src/theme/icons.ts`, `src/components/Icon.tsx`), temporary token preview screen (`src/app/index.tsx`).
 - [x] Step 2 · Core components (`src/components/`, all exported from `index.ts`): Button, IconButton, Choice, Toggle, Checkbox, Radio, OptionCard, Stepper, Input, TextArea, Card, Tag, IconBadge, Avatar, ListRow, Divider, SectionHeader, StatTile, Skeleton, Banner, Toast, Dialog, EmptyState, TopBar, TabBar, ProgressSteps, CycleRing, DayCell, FlowLevel, PasscodeDot, KeypadKey. Dev gallery at `src/app/gallery.tsx` (temporary). Bottom sheet is still to do (comes with Quick Log in step 5).
 
+## Open
+- PR #1 (branch `step-2-components`): Step 2 core components + dev gallery. Merge it first, then start Step 3.
+
 ## Next
 - [ ] Step 3 · Onboarding A1… + I1 Splash.
 - [ ] Step 4 · Home B1–B4 (no scroll, fits 844) + Cycle Ring.
