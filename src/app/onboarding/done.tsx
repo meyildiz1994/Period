@@ -2,7 +2,8 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, IconBadge, OnboardingStep } from '../../components';
-import { setOnboarding } from '../../state/onboarding';
+import { savePeriod } from '../../state/log';
+import { getOnboarding, setOnboarding } from '../../state/onboarding';
 import { color, type, type IconName } from '../../theme';
 
 const POINTS: { icon: IconName; title: string; body: string }[] = [
@@ -25,6 +26,8 @@ export default function Done() {
           label="Go to Home"
           fullWidth
           onPress={() => {
+            const { lastPeriodStart } = getOnboarding();
+            if (lastPeriodStart) savePeriod({ start: lastPeriodStart, end: null });
             setOnboarding({ done: true });
             router.replace('/home');
           }}

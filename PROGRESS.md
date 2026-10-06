@@ -17,12 +17,13 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 4 · Main tabs (`src/app/(tabs)/`, Expo Router `expo-router/js-tabs` with our floating `TabBar`) and Home B1 in cycle / B2 empty / B3 loading / B4 late (`(tabs)/home.tsx`, pieces in `src/components/Home.tsx`). Cycle maths in `src/state/cycle.ts` (cycle day, period day, phase, next start, late days, week strip), date helpers in `src/lib/dates.ts`. Cycle Ring stroke and text scale with size (220 on Home). History / Insights / Me are placeholders; Me keeps the dev links (gallery, tokens, restart onboarding).
 
+- [x] Step 5 · Log: C1 Quick Log sheet (from "+", in `(tabs)/_layout.tsx`, generic `BottomSheet` + `SheetOption` in `src/components/Sheet.tsx`), C2 Log period (`src/app/log/period.tsx`: start wheel, "Has it ended?" with end date and end-before-start error, flow today), C3 Daily log (`src/app/log/daily.tsx`, optional `?date=`; flow, pain, mood, symptoms with "Add", note), C4/C5 error toast "Couldn't save…" with Retry on both. Shared pushed-page frame `Page`. Periods and daily logs live in `src/state/log.ts` (in memory); onboarding's last period becomes the first logged period; Home reads cycle settings via `useCycleSettings()` and shows today's log.
+
 ## Open
-- Step 4 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 5 from main.
-- Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Onboarding answers are not persisted yet (step 9), so the app restarts at onboarding. Home: "+", "Log period" and "Edit" open the Log screens (step 5); Today's log shows dashes until daily logs exist (step 5). Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later).
+- Step 5 PR on `claude/eager-newton-ippaxr`. Merge it, then start step 6 from main.
+- Loose ends to wire later: A1 "Sign in" link → F3 (step 8). A6 "Turn on reminders" only saves the choice; permission prompt + scheduling in step 9. Nothing is persisted yet (step 9), so the app restarts at onboarding with no logs. Greeting is "Hi there" because no name is collected yet (`name` in the store, set from Me later). C1 "History" link and the Home calendar button go to the History tab placeholder until step 6.
 
 ## Next
-- [ ] Step 5 · Log C1–C5 (Quick Log sheet, Period start/end, Daily Log).
 - [ ] Step 6 · History D1–D4.
 - [ ] Step 7 · Insights E1–E2.
 - [ ] Step 8 · Me / settings / data F*, G*, H* (destructive actions two-step).
