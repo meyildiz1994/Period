@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, elevation, radius, type, type ColorToken } from '../theme';
@@ -144,7 +144,7 @@ export function StatTile({ label, value, unit, icon = 'calendar' }: { label: str
 
 // Figma: Skeleton (Shape). Mirrors the final layout so content does not jump.
 export function Skeleton({ shape = 'Line', width, height }: { shape?: 'Line' | 'Block' | 'Circle'; width?: number | `${number}%`; height?: number }) {
-  const pulse = useRef(new Animated.Value(0.5)).current;
+  const [pulse] = useState(() => new Animated.Value(0.5));
   useEffect(() => {
     const loop = Animated.loop(Animated.sequence([
       Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),

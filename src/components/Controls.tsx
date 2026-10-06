@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   option: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 16 },
   lead44: { width: 44, height: 44, borderRadius: 999, backgroundColor: color['surface/muted'] },
   stepper: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: 4, borderRadius: 999,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: 4, borderRadius: 999,
     backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'], alignSelf: 'flex-start',
   },
   stepperValue: { flexDirection: 'row', alignItems: 'baseline', gap: 4, paddingHorizontal: 4 },
