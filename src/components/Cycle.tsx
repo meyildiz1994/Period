@@ -36,7 +36,7 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260 }: 
         {p > 0 ? (
           <Circle
             cx={c} cy={c} r={r}
-            stroke={arcColor} strokeWidth={stroke} fill="none" strokeLinecap={p < 1 ? 'round' : 'butt'}
+            stroke={arcColor} strokeWidth={stroke} fill="none" strokeLinecap="butt"
             strokeDasharray={`${circumference * p} ${circumference}`}
             transform={`rotate(-90 ${c} ${c})`}
           />
