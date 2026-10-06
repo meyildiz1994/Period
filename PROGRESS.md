@@ -31,14 +31,17 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 9b · Local notifications (`src/lib/notifications.ts`, `expo-notifications`): permission asked from A6 "Turn on reminders" and the G3 toggle; G4 state (warning banner + Open Settings, disabled toggle) when notifications are blocked; reminders rescheduled whenever settings or logs change: heads-up N days before at the chosen time, "expected today", "2 days late" (I2 copy). Tapping one opens Home or Log period, also from a cold start. Android channel "Period reminders" with private lock-screen visibility.
 
+- [x] Step 10a · Icons and launch screen: `assets/` replaced the Expo placeholders with the I3 teardrop on #80244E (store icon 1024 RGB without alpha, Android adaptive foreground/background/monochrome, favicon) and the I1 mark as `splash-icon.png`; `expo-splash-screen` shows it at 88 pt on #80244E and the in-app Splash uses the same image. Teardrop path (bbox x −1..1, y −1.82..1, tip rounded with a 0.12 stroke): `M0 -1.82 C0.38 -1.32 1 -0.72 1 0 A1 1 0 0 1 -1 0 C-1 -0.72 -0.38 -1.32 0 -1.82 Z`. `eas.json` with `preview` (internal, Android APK) and `production` (auto-increment) profiles.
+
 ## Open
-- Step 9b PR on `claude/eager-newton-ippaxr`. Merge it, then start step 10 from main.
+- Step 10a PR on `claude/eager-newton-ippaxr`. Merge it.
+- Step 10b needs the user's accounts: Expo (free) for `eas build`, Apple Developer (99 USD/yr) for TestFlight, Google Play Console (25 USD once) for internal testing. Asked which ones exist / which platform first.
 - Greeting is "Hi there" because no name is collected yet (`name` in the store).
-- Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet.
-- The user runs the app in Expo Go on their phone (`git pull`, `npm install`, `npx expo start` in the cloned folder).
+- Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet. The splash image is now an asset: publish `assets/assets/splash-icon*.png` too.
+- The user runs the app in Expo Go on their phone (`git pull`, `npm install`, `npx expo start` in the cloned folder). Expo Go shows its own icon and launch screen; ours appear in an EAS build.
 
 ## Next
-- [ ] Step 10 · App icon (I3), EAS build, TestFlight / Play internal test.
+- [ ] Step 10b · EAS build (`npx eas-cli@latest build --profile preview`), TestFlight / Play internal test.
 
 ## Notes for the next session
 - Figma MCP is on the Starter plan and its monthly call quota ran out on 2026-10-06. Build from `docs/screens.md`; the user can send more screenshots if something is missing.
