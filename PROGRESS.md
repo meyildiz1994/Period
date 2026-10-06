@@ -14,7 +14,7 @@ Read this first when resuming. Update it in every PR.
 - [x] Step 2 · Core components (`src/components/`, all exported from `index.ts`): Button, IconButton, Choice, Toggle, Checkbox, Radio, OptionCard, Stepper, Input, TextArea, Card, Tag, IconBadge, Avatar, ListRow, Divider, SectionHeader, StatTile, Skeleton, Banner, Toast, Dialog, EmptyState, TopBar, TabBar, ProgressSteps, CycleRing, DayCell, FlowLevel, PasscodeDot, KeypadKey. Dev gallery at `src/app/gallery.tsx` (temporary). Bottom sheet is still to do (comes with Quick Log in step 5).
 
 ## Open
-- PR #1 (branch `step-2-components`): Step 2 core components + dev gallery. Merge it first, then start Step 3.
+- Nothing open once PR #1 is merged. Start Step 3 on a new branch, one PR per step.
 
 ## Next
 - [ ] Step 3 · Onboarding A1… + I1 Splash.
