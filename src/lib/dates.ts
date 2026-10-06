@@ -80,3 +80,9 @@ export function startOfMonth(d: Date) {
 export function addMonths(d: Date, n: number) {
   return new Date(d.getFullYear(), d.getMonth() + n, 1);
 }
+
+/** "09:00" → "9:00 AM" */
+export function formatClock(hhmm: string) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+}
