@@ -29,7 +29,7 @@ export default function Welcome() {
       <View style={styles.footer}>
         <View style={styles.privacy}>
           <Icon name="lock" size={16} color="text/secondary" />
-          <Text style={[type('Caption'), { color: color['text/secondary'] }]}>No account needed. Your logs stay on this phone.</Text>
+          <Text style={[type('Caption'), { color: color['text/secondary'] }]}>Your logs stay on this phone.</Text>
         </View>
         <Button label="Get started" fullWidth onPress={() => router.push('/onboarding/goal')} />
       </View>

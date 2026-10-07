@@ -7,7 +7,7 @@ import { getOnboarding, setOnboarding } from '../../state/onboarding';
 import { color, type, type IconName } from '../../theme';
 
 const POINTS: { icon: IconName; title: string; body: string }[] = [
-  { icon: 'smartphone', title: 'Saved on this phone', body: 'You can use everything without an account.' },
+  { icon: 'smartphone', title: 'Saved on this phone', body: 'Your logs never leave this phone unless you export them.' },
   { icon: 'download', title: 'Export anytime', body: 'Download a copy of your logs from Your data.' },
   { icon: 'shield-check', title: 'Never sold or shared', body: 'No ads and no selling of your data.' },
 ];
