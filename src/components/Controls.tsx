@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { defineCopy, useCopy } from '../i18n';
+import { withTick } from '../lib/haptics';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
@@ -56,7 +57,7 @@ export function Choice({ label, icon, selected, disabled, onPress, layout = 'Inl
       accessibilityLabel={label}
       accessibilityState={{ selected: !!selected, disabled: !!disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={withTick(onPress)}
       style={[
         inline ? styles.choiceInline : styles.choiceStacked,
         { backgroundColor: color[bg], borderColor: selected ? 'transparent' : color['border/subtle'] },
@@ -76,7 +77,7 @@ export function Toggle({ value, onChange, disabled, label }: { value: boolean; o
       accessibilityLabel={label}
       accessibilityState={{ checked: value, disabled: !!disabled }}
       disabled={disabled}
-      onPress={() => onChange?.(!value)}
+      onPress={withTick(() => onChange?.(!value))}
       hitSlop={6}
       style={[styles.toggle, { backgroundColor: color[value ? 'surface/brand' : 'surface/strong'] }, disabled && { opacity: 0.4 }]}
     >
@@ -93,7 +94,7 @@ export function Checkbox({ checked, onChange, disabled, label }: { checked: bool
       accessibilityLabel={label}
       accessibilityState={{ checked, disabled: !!disabled }}
       disabled={disabled}
-      onPress={() => onChange?.(!checked)}
+      onPress={withTick(() => onChange?.(!checked))}
       hitSlop={10}
       style={[
         styles.center,
@@ -125,7 +126,7 @@ export function OptionCard({ title, subtitle, icon = 'heart', selected, onPress 
       accessibilityRole="radio"
       accessibilityLabel={title}
       accessibilityState={{ selected: !!selected }}
-      onPress={onPress}
+      onPress={withTick(onPress)}
       style={[
         styles.option,
         selected
@@ -157,7 +158,7 @@ export function Stepper({ value, unit, onChange, min = 1, max = 99, size = 'Medi
       accessibilityRole="button"
       accessibilityLabel={label}
       disabled={disabled}
-      onPress={() => onChange(next)}
+      onPress={withTick(() => onChange(next))}
       hitSlop={4}
       style={[styles.center, elevation.hairline, { width: b, height: b, borderRadius: 999, backgroundColor: color['surface/default'] }, disabled && { opacity: 0.4 }]}
     >
