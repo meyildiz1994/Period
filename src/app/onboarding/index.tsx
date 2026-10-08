@@ -2,23 +2,19 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, CycleRing, Icon, LogoMark } from '../../components';
+import { Button, Icon, LogoFull } from '../../components';
 import { color, layout, type } from '../../theme';
 
-// A1 Welcome. The ring is an illustration of the app, not the user's data.
+// A1 Welcome: "Welcome to" over the full logo (mark and wordmark), then the intro line.
 export default function Welcome() {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: Math.max(insets.bottom, 16) }]}>
       <View style={styles.top}>
+        <Text accessibilityRole="header" accessibilityLabel="Welcome to Nilemy" style={[type('Title/Large', 'Bold'), styles.title]}>Welcome to</Text>
         <View style={styles.logo}>
-          <LogoMark size={40} />
-          <Text style={[type('Headline', 'SemiBold'), { color: color['text/brand'] }]}>Nilemy</Text>
+          <LogoFull width={220} />
         </View>
-        <View style={styles.ring}>
-          <CycleRing phase="Menstrual" progress={3 / 28} day="Day 3" />
-        </View>
-        <Text accessibilityRole="header" style={[type('Title/Large', 'Bold'), styles.title]}>Welcome to Nilemy</Text>
         <Text style={[type('Body/Medium'), styles.body]}>
           Log your period in seconds, see what your cycle is doing and plan ahead.
         </Text>
@@ -37,11 +33,10 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'], justifyContent: 'space-between' },
-  top: { alignItems: 'center', paddingHorizontal: layout.gutter },
-  logo: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 },
-  ring: { marginTop: 40 },
-  title: { marginTop: 32, textAlign: 'center', color: color['text/primary'] },
-  body: { marginTop: 12, textAlign: 'center', color: color['text/secondary'] },
+  top: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: layout.gutter },
+  logo: { marginTop: 24 },
+  title: { textAlign: 'center', color: color['text/primary'] },
+  body: { marginTop: 32, textAlign: 'center', color: color['text/secondary'], maxWidth: 300 },
   footer: { paddingHorizontal: 24, gap: 16 },
   privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });
