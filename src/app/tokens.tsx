@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,7 +13,13 @@ const SWATCHES = [
   'feedback/success', 'feedback/warning',
 ] as const;
 
-export default function Tokens() {
+// Developer screen: only reachable in development builds; release builds (and deep links into
+// them) go back to the start.
+export default function TokensRoute() {
+  return __DEV__ ? <Tokens /> : <Redirect href="/" />;
+}
+
+function Tokens() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content}>

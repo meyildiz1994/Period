@@ -53,7 +53,13 @@ export const unlockLabel = (kind: BiometricKind) => getCopy(COPY).use(biometricN
 
 export async function authenticate(reason: string) {
   try {
-    const result = await LocalAuthentication.authenticateAsync({ promptMessage: reason, disableDeviceFallback: true, cancelLabel: getCopy(COPY).usePasscode });
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: reason,
+      disableDeviceFallback: true,
+      cancelLabel: getCopy(COPY).usePasscode,
+      // Android: only Class 3 biometrics (fingerprint, 3D face), not camera-only face unlock.
+      biometricsSecurityLevel: 'strong',
+    });
     return result.success;
   } catch {
     return false;

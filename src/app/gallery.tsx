@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +11,13 @@ import {
 import { color, layout, overline, space } from '../theme';
 
 // Temporary dev screen: every component from 1 · Temeller › 05 Bileşenler, to check on a phone.
-export default function Gallery() {
+// Developer screen: only reachable in development builds; release builds (and deep links into
+// them) go back to the start.
+export default function GalleryRoute() {
+  return __DEV__ ? <Gallery /> : <Redirect href="/" />;
+}
+
+function Gallery() {
   const [flow, setFlow] = useState<FlowLevelName>('Medium');
   const [mood, setMood] = useState('Calm');
   const [toggle, setToggle] = useState(true);

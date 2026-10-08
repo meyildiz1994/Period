@@ -3,6 +3,7 @@ import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCommon } from '../i18n/common';
+import { useLock } from '../state/lock';
 import { color, radius, type } from '../theme';
 import type { IconName } from '../theme/icons';
 import { IconButton } from './Controls';
@@ -12,6 +13,8 @@ import { Icon } from './Icon';
 export function BottomSheet({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: ReactNode }) {
   const insets = useSafeAreaInsets();
   const { close } = useCommon();
+  const lock = useLock();
+  const shut = lock.enabled && lock.locked;
   const [slide] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -22,7 +25,8 @@ export function BottomSheet({ visible, title, onClose, children }: { visible: bo
   const translateY = slide.interpolate({ inputRange: [0, 1], outputRange: [400, 0] });
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    // Native modals sit above the lock overlay, so they close while the app is locked.
+    <Modal visible={visible && !shut} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.root}>
         <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={close} onPress={onClose}>
           <View style={styles.scrim} />

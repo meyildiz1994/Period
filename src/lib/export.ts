@@ -1,6 +1,7 @@
 import { File, Paths } from 'expo-file-system';
 
 import type { DayLog, Period } from '../state/log';
+import { EXPORT_PREFIX } from '../state/persist';
 import { toISODate } from './dates';
 
 // H2–H4 Export: builds a CSV or JSON copy of the logs and writes it to the cache folder
@@ -26,7 +27,13 @@ function rows(periods: Period[], days: Record<string, DayLog>, inc: ExportInclud
 }
 
 const COLUMNS = ['type', 'date', 'end', 'flow', 'pain', 'mood', 'symptoms', 'note'];
-const csvCell = (v = '') => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+// A leading = + - @ (or tab/CR) would run as a formula when the CSV is opened in a spreadsheet;
+// a leading apostrophe keeps it as text.
+const safe = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
+const csvCell = (v = '') => {
+  const t = safe(v);
+  return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+};
 
 export function buildExport(periods: Period[], days: Record<string, DayLog>, inc: ExportInclude, format: ExportFormat) {
   const data = rows(periods, days, inc);
@@ -36,7 +43,8 @@ export function buildExport(periods: Period[], days: Record<string, DayLog>, inc
 
 /** Writes the export and returns the file to share. Throws when the file can't be written. */
 export function writeExport(content: string, format: ExportFormat) {
-  const file = new File(Paths.cache, `period-export-${toISODate(new Date())}.${format}`);
+  // Neutral name: it shows in the share sheet and wherever the file is sent.
+  const file = new File(Paths.cache, `${EXPORT_PREFIX}${toISODate(new Date())}.${format}`);
   if (file.exists) file.delete();
   file.create();
   file.write(content);
