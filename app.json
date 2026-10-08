@@ -51,6 +51,11 @@
       "expo-localization"
     ],
     "scheme": "nilemy",
-    "backgroundColor": "#FCF5F6"
+    "backgroundColor": "#FCF5F6",
+    "extra": {
+      "eas": {
+        "projectId": "9629a55a-6b62-4e08-9681-be7df137b87b"
+      }
+    }
   }
 }
