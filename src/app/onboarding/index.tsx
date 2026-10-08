@@ -13,12 +13,12 @@ export default function Welcome() {
       <View style={styles.top}>
         <View style={styles.logo}>
           <LogoMark size={40} />
-          <Text style={[type('Headline', 'SemiBold'), { color: color['text/brand'] }]}>Period</Text>
+          <Text style={[type('Headline', 'SemiBold'), { color: color['text/brand'] }]}>Nilemy</Text>
         </View>
         <View style={styles.ring}>
           <CycleRing phase="Menstrual" progress={3 / 28} day="Day 3" />
         </View>
-        <Text accessibilityRole="header" style={[type('Title/Large', 'Bold'), styles.title]}>Welcome to Period</Text>
+        <Text accessibilityRole="header" style={[type('Title/Large', 'Bold'), styles.title]}>Welcome to Nilemy</Text>
         <Text style={[type('Body/Medium'), styles.body]}>
           Log your period in seconds, see what your cycle is doing and plan ahead.
         </Text>

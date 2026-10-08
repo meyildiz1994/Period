@@ -36,11 +36,11 @@ export default function Splash() {
   }, [hydrated, drawn]);
 
   return (
-    <View style={styles.screen} accessible accessibilityLabel="Period. Track, understand, manage.">
+    <View style={styles.screen} accessible accessibilityLabel="Nilemy. Track, understand, manage.">
       <StatusBar style="dark" />
       <AnimatedLogoMark size={168} onDone={() => setDrawn(true)} />
       <Animated.View style={{ opacity: name, alignItems: 'center' }}>
-        <Animated.Text style={[type('Display', 'Bold'), styles.name]}>Period</Animated.Text>
+        <Animated.Text style={[type('Display', 'Bold'), styles.name]}>Nilemy</Animated.Text>
         <Animated.Text style={[type('Body/Medium'), styles.tagline]}>Track · Understand · Manage</Animated.Text>
       </Animated.View>
     </View>

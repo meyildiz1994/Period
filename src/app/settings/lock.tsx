@@ -21,7 +21,7 @@ export default function AppLock() {
       <View style={styles.card}>
         <ListRow
           title="App lock"
-          subtitle="Ask for a passcode when Period opens"
+          subtitle="Ask for a passcode when Nilemy opens"
           icon="lock"
           trailing="Toggle"
           toggled={lock.enabled}

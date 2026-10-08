@@ -44,7 +44,7 @@ export default function Me() {
 
         <SectionHeader title="About" />
         <View style={styles.list}>
-          <ListRow title="About Period" icon="info" trailing="Value" value={APP_VERSION.replace(/\.0$/, '')} onPress={() => router.push('/about')} />
+          <ListRow title="About Nilemy" icon="info" trailing="Value" value={APP_VERSION.replace(/\.0$/, '')} onPress={() => router.push('/about')} />
           <Divider inset={0} />
           <ListRow title="Privacy policy" icon="shield" onPress={() => router.push('/about/privacy')} />
           <Divider inset={0} />

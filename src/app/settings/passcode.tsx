@@ -40,7 +40,7 @@ export default function SetPasscode() {
   return (
     <PasscodePad
       title={TITLES[stage]}
-      subtitle={error ?? (stage === 'new' ? 'Four digits you’ll use to open Period.' : stage === 'confirm' ? 'Type the same four digits.' : 'To change it, enter the one you use now.')}
+      subtitle={error ?? (stage === 'new' ? 'Four digits you’ll use to open Nilemy.' : stage === 'confirm' ? 'Type the same four digits.' : 'To change it, enter the one you use now.')}
       error={!!error}
       entered={entered.length}
       onDigit={onDigit}

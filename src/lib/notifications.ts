@@ -76,7 +76,7 @@ export async function rescheduleReminders() {
       body: cycles >= 2 ? `An estimate from your last ${Math.min(cycles, 6)} cycles.` : 'An estimate from your usual cycle length.',
       url: '/home',
     },
-    { when: at(expected, reminder.time), title: window.min === window.max ? 'Your period is expected today' : 'Your period may start any day now', body: 'Log it in Period when it starts.', url: '/log/period' },
+    { when: at(expected, reminder.time), title: window.min === window.max ? 'Your period is expected today' : 'Your period may start any day now', body: 'Log it in Nilemy when it starts.', url: '/log/period' },
     { when: at(addDays(latestExpected, 2), reminder.time), title: 'Your period is 2 days late', body: 'Cycles often vary. Log it when it starts.', url: '/home' },
   ];
   const now = Date.now();
@@ -93,7 +93,7 @@ export async function rescheduleReminders() {
 let timer: ReturnType<typeof setTimeout> | null = null;
 const soon = () => {
   if (timer) clearTimeout(timer);
-  timer = setTimeout(() => rescheduleReminders().catch((e) => console.warn('Period: scheduling reminders failed', e)), 500);
+  timer = setTimeout(() => rescheduleReminders().catch((e) => console.warn('Nilemy: scheduling reminders failed', e)), 500);
 };
 
 /** After saved data is loaded: keep reminders in step with settings and logs, and open the

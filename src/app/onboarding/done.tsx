@@ -20,7 +20,7 @@ export default function Done() {
       done
       hero={<IconBadge icon="check" tone="Brand" size={64} />}
       title="You’re all set"
-      body="Here’s how Period handles what you log."
+      body="Here’s how Nilemy handles what you log."
       footer={
         <Button
           label="Go to Home"

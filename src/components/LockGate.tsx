@@ -51,7 +51,7 @@ function LockScreen() {
   const offerBiometrics = biometrics && kind !== null;
 
   const unlockWithBiometrics = async () => {
-    if (await authenticate('Unlock Period')) setLock({ locked: false });
+    if (await authenticate('Unlock Nilemy')) setLock({ locked: false });
   };
 
   useEffect(() => {
@@ -94,7 +94,7 @@ function LockScreen() {
     ? `Too many tries. Try again in ${cooldown} seconds.`
     : wrong
       ? `Wrong passcode. ${tries} ${tries === 1 ? 'try' : 'tries'} left.`
-      : 'Period is locked';
+      : 'Nilemy is locked';
 
   return (
     <PasscodePad

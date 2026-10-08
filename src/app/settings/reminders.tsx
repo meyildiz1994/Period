@@ -35,8 +35,8 @@ export default function Reminders() {
       {blocked ? (
         <Banner
           kind="Warning"
-          title="Notifications are off for Period"
-          message={`Notifications are off for Period in ${Platform.OS === 'ios' ? 'iPhone Settings' : 'your phone’s settings'}, so reminders can’t reach you.`}
+          title="Notifications are off for Nilemy"
+          message={`Notifications are off for Nilemy in ${Platform.OS === 'ios' ? 'iPhone Settings' : 'your phone’s settings'}, so reminders can’t reach you.`}
           action="Open Settings"
           onAction={() => Linking.openSettings().catch(() => {})}
         />
@@ -68,7 +68,7 @@ export default function Reminders() {
         </>
       ) : null}
 
-      <Banner message="This is the only reminder Period sends. No marketing notifications." />
+      <Banner message="This is the only reminder Nilemy sends. No marketing notifications." />
 
       <BottomSheet visible={picking} title="Remind me at" onClose={() => setPicking(false)}>
         <View style={styles.times} accessibilityRole="radiogroup">

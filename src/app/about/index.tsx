@@ -5,15 +5,15 @@ import { Banner, Divider, ListRow, LogoMark, Page } from '../../components';
 import { APP_VERSION } from '../../lib/app';
 import { color, radius, type } from '../../theme';
 
-const SUPPORT = 'help@period.app';
+const SUPPORT = 'help@nilemy.app';
 
 // G7 About Period.
 export default function About() {
   return (
-    <Page title="About Period" onBack={router.back}>
+    <Page title="About Nilemy" onBack={router.back}>
       <View style={[styles.card, styles.hero]}>
         <LogoMark size={64} />
-        <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>Period</Text>
+        <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>Nilemy</Text>
         <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>Version {APP_VERSION}</Text>
         <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>
           A calm way to track your cycle. Track, understand, manage.
@@ -26,7 +26,7 @@ export default function About() {
         <Divider inset={0} />
         <ListRow title="Contact support" subtitle={SUPPORT} icon="mail" onPress={() => Linking.openURL(`mailto:${SUPPORT}`).catch(() => {})} />
       </View>
-      <Banner message="Period isn’t a medical device. Talk to a doctor about anything that worries you." />
+      <Banner message="Nilemy isn’t a medical device. Talk to a doctor about anything that worries you." />
     </Page>
   );
 }

@@ -38,7 +38,7 @@ export default function Home() {
         <EmptyState
           icon="drop-plus"
           title="Log your last period"
-          body="One date is enough. Period estimates your next one from there."
+          body="One date is enough. Nilemy estimates your next one from there."
           action="Log period"
           onAction={openLog}
         />

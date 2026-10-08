@@ -5,7 +5,7 @@ import { Banner, Page } from '../../components';
 import { color, type } from '../../theme';
 
 const ITEMS = [
-  ['Using Period', 'Period is a personal log. Estimates are based on what you enter.'],
+  ['Using Nilemy', 'Nilemy is a personal log. Estimates are based on what you enter.'],
   ['Not medical advice', 'Nothing in the app replaces advice from a healthcare professional.'],
   ['Changes', 'If these terms change, we’ll tell you in the app first.'],
 ] as const;
@@ -15,7 +15,7 @@ export default function Terms() {
   return (
     <Page title="Terms of service" onBack={router.back}>
       <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>Last updated November 1, 2026</Text>
-      <Banner kind="Warning" title="Not for contraception" message="Estimates are not a reliable way to prevent pregnancy. Don’t use Period for contraception." />
+      <Banner kind="Warning" title="Not for contraception" message="Estimates are not a reliable way to prevent pregnancy. Don’t use Nilemy for contraception." />
       {ITEMS.map(([title, body], i) => (
         <View key={title} style={styles.item}>
           <View style={styles.number}>

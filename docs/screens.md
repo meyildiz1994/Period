@@ -1,9 +1,11 @@
-# Period · Screen specs (from screenshots)
+# Nilemy · Screen specs (from screenshots)
 
 Written from the Figma screenshots shared on 2026-10-06, because the Figma MCP quota (Starter plan) ran out.
 Use this together with `handoff-notes.md` when building a screen. Measurements are in pt on the 390×844 frame
 (screenshots were 924 px wide, scale ≈ 2.37), rounded to the 4 pt grid. Sample data: Nilü, today Sat 14 Nov 2026,
 cycle 28, period 5, Day 3.
+
+The app was renamed from Period to **Nilemy** on 2026-10-08. Where the copy below uses "Period" as the app's name ("Welcome to Period", "About Period"…), the app says "Nilemy"; "period" as in menstruation is unchanged.
 
 Shared patterns
 - Screen side margin 20. Status bar 47, home indicator 34; bottom primary button sits right above the home indicator.

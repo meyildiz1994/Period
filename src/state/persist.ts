@@ -83,7 +83,7 @@ export function flush() {
 function schedule() {
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
-    flush().catch((e) => console.warn('Period: saving failed', e));
+    flush().catch((e) => console.warn('Nilemy: saving failed', e));
   }, 300);
 }
 
@@ -98,7 +98,7 @@ export async function hydrate() {
   try {
     saved = await read();
   } catch (e) {
-    console.warn('Period: saved data could not be read; starting fresh', e);
+    console.warn('Nilemy: saved data could not be read; starting fresh', e);
   }
   if (saved?.v === VERSION) {
     replaceLog(saved.log);

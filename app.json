@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Period",
-    "slug": "period",
+    "name": "Nilemy",
+    "slug": "nilemy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.meyildiz.period"
+      "bundleIdentifier": "com.meyildiz.nilemy"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.meyildiz.period"
+      "package": "com.meyildiz.nilemy"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,7 +30,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Period uses Face ID to unlock the app when App lock is on."
+          "faceIDPermission": "Nilemy uses Face ID to unlock the app when App lock is on."
         }
       ],
       "expo-secure-store",
@@ -49,7 +49,7 @@
         }
       ]
     ],
-    "scheme": "period",
+    "scheme": "nilemy",
     "backgroundColor": "#FCF5F6"
   }
 }

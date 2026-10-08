@@ -19,7 +19,7 @@ export default function GoalStep() {
   return (
     <OnboardingStep
       step={1}
-      title="What brings you to Period?"
+      title="What brings you to Nilemy?"
       body="Choose what matters most. You can change this later."
       onBack={router.back}
       onSkip={next}
