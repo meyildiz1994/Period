@@ -3,10 +3,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { useTip } from '../../i18n/tips';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { useLog } from '../../state/log';
@@ -74,6 +75,7 @@ export default function Home() {
   const today = new Date();
   const status = cycleStatus(settings, today);
   const todayLog = logs[toISODate(today)];
+  const tip = useTip(status.kind === 'cycle' ? status.phase : 'Empty', today);
   const openLog = () => router.push('/log/period');
 
   let body;
@@ -125,6 +127,7 @@ export default function Home() {
         : { title: c.inRange(s.daysUntilNext, days(untilLatest)), subtitle: c.range(formatMonthDay(s.nextStart), formatMonthDay(s.latestStart)) };
     body = (
       <>
+        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
         <View style={styles.ring}>
           <CycleRing
             phase={s.phase}

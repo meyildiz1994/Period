@@ -100,6 +100,21 @@ export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () 
   );
 }
 
+/** Daily tip above the Home ring: phase name and a short wellbeing idea. */
+export function TipCard({ heading, text }: { heading: string; text: string }) {
+  return (
+    <View style={styles.tip} accessible accessibilityLabel={`${heading}. ${text}`}>
+      <View style={styles.tipBadge}>
+        <Icon name="sparkles" size={18} color="text/brand" />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[type('Caption', 'SemiBold'), { color: color['text/brand'] }]}>{heading}</Text>
+        <Text style={[type('Body/Small'), { color: color['text/primary'] }]}>{text}</Text>
+      </View>
+    </View>
+  );
+}
+
 /** B3: mirrors ring, strip, next-period and log cards so nothing jumps when data arrives. */
 export function HomeSkeleton() {
   const c = useCopy(COPY);
@@ -129,6 +144,8 @@ const styles = StyleSheet.create({
   logItems: { flexDirection: 'row' },
   logItem: { flex: 1, alignItems: 'center', gap: 2 },
   logBadge: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'], marginBottom: 2 },
+  tip: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: radius.xl, backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'] },
+  tipBadge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   skeleton: { alignItems: 'center', gap: 16 },
   skeletonBlocks: { alignSelf: 'stretch', gap: 12 },
 });
