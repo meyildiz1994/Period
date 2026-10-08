@@ -61,8 +61,10 @@ const COPY = defineCopy({
   },
 });
 
-// B1 Home (in cycle), B2 empty, B3 loading, B4 late. Designed to fit 844 without scrolling;
-// the ScrollView only matters on shorter phones or with large text.
+// B1 Home (in cycle), B2 empty, B3 loading, B4 late. Fits an 844 pt phone (with the status bar
+// and home indicator) without scrolling: the ring is 184 and the tip card has a fixed height.
+// The ScrollView only matters on shorter phones or with large text.
+const RING = 184;
 export default function Home() {
   const c = useCopy(COPY);
   const common = useCommon();
@@ -131,7 +133,7 @@ export default function Home() {
           <CycleRing
             phase={s.phase}
             progress={s.progress}
-            size={220}
+            size={RING}
             label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
             day={common.day(s.cycleDay)}
           />
@@ -164,7 +166,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
-  content: { paddingHorizontal: layout.gutter, gap: 12 },
+  content: { paddingHorizontal: layout.gutter, gap: 10 },
   ring: { alignItems: 'center', marginTop: 4, marginBottom: 4 },
   date: { marginTop: 8, color: color['text/secondary'] },
   lateNote: { textAlign: 'center', color: color['text/secondary'], paddingHorizontal: 8 },

@@ -91,8 +91,10 @@ export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () 
             <View style={styles.logBadge}>
               <Icon name={it.icon} size={16} color="text/brand" />
             </View>
-            <Text style={[type('Body/Default'), { color: color['text/secondary'] }]}>{it.label}</Text>
-            <Text style={[type('Body/Large', 'SemiBold'), { color: color[it.value ? 'text/primary' : 'text/tertiary'] }]}>{it.value ?? '–'}</Text>
+            <View style={{ flex: 1 }}>
+              <Text numberOfLines={1} style={[type('Caption'), { color: color['text/secondary'] }]}>{it.label}</Text>
+              <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[type('Body/Default', 'SemiBold'), { color: color[it.value ? 'text/primary' : 'text/tertiary'] }]}>{it.value ?? '–'}</Text>
+            </View>
           </View>
         ))}
       </View>
@@ -108,8 +110,8 @@ export function TipCard({ heading, text }: { heading: string; text: string }) {
         <Icon name="leaf" size={18} color="text/brand" />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={[type('Caption', 'SemiBold'), { color: color['text/brand'] }]}>{heading}</Text>
-        <Text style={[type('Body/Small'), { color: color['text/primary'] }]}>{text}</Text>
+        <Text numberOfLines={1} style={[type('Caption', 'SemiBold'), { color: color['text/brand'] }]}>{heading}</Text>
+        <Text numberOfLines={2} style={[type('Body/Small'), { color: color['text/primary'] }]}>{text}</Text>
       </View>
     </View>
   );
@@ -120,7 +122,7 @@ export function HomeSkeleton() {
   const c = useCopy(COPY);
   return (
     <View style={styles.skeleton} accessibilityLabel={c.loading}>
-      <Skeleton shape="Circle" width={220} height={220} />
+      <Skeleton shape="Circle" width={184} height={184} />
       <View style={styles.skeletonBlocks}>
         <Skeleton shape="Block" width="100%" height={64} />
         <Skeleton shape="Block" width="100%" height={92} />
@@ -135,16 +137,18 @@ const styles = StyleSheet.create({
   strip: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 7 },
   stripDay: { flex: 1, alignItems: 'center', gap: 4 },
   next: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16, paddingHorizontal: 20,
+    flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 20,
     borderRadius: radius.xl, backgroundColor: color['surface/brand'],
   },
   calendar: { width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/default'] },
-  log: { padding: 16, gap: 12 },
+  log: { paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
   logHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  logItems: { flexDirection: 'row' },
-  logItem: { flex: 1, alignItems: 'center', gap: 2 },
-  logBadge: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'], marginBottom: 2 },
-  tip: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: radius.xl, backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'] },
+  // Compact rows (badge beside label and value) so Home fits without scrolling.
+  logItems: { flexDirection: 'row', gap: 8 },
+  logItem: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logBadge: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
+  // Fixed height (heading + two lines) so Home never shifts or scrolls as the tip changes.
+  tip: { height: 76, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, borderRadius: radius.xl, backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'] },
   tipBadge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   skeleton: { alignItems: 'center', gap: 16 },
   skeletonBlocks: { alignSelf: 'stretch', gap: 12 },
