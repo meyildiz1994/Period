@@ -92,7 +92,9 @@ function Column({ label, labels, index, side, onSelect }: {
     shown.current = true;
   }, [index]);
 
-  const onScroll = Animated.event([{ nativeEvent: { contentOffset: { y } } }], { useNativeDriver: true });
+  // Driven from JS so the listener below sees every scroll frame (a native-driven value only
+  // reports where it stopped, so the tick came only at the end).
+  const onScroll = Animated.event([{ nativeEvent: { contentOffset: { y } } }], { useNativeDriver: false });
 
   // Latest props for the scroll listener below.
   const latest = useRef({ index, onSelect });
