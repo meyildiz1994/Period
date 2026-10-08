@@ -18,3 +18,4 @@ export * from './Page';
 export * from './Passcode';
 export * from './ReminderTiming';
 export * from './Sheet';
+export * from './ScrollLock';

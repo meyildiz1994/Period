@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,6 +7,7 @@ import { useCommon } from '../i18n/common';
 import { color, layout, overline, type } from '../theme';
 import { IconButton } from './Controls';
 import { ProgressSteps } from './Navigation';
+import { ScrollLockContext } from './ScrollLock';
 
 /** Onboarding steps: name, goal, last period, cycle, symptoms, reminders. */
 export const ONBOARDING_STEPS = 6;
@@ -37,6 +38,7 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
   const insets = useSafeAreaInsets();
   const c = useCopy(COPY);
   const common = useCommon();
+  const [locked, setLocked] = useState(false);
   return (
     // The footer rides above the keyboard (A1b name field).
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.screen, { paddingTop: insets.top }]}>
@@ -59,12 +61,14 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
           </View>
         </View>
       )}
-      <ScrollView contentContainerStyle={[styles.content, done && styles.doneContent]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView scrollEnabled={!locked} contentContainerStyle={[styles.content, done && styles.doneContent]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {hero ? <View style={styles.hero}>{hero}</View> : null}
         {done || step === 0 ? null : <Text style={[overline(13), { color: color['text/brand'] }]}>{c.step(step)}</Text>}
         <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.title, done && styles.center, hero ? { marginTop: 32 } : null]}>{title}</Text>
         {body ? <Text style={[type('Body/Medium'), styles.body, done && styles.center]}>{body}</Text> : null}
-        <View style={[styles.slot, done && { marginTop: 32 }]}>{children}</View>
+        <View style={[styles.slot, done && { marginTop: 32 }]}>
+          <ScrollLockContext.Provider value={setLocked}>{children}</ScrollLockContext.Provider>
+        </View>
       </ScrollView>
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>{footer}</View>
     </KeyboardAvoidingView>
