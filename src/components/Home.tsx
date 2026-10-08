@@ -100,12 +100,12 @@ export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () 
   );
 }
 
-/** Daily tip above the Home ring: phase name and a short wellbeing idea. */
+/** Daily tip under the Home ring: phase name and a short wellbeing idea. */
 export function TipCard({ heading, text }: { heading: string; text: string }) {
   return (
     <View style={styles.tip} accessible accessibilityLabel={`${heading}. ${text}`}>
       <View style={styles.tipBadge}>
-        <Icon name="sparkles" size={18} color="text/brand" />
+        <Icon name="leaf" size={18} color="text/brand" />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={[type('Caption', 'SemiBold'), { color: color['text/brand'] }]}>{heading}</Text>

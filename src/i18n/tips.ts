@@ -1,7 +1,7 @@
 import type { Phase } from '../components/Cycle';
 import { defineCopy, useCopy } from '.';
 
-// Home's daily tip (above the ring): general wellbeing ideas for the estimated phase, never
+// Home's daily tip (under the ring): general wellbeing ideas for the estimated phase, never
 // medical advice. One tip a day, rotating, so the card changes without feeling random.
 type TipPhase = Extract<Phase, 'Menstrual' | 'Follicular' | 'Ovulation' | 'Luteal' | 'Neutral'>;
 

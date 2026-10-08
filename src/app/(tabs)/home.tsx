@@ -127,7 +127,6 @@ export default function Home() {
         : { title: c.inRange(s.daysUntilNext, days(untilLatest)), subtitle: c.range(formatMonthDay(s.nextStart), formatMonthDay(s.latestStart)) };
     body = (
       <>
-        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
         <View style={styles.ring}>
           <CycleRing
             phase={s.phase}
@@ -137,6 +136,7 @@ export default function Home() {
             day={common.day(s.cycleDay)}
           />
         </View>
+        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
         <WeekStrip days={weekStrip(settings, today)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         <TodayLogCard
