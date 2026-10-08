@@ -2,12 +2,18 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { defineCopy, useCopy } from '../i18n';
 import { color, type } from '../theme';
 import { KeypadKey, PasscodeDot } from './Cycle';
 import { LogoMark } from './Logo';
 
 export const PASSCODE_LENGTH = 4;
 const ROWS = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']];
+
+const COPY = defineCopy({
+  en: { entered: (n: number, of: number) => `${n} of ${of} digits entered`, delete: 'Delete' },
+  tr: { entered: (n: number, of: number) => `${of} rakamdan ${n} tanesi girildi`, delete: 'Sil' },
+});
 
 // G6 layout: mark, title, subtitle (or error), four dots and the keypad. Used for the lock
 // screen and for setting or changing the passcode.
@@ -23,6 +29,7 @@ export function PasscodePad({ title, subtitle, error, entered, disabled, onDigit
   footer?: ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const c = useCopy(COPY);
   const press = (d: string) => () => !disabled && onDigit(d);
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: Math.max(insets.bottom, 16) }]}>
@@ -35,7 +42,7 @@ export function PasscodePad({ title, subtitle, error, entered, disabled, onDigit
         <Text accessibilityLiveRegion="polite" style={[type('Body/Medium'), styles.subtitle, { color: color[error ? 'feedback/danger' : 'text/secondary'] }]}>
           {subtitle}
         </Text>
-        <View style={styles.dots} accessible accessibilityLabel={`${entered} of ${PASSCODE_LENGTH} digits entered`}>
+        <View style={styles.dots} accessible accessibilityLabel={c.entered(entered, PASSCODE_LENGTH)}>
           {Array.from({ length: PASSCODE_LENGTH }, (_, i) => (
             <PasscodeDot key={i} state={error ? 'Error' : i < entered ? 'Filled' : 'Empty'} />
           ))}
@@ -50,7 +57,7 @@ export function PasscodePad({ title, subtitle, error, entered, disabled, onDigit
         <View style={styles.keyRow}>
           <KeypadKey />
           <KeypadKey digit="0" onPress={press('0')} />
-          <KeypadKey icon="delete-left" label="Delete" onPress={() => !disabled && onDelete()} />
+          <KeypadKey icon="delete-left" label={c.delete} onPress={() => !disabled && onDelete()} />
         </View>
       </View>
       <View style={styles.footer}>{footer}</View>

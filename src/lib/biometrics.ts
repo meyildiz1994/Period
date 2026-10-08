@@ -2,6 +2,21 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
+import { defineCopy, getCopy } from '../i18n';
+
+const COPY = defineCopy({
+  en: {
+    name: { 'Face ID': 'Face ID', 'Touch ID': 'Touch ID', fingerprint: 'fingerprint', 'face unlock': 'face unlock' } as Record<BiometricKind, string>,
+    use: (name: string) => `Use ${name}`,
+    usePasscode: 'Use passcode',
+  },
+  tr: {
+    name: { 'Face ID': 'Face ID', 'Touch ID': 'Touch ID', fingerprint: 'parmak izi', 'face unlock': 'yüz tanıma' },
+    use: (name: string) => `${name[0].toLocaleUpperCase('tr')}${name.slice(1)} kullan`,
+    usePasscode: 'Şifreyi kullan',
+  },
+});
+
 // What the phone offers for unlocking without the passcode, named the way the OS names it.
 export type BiometricKind = 'Face ID' | 'Touch ID' | 'fingerprint' | 'face unlock';
 
@@ -30,12 +45,15 @@ export function useBiometricKind() {
   return kind;
 }
 
+/** The kind in the current language, lower case where the OS writes it so ("parmak izi"). */
+export const biometricName = (kind: BiometricKind) => getCopy(COPY).name[kind];
+
 /** "Use Face ID", "Use fingerprint"… */
-export const unlockLabel = (kind: BiometricKind) => `Use ${kind}`;
+export const unlockLabel = (kind: BiometricKind) => getCopy(COPY).use(biometricName(kind));
 
 export async function authenticate(reason: string) {
   try {
-    const result = await LocalAuthentication.authenticateAsync({ promptMessage: reason, disableDeviceFallback: true, cancelLabel: 'Use passcode' });
+    const result = await LocalAuthentication.authenticateAsync({ promptMessage: reason, disableDeviceFallback: true, cancelLabel: getCopy(COPY).usePasscode });
     return result.success;
   } catch {
     return false;

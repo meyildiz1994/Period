@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 
+import { defineCopy, useCopy } from '../i18n';
 import { authenticate, unlockLabel, useBiometricKind } from '../lib/biometrics';
 import { checkPasscode, getLock, setLock, useLock } from '../state/lock';
 import { Button } from './Button';
@@ -8,6 +9,23 @@ import { PASSCODE_LENGTH, PasscodePad } from './Passcode';
 
 const MAX_TRIES = 5;
 const COOLDOWN_S = 30;
+
+const COPY = defineCopy({
+  en: {
+    title: 'Enter passcode',
+    unlock: 'Unlock Nilemy',
+    locked: 'Nilemy is locked',
+    cooldown: (s: number) => `Too many tries. Try again in ${s} seconds.`,
+    wrong: (left: number) => `Wrong passcode. ${left} ${left === 1 ? 'try' : 'tries'} left.`,
+  },
+  tr: {
+    title: 'Şifreni gir',
+    unlock: 'Nilemy’nin kilidini aç',
+    locked: 'Nilemy kilitli',
+    cooldown: (s: number) => `Çok fazla deneme yapıldı. ${s} saniye sonra tekrar dene.`,
+    wrong: (left: number) => `Yanlış şifre. ${left} deneme hakkın kaldı.`,
+  },
+});
 
 // Shows G6 over the whole app while it is locked, and locks again after the app has been in
 // the background for the chosen time.
@@ -43,6 +61,7 @@ export function LockGate({ children }: { children: ReactNode }) {
 function LockScreen() {
   const { biometrics } = useLock();
   const kind = useBiometricKind();
+  const c = useCopy(COPY);
   const [entered, setEntered] = useState('');
   const [tries, setTries] = useState(MAX_TRIES);
   const [wrong, setWrong] = useState(false);
@@ -51,7 +70,7 @@ function LockScreen() {
   const offerBiometrics = biometrics && kind !== null;
 
   const unlockWithBiometrics = async () => {
-    if (await authenticate('Unlock Nilemy')) setLock({ locked: false });
+    if (await authenticate(c.unlock)) setLock({ locked: false });
   };
 
   useEffect(() => {
@@ -90,15 +109,11 @@ function LockScreen() {
     if (left === 0) setCooldown(COOLDOWN_S);
   };
 
-  const subtitle = waiting
-    ? `Too many tries. Try again in ${cooldown} seconds.`
-    : wrong
-      ? `Wrong passcode. ${tries} ${tries === 1 ? 'try' : 'tries'} left.`
-      : 'Nilemy is locked';
+  const subtitle = waiting ? c.cooldown(cooldown) : wrong ? c.wrong(tries) : c.locked;
 
   return (
     <PasscodePad
-      title="Enter passcode"
+      title={c.title}
       subtitle={subtitle}
       error={wrong || waiting}
       entered={entered.length}
