@@ -8,7 +8,7 @@ import { color, type } from '../../theme';
 const COPY = defineCopy({
   en: {
     title: 'Terms of service',
-    updated: 'Last updated November 1, 2026',
+    updated: 'Last updated October 9, 2026',
     contraceptionTitle: 'Not for contraception',
     contraception: 'Estimates are not a reliable way to prevent pregnancy. Don’t use Nilemy for contraception.',
     items: [
@@ -19,7 +19,7 @@ const COPY = defineCopy({
   },
   tr: {
     title: 'Kullanım koşulları',
-    updated: 'Son güncelleme: 1 Kasım 2026',
+    updated: 'Son güncelleme: 9 Ekim 2026',
     contraceptionTitle: 'Doğum kontrolü için kullanılmaz',
     contraception: 'Tahminler gebeliği önlemenin güvenilir bir yolu değildir. Nilemy’yi doğum kontrolü için kullanma.',
     items: [
