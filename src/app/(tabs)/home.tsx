@@ -3,19 +3,69 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Banner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
-import { formatLong, formatShort, toISODate } from '../../lib/dates';
+import { defineCopy, useCopy } from '../../i18n';
+import { useCommon } from '../../i18n/common';
+import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, type } from '../../theme';
 
-const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
+const COPY = defineCopy({
+  en: {
+    emptyTitle: 'Log your last period',
+    emptyBody: 'One date is enough. Nilemy estimates your next one from there.',
+    logPeriod: 'Log period',
+    expectedToday: 'Period expected today',
+    expected: 'Period expected',
+    /** "3 days past estimate" */
+    late: (days: string) => `${days} past estimate`,
+    lateNote: 'Cycles often shift by a few days. Stress, travel and sleep can all play a part. Log it whenever it starts.',
+    tomorrow: 'Tomorrow',
+    inDays: (days: string) => `In ${days}`,
+    around: (date: string) => `Around ${date} · estimate`,
+    anyDay: 'Any day now',
+    expectedBy: (date: string) => `Expected by ${date} · estimate`,
+    /** "In 3–5 days" */
+    inRange: (from: number, to: string) => `In ${from}–${to}`,
+    range: (from: string, to: string) => `${from} – ${to} · estimate`,
+    flow: 'Flow',
+    pain: 'Pain',
+    mood: 'Mood',
+    hi: (name: string) => `Hi, ${name}`,
+    hiThere: 'Hi there',
+  },
+  tr: {
+    emptyTitle: 'Son adetini kaydet',
+    emptyBody: 'Tek bir tarih yeterli. Nilemy bir sonrakini buradan tahmin eder.',
+    logPeriod: 'Adet kaydet',
+    expectedToday: 'Adetin bugün bekleniyor',
+    expected: 'Adet bekleniyor',
+    late: (days: string) => `Tahminden ${days} sonra`,
+    lateNote: 'Döngüler sık sık birkaç gün kayabilir. Stres, seyahat ve uyku etkili olabilir. Başladığında kaydetmen yeterli.',
+    tomorrow: 'Yarın',
+    inDays: (days: string) => `${days} içinde`,
+    around: (date: string) => `${date} civarı · tahmini`,
+    anyDay: 'Her an başlayabilir',
+    expectedBy: (date: string) => `En geç ${date} · tahmini`,
+    inRange: (from: number, to: string) => `${from}–${to} içinde`,
+    range: (from: string, to: string) => `${from} – ${to} · tahmini`,
+    flow: 'Akış',
+    pain: 'Ağrı',
+    mood: 'Ruh hali',
+    hi: (name: string) => `Merhaba ${name}`,
+    hiThere: 'Merhaba',
+  },
+});
 
 // B1 Home (in cycle), B2 empty, B3 loading, B4 late. Designed to fit 844 without scrolling;
 // the ScrollView only matters on shorter phones or with large text.
 export default function Home() {
+  const c = useCopy(COPY);
+  const common = useCommon();
+  const { days } = common;
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const profile = useOnboarding();
@@ -33,13 +83,13 @@ export default function Home() {
     body = (
       <>
         <View style={styles.ring}>
-          <CycleRing phase="Empty" progress={0} size={220} label="No cycle data yet" day="–" />
+          <CycleRing phase="Empty" progress={0} size={220} label={common.phase.Empty} day="–" />
         </View>
         <EmptyState
           icon="drop-plus"
-          title="Log your last period"
-          body="One date is enough. Period estimates your next one from there."
-          action="Log period"
+          title={c.emptyTitle}
+          body={c.emptyBody}
+          action={c.logPeriod}
           onAction={openLog}
         />
       </>
@@ -53,19 +103,26 @@ export default function Home() {
           <CycleRing
             phase="Late"
             progress={1}
-            label="Period expected"
-            day={late === 0 ? 'Today' : `${days(late)} late`}
+            label={late === 0 ? c.expectedToday : c.expected}
+            day={common.day(status.cycleDay)}
+            note={late === 0 ? undefined : c.late(days(late))}
           />
         </View>
+        {/* Plain reassurance, not a banner: a late period shouldn't feel like an alert. */}
         {late > 0 ? (
-          <Banner message={`Your period is ${days(late)} later than estimated. Cycles often vary by a few days. Stress, travel and sleep can shift them.`} />
+          <Text style={[type('Body/Medium'), styles.lateNote]}>{c.lateNote}</Text>
         ) : null}
-        <Button label="Log period" type="Secondary" iconLeft="drop-plus" fullWidth onPress={openLog} />
+        <Button label={c.logPeriod} type="Secondary" iconLeft="drop-plus" fullWidth onPress={openLog} />
       </>
     );
   } else {
     const s = status;
-    const next = s.daysUntilNext === 1 ? 'Tomorrow' : `In ${days(s.daysUntilNext)}`;
+    const untilLatest = s.daysUntilNext + diffDays(s.nextStart, s.latestStart);
+    const next = !s.irregular
+      ? { title: s.daysUntilNext === 1 ? c.tomorrow : c.inDays(days(s.daysUntilNext)), subtitle: c.around(formatShort(s.nextStart)) }
+      : s.daysUntilNext <= 0
+        ? { title: c.anyDay, subtitle: c.expectedBy(formatShort(s.latestStart)) }
+        : { title: c.inRange(s.daysUntilNext, days(untilLatest)), subtitle: c.range(formatMonthDay(s.nextStart), formatMonthDay(s.latestStart)) };
     body = (
       <>
         <View style={styles.ring}>
@@ -73,17 +130,19 @@ export default function Home() {
             phase={s.phase}
             progress={s.progress}
             size={220}
-            day={`Day ${s.cycleDay}`}
+            label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
+            day={common.day(s.cycleDay)}
           />
         </View>
         <WeekStrip days={weekStrip(settings, today)} />
-        <NextPeriodCard title={next} subtitle={`Around ${formatShort(s.nextStart)} · estimate`} onCalendar={() => router.navigate('/history')} />
+        <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         <TodayLogCard
           onEdit={() => router.push('/log/daily')}
           items={[
-            { label: 'Flow', value: todayLog?.flow ?? null, icon: 'drop-fill' },
-            { label: 'Pain', value: todayLog?.pain ?? null, icon: 'bandage' },
-            { label: 'Mood', value: todayLog?.mood ?? null, icon: 'meh' },
+            // Logged values are stored in English; show them in the app language.
+            { label: c.flow, value: todayLog?.flow ? common.flow[todayLog.flow] : null, icon: 'drop-fill' },
+            { label: c.pain, value: todayLog?.pain ? common.pain[todayLog.pain] : null, icon: 'bandage' },
+            { label: c.mood, value: todayLog?.mood ? common.mood[todayLog.mood] : null, icon: 'meh' },
           ]}
         />
       </>
@@ -92,7 +151,7 @@ export default function Home() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <TopBar kind="Root" title={profile.name ? `Hi, ${profile.name}` : 'Hi there'} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
+      <TopBar kind="Root" title={profile.name ? c.hi(profile.name) : c.hiThere} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom }]}>
         {body}
       </ScrollView>
@@ -105,5 +164,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: layout.gutter, gap: 12 },
   ring: { alignItems: 'center', marginTop: 4, marginBottom: 4 },
   date: { marginTop: 8, color: color['text/secondary'] },
+  lateNote: { textAlign: 'center', color: color['text/secondary'], paddingHorizontal: 8 },
   lateRing: { marginTop: 12, marginBottom: 12 },
 });

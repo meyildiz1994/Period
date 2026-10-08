@@ -1,5 +1,6 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useCommon } from '../i18n/common';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Button } from './Button';
@@ -57,10 +58,11 @@ export function Toast({ kind = 'Success', message, action, onAction }: { kind?: 
 }
 
 // Figma: Dialog (Type). Modal confirmation; the safe option is always present.
-export function Dialog({ visible, destructive, title, body, confirmLabel, cancelLabel = 'Cancel', onConfirm, onCancel }: {
+export function Dialog({ visible, destructive, title, body, confirmLabel, cancelLabel, onConfirm, onCancel }: {
   visible: boolean; destructive?: boolean; title: string; body: string; confirmLabel: string; cancelLabel?: string;
   onConfirm: () => void; onCancel: () => void;
 }) {
+  const { cancel } = useCommon();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.scrim}>
@@ -72,7 +74,7 @@ export function Dialog({ visible, destructive, title, body, confirmLabel, cancel
           <Text style={[type('Body/Default'), styles.centerText, { color: color['text/secondary'] }]}>{body}</Text>
           <View style={{ height: 4 }} />
           <Button label={confirmLabel} type={destructive ? 'Destructive' : 'Primary'} fullWidth onPress={onConfirm} />
-          <Button label={cancelLabel} type="Ghost" fullWidth onPress={onCancel} />
+          <Button label={cancelLabel ?? cancel} type="Ghost" fullWidth onPress={onCancel} />
         </View>
       </View>
     </Modal>

@@ -1,9 +1,23 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { defineCopy, useCopy } from '../i18n';
 import { color, fontFamily, type } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
+
+const COPY = defineCopy({
+  en: {
+    placeholder: 'Add a note about how you feel today',
+    note: 'Note',
+    tooLong: (max: number) => `Notes can be up to ${max} characters.`,
+  },
+  tr: {
+    placeholder: 'Bugün nasıl hissettiğine dair bir not ekle',
+    note: 'Not',
+    tooLong: (max: number) => `Notlar en fazla ${max} karakter olabilir.`,
+  },
+});
 
 // Figma: Input (State: Default, Focused, Filled, Error, Disabled). Label always visible above the field.
 type InputProps = Omit<TextInputProps, 'style' | 'editable'> & {
@@ -47,9 +61,10 @@ export function Input({ label, helper, error, disabled, iconLeft, iconRight, ...
 }
 
 // Figma: Text Area (State: Default, Filled, Error). Multi-line note with a live character count.
-export function TextArea({ value, onChangeText, placeholder = 'Add a note about how you feel today', max = 250 }: {
+export function TextArea({ value, onChangeText, placeholder, max = 250 }: {
   value: string; onChangeText: (v: string) => void; placeholder?: string; max?: number;
 }) {
+  const c = useCopy(COPY);
   const over = value.length > max;
   return (
     <View style={styles.wrap}>
@@ -58,8 +73,8 @@ export function TextArea({ value, onChangeText, placeholder = 'Add a note about 
           multiline
           value={value}
           onChangeText={onChangeText}
-          placeholder={placeholder}
-          accessibilityLabel="Note"
+          placeholder={placeholder ?? c.placeholder}
+          accessibilityLabel={c.note}
           placeholderTextColor={color['text/tertiary']}
           selectionColor={color['border/focus']}
           style={[styles.areaInput, { color: color['text/primary'] }]}
@@ -71,7 +86,7 @@ export function TextArea({ value, onChangeText, placeholder = 'Add a note about 
       {over ? (
         <View style={styles.helper}>
           <Icon name="alert-circle" size={16} color="feedback/danger" />
-          <Text style={[type('Caption'), { flex: 1, color: color['feedback/danger'] }]}>Notes can be up to {max} characters.</Text>
+          <Text style={[type('Caption'), { flex: 1, color: color['feedback/danger'] }]}>{c.tooLong(max)}</Text>
         </View>
       ) : null}
     </View>

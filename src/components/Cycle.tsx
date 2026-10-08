@@ -1,20 +1,29 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
+import { defineCopy, useCopy } from '../i18n';
+import { useCommon } from '../i18n/common';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
 
+const COPY = defineCopy({
+  en: { estimate: ', estimate', flow: (level: string) => `Flow ${level}` },
+  tr: { estimate: ', tahmini', flow: (level: string) => `Akış: ${level}` },
+});
+
 // Figma: Cycle Ring (Phase). Signature component. Each phase has its own arc colour, drop and
 // "Day N" colour; the arc ends in a knob at today. Phases are calendar estimates, not medical
 // readings, and the screen reader label says so.
-export type Phase = 'Menstrual' | 'Follicular' | 'Ovulation' | 'Luteal' | 'Late' | 'Empty';
+// Neutral is for irregular cycles, where no phase is estimated.
+export type Phase = 'Menstrual' | 'Follicular' | 'Ovulation' | 'Luteal' | 'Neutral' | 'Late' | 'Empty';
 
 const PHASE_COLOR: Record<Phase, { arc: ColorToken; track: ColorToken; drop: ColorToken; day: ColorToken }> = {
   Menstrual: { arc: 'phase/menstrual', track: 'phase/menstrual-track', drop: 'phase/menstrual', day: 'phase/menstrual' },
   Follicular: { arc: 'phase/follicular', track: 'phase/follicular-track', drop: 'phase/follicular', day: 'phase/follicular' },
   Ovulation: { arc: 'phase/ovulation', track: 'phase/ovulation-track', drop: 'phase/ovulation', day: 'phase/ovulation' },
   Luteal: { arc: 'phase/luteal', track: 'phase/luteal-track', drop: 'phase/luteal', day: 'phase/luteal' },
+  Neutral: { arc: 'surface/brand', track: 'surface/muted', drop: 'surface/brand', day: 'text/brand' },
   Late: { arc: 'phase/menstrual', track: 'phase/menstrual-track', drop: 'phase/menstrual', day: 'phase/menstrual' },
   Empty: { arc: 'surface/strong', track: 'surface/strong', drop: 'surface/neutral', day: 'text/accent' },
 };
@@ -23,11 +32,13 @@ type CycleRingProps = {
   phase: Phase;
   /** 0–1 progress through the cycle. Ignored for Empty; Late draws a full ring. */
   progress: number;
-  /** Defaults to "<Phase> Phase". */
+  /** Defaults to the phase name ("Menstrual Phase"). */
   label?: string;
   day: string;
   /** Extra line under the day (D3 "days"). The phase rings themselves have none. */
   caption?: string;
+  /** Soft pill under the day (B4 "3 days past estimate"): visible without reading as a warning. */
+  note?: string;
   size?: number;
   /** Today's marker at the end of the arc. Off for D3, where the arc is the period's share. */
   knob?: boolean;
@@ -37,7 +48,7 @@ type CycleRingProps = {
   dayRole?: 'Display' | 'Title/Large';
 };
 
-export function CycleRing({ phase, progress, label, day, caption, size = 260, knob = true, icon = true, dayRole }: CycleRingProps) {
+export function CycleRing({ phase, progress, label, day, caption, note, size = 260, knob = true, icon = true, dayRole }: CycleRingProps) {
   // 20 at the 260 hero size, scaled down for Home (220) and Cycle details (200).
   const stroke = Math.round(size / 13);
   // Home's 220 ring uses smaller text than the 260 hero ring.
@@ -49,11 +60,13 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260, kn
   const tone = PHASE_COLOR[phase];
   const angle = p * 2 * Math.PI - Math.PI / 2;
   const dot = { x: c + r * Math.cos(angle), y: c + r * Math.sin(angle) };
-  const title = label ?? `${phase} Phase`;
-  const estimate = phase === 'Empty' || phase === 'Late' ? '' : ', estimate';
+  const copy = useCopy(COPY);
+  const common = useCommon();
+  const title = label ?? common.phase[phase];
+  const estimate = phase === 'Empty' || phase === 'Late' ? '' : copy.estimate;
 
   return (
-    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${title}${estimate}. ${day}.${caption ? ` ${caption}` : ''}`}>
+    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${title}${estimate}. ${day}.${caption ? ` ${caption}` : ''}${note ? ` ${note}.` : ''}`}>
       <Svg width={size} height={size}>
         <Circle cx={c} cy={c} r={r} stroke={color[tone.track]} strokeWidth={stroke} fill="none" />
         {p > 0 ? (
@@ -69,14 +82,19 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260, kn
         ) : null}
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.ringCenter, { paddingHorizontal: stroke + 4 }]}>
-        {icon ? <PhaseDrop size={size * 0.2} fill={color[tone.drop]} /> : null}
+        {icon ? <PhaseDrop size={size * (note ? 0.13 : 0.2)} fill={color[tone.drop]} /> : null}
         {label !== '' ? (
-          <Text style={[type(compact ? 'Caption' : 'Body/Small', 'Medium'), styles.centerText, { color: color['text/secondary'], marginTop: icon ? size * 0.03 : 0 }]}>
+          <Text style={[type(compact ? 'Caption' : 'Body/Small', 'Medium'), styles.centerText, { color: color['text/secondary'], marginTop: icon ? size * (note ? 0.02 : 0.03) : 0 }]}>
             {title}
           </Text>
         ) : null}
         <Text style={[type(dayRole ?? (compact ? 'Title/Large' : 'Display'), 'Bold'), styles.centerText, { color: color[tone.day] }]}>{day}</Text>
         {caption ? <Text style={[type(compact ? 'Caption' : 'Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text> : null}
+        {note ? (
+          <View style={styles.note}>
+            <Text style={[type(compact ? 'Caption' : 'Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>{note}</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -131,16 +149,18 @@ export const FLOW_LEVELS: { level: FlowLevelName; icon: IconName }[] = [
 
 export function FlowLevel({ level, selected, onPress }: { level: FlowLevelName; selected?: boolean; onPress?: () => void }) {
   const icon = FLOW_LEVELS.find((l) => l.level === level)!.icon;
+  const c = useCopy(COPY);
+  const name = useCommon().flow[level];
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityLabel={`Flow ${level}`}
+      accessibilityLabel={c.flow(name)}
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
       style={[styles.flow, selected ? { backgroundColor: color['surface/brand'] } : { backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'] }]}
     >
       <Icon name={icon} size={20} color={selected ? 'text/on-brand' : level === 'None' ? 'text/tertiary' : 'text/brand'} />
-      <Text style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>{level}</Text>
+      <Text style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>{name}</Text>
     </Pressable>
   );
 }
@@ -175,6 +195,7 @@ export function KeypadKey({ digit, icon, label, onPress }: { digit?: string; ico
 }
 
 const styles = StyleSheet.create({
+  note: { marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999, backgroundColor: color['surface/muted'] },
   centerText: { textAlign: 'center' },
   ringCenter: { alignItems: 'center', justifyContent: 'center' },
   day: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', gap: 2 },

@@ -17,7 +17,7 @@ export default function Tokens() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[overline(12), { color: color['text/brand'] }]}>Period · Design system</Text>
+        <Text style={[overline(12), { color: color['text/brand'] }]}>Nilemy · Design system</Text>
         <Text style={[type('Title/Large', 'Bold'), { color: color['text/primary'] }]}>Track. Understand. Manage.</Text>
         <Text style={[type('Body/Default'), { color: color['text/secondary'] }]}>
           Tokens, type and icons ported from Figma. Screens come next.

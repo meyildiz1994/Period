@@ -3,12 +3,51 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar, Button, Divider, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
+import { defineCopy, LANGUAGES, useCopy, useLang } from '../../i18n';
+import { useCommon } from '../../i18n/common';
 import { APP_VERSION } from '../../lib/app';
-import { useBiometricKind } from '../../lib/biometrics';
+import { biometricName, useBiometricKind } from '../../lib/biometrics';
 import { resetLock, useLock } from '../../state/lock';
 import { resetLog } from '../../state/log';
 import { resetOnboarding, useOnboarding } from '../../state/onboarding';
 import { color, layout, radius, type } from '../../theme';
+
+const COPY = defineCopy({
+  en: {
+    title: 'Me',
+    saved: 'Saved on this device',
+    settings: 'Settings',
+    cycle: 'Cycle settings',
+    cycleSub: 'Cycle and period length',
+    reminders: 'Reminders',
+    data: 'Your data',
+    dataSub: 'Export or delete',
+    lock: 'App lock',
+    passcode: 'Passcode',
+    language: 'Language',
+    about: 'About',
+    aboutApp: 'About Nilemy',
+    privacy: 'Privacy policy',
+    terms: 'Terms of service',
+  },
+  tr: {
+    title: 'Ben',
+    saved: 'Bu cihazda kayıtlı',
+    settings: 'Ayarlar',
+    cycle: 'Döngü ayarları',
+    cycleSub: 'Döngü ve adet süresi',
+    reminders: 'Hatırlatıcılar',
+    data: 'Verilerin',
+    dataSub: 'Dışa aktar ya da sil',
+    lock: 'Uygulama kilidi',
+    passcode: 'Şifre',
+    language: 'Dil',
+    about: 'Hakkında',
+    aboutApp: 'Nilemy hakkında',
+    privacy: 'Gizlilik politikası',
+    terms: 'Kullanım koşulları',
+  },
+});
 
 // G1 Me. v1 has no accounts, so the design's "Back up with an account" button is left out.
 export default function Me() {
@@ -17,38 +56,56 @@ export default function Me() {
   const { name, reminder } = useOnboarding();
   const lock = useLock();
   const kind = useBiometricKind();
+  const c = useCopy(COPY);
+  const common = useCommon();
+  const lang = useLang();
+  const biometric = kind ? biometricName(kind) : null;
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <TopBar kind="Root" title="Me" userName={name ?? undefined} />
+      <TopBar kind="Root" title={c.title} userName={name ?? undefined} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         <View style={styles.profile}>
           <Avatar name={name ?? undefined} size="Large" />
           {name ? <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{name}</Text> : null}
           <View style={styles.pill}>
             <View style={styles.dot} />
-            <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>Saved on this device</Text>
+            <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{c.saved}</Text>
           </View>
         </View>
 
-        <SectionHeader title="Settings" />
+        <SectionHeader title={c.settings} />
         <View style={styles.list}>
-          <ListRow title="Cycle settings" subtitle="Cycle and period length" icon="drop" onPress={() => router.push('/settings/cycle')} />
+          <ListRow title={c.cycle} subtitle={c.cycleSub} icon="drop" onPress={() => router.push('/settings/cycle')} />
           <Divider inset={0} />
-          <ListRow title="Reminders" icon="bell-ring" trailing="Value" value={reminder.enabled ? 'On' : 'Off'} onPress={() => router.push('/settings/reminders')} />
+          <ListRow title={c.reminders} icon="bell-ring" trailing="Value" value={reminder.enabled ? common.on : common.off} onPress={() => router.push('/settings/reminders')} />
           <Divider inset={0} />
-          <ListRow title="Your data" subtitle="Export or delete" icon="folder-user" onPress={() => router.push('/data')} />
+          <ListRow title={c.data} subtitle={c.dataSub} icon="folder-user" onPress={() => router.push('/data')} />
           <Divider inset={0} />
-          <ListRow title="App lock" icon="lock" trailing="Value" value={lock.enabled ? (lock.biometrics && kind ? kind[0].toUpperCase() + kind.slice(1) : 'Passcode') : 'Off'} onPress={() => router.push('/settings/lock')} />
+          <ListRow
+            title={c.lock}
+            icon="lock"
+            trailing="Value"
+            value={lock.enabled ? (lock.biometrics && biometric ? biometric[0].toLocaleUpperCase(lang) + biometric.slice(1) : c.passcode) : common.off}
+            onPress={() => router.push('/settings/lock')}
+          />
+          <Divider inset={0} />
+          <ListRow
+            title={c.language}
+            icon="globe"
+            trailing="Value"
+            value={LANGUAGES.find((l) => l.id === lang)?.name}
+            onPress={() => router.push('/settings/language')}
+          />
         </View>
 
-        <SectionHeader title="About" />
+        <SectionHeader title={c.about} />
         <View style={styles.list}>
-          <ListRow title="About Period" icon="info" trailing="Value" value={APP_VERSION.replace(/\.0$/, '')} onPress={() => router.push('/about')} />
+          <ListRow title={c.aboutApp} icon="info" trailing="Value" value={APP_VERSION.replace(/\.0$/, '')} onPress={() => router.push('/about')} />
           <Divider inset={0} />
-          <ListRow title="Privacy policy" icon="shield" onPress={() => router.push('/about/privacy')} />
+          <ListRow title={c.privacy} icon="shield" onPress={() => router.push('/about/privacy')} />
           <Divider inset={0} />
-          <ListRow title="Terms of service" icon="file-text" onPress={() => router.push('/about/terms')} />
+          <ListRow title={c.terms} icon="file-text" onPress={() => router.push('/about/terms')} />
         </View>
 
         {__DEV__ ? (

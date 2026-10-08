@@ -1,34 +1,55 @@
 import { router } from 'expo-router';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
-import { Banner, Divider, Icon, ListRow, Page } from '../../components';
+import { Banner, Divider, ListRow, LogoMark, Page } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { APP_VERSION } from '../../lib/app';
 import { color, radius, type } from '../../theme';
 
-const SUPPORT = 'help@period.app';
+const SUPPORT = 'help@nilemy.app';
+
+const COPY = defineCopy({
+  en: {
+    title: 'About Nilemy',
+    version: (v: string) => `Version ${v}`,
+    tagline: 'A calm way to track your cycle. Track, understand, manage.',
+    privacy: 'Privacy policy',
+    terms: 'Terms of service',
+    support: 'Contact support',
+    notMedical: 'Nilemy isn’t a medical device. Talk to a doctor about anything that worries you.',
+  },
+  tr: {
+    title: 'Nilemy hakkında',
+    version: (v: string) => `Sürüm ${v}`,
+    tagline: 'Döngünü takip etmenin sakin bir yolu. Takip et, anla, yönet.',
+    privacy: 'Gizlilik politikası',
+    terms: 'Kullanım koşulları',
+    support: 'Destekle iletişime geç',
+    notMedical: 'Nilemy tıbbi bir cihaz değildir. Seni endişelendiren her konuda bir doktorla konuş.',
+  },
+});
 
 // G7 About Period.
 export default function About() {
+  const c = useCopy(COPY);
   return (
-    <Page title="About Period" onBack={router.back}>
+    <Page title={c.title} onBack={router.back}>
       <View style={[styles.card, styles.hero]}>
-        <View style={styles.mark}>
-          <Icon name="drop-fill" size={28} color="text/brand" />
-        </View>
-        <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>Period</Text>
-        <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>Version {APP_VERSION}</Text>
+        <LogoMark size={64} />
+        <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>Nilemy</Text>
+        <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{c.version(APP_VERSION)}</Text>
         <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>
-          A calm way to track your cycle. Track, understand, manage.
+          {c.tagline}
         </Text>
       </View>
       <View style={[styles.card, { overflow: 'hidden' }]}>
-        <ListRow title="Privacy policy" icon="shield" onPress={() => router.push('/about/privacy')} />
+        <ListRow title={c.privacy} icon="shield" onPress={() => router.push('/about/privacy')} />
         <Divider inset={0} />
-        <ListRow title="Terms of service" icon="file-text" onPress={() => router.push('/about/terms')} />
+        <ListRow title={c.terms} icon="file-text" onPress={() => router.push('/about/terms')} />
         <Divider inset={0} />
-        <ListRow title="Contact support" subtitle={SUPPORT} icon="mail" onPress={() => Linking.openURL(`mailto:${SUPPORT}`).catch(() => {})} />
+        <ListRow title={c.support} subtitle={SUPPORT} icon="mail" onPress={() => Linking.openURL(`mailto:${SUPPORT}`).catch(() => {})} />
       </View>
-      <Banner message="Period isn’t a medical device. Talk to a doctor about anything that worries you." />
+      <Banner message={c.notMedical} />
     </Page>
   );
 }
@@ -36,6 +57,5 @@ export default function About() {
 const styles = StyleSheet.create({
   card: { borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
   hero: { alignItems: 'center', gap: 8, paddingVertical: 24, paddingHorizontal: 24 },
-  mark: { width: 56, height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'], marginBottom: 4 },
   center: { textAlign: 'center' },
 });

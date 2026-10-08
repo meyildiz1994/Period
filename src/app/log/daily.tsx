@@ -3,6 +3,8 @@ import { useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Choice, FLOW_LEVELS, FlowLevel, Page, Tag, TextArea, Toast, type FlowLevelName } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
+import { useCommon } from '../../i18n/common';
 import { diffDays, formatDay, fromISODate, toISODate } from '../../lib/dates';
 import { periodSpan, useCycleSettings } from '../../state/cycle';
 import { getLog, saveDay, type Mood, type Pain } from '../../state/log';
@@ -21,8 +23,39 @@ const MOODS: { mood: Mood; icon: IconName }[] = [
 ];
 const NOTE_MAX = 250;
 
+const COPY = defineCopy({
+  en: {
+    title: 'Daily log',
+    saveFailed: 'Couldn’t save. Your entries are kept on this screen.',
+    retry: 'Retry',
+    cycleDay: (n: number) => `Cycle day ${n}`,
+    period: 'Period',
+    flow: 'Flow',
+    pain: 'Pain',
+    mood: 'Mood',
+    symptoms: 'Symptoms',
+    add: 'Add',
+    note: 'Note',
+  },
+  tr: {
+    title: 'Günlük kayıt',
+    saveFailed: 'Kaydedilemedi. Girdiklerin bu ekranda duruyor.',
+    retry: 'Tekrar dene',
+    cycleDay: (n: number) => `Döngünün ${n}. günü`,
+    period: 'Adet',
+    flow: 'Akış',
+    pain: 'Ağrı',
+    mood: 'Ruh hali',
+    symptoms: 'Belirtiler',
+    add: 'Ekle',
+    note: 'Not',
+  },
+});
+
 // C3 Daily log for today, or for `?date=YYYY-MM-DD`. Every field is optional.
 export default function DailyLog() {
+  const c = useCopy(COPY);
+  const common = useCommon();
   const params = useLocalSearchParams<{ date?: string }>();
   const [dateKey] = useState(() => params.date ?? toISODate(new Date()));
   const date = fromISODate(dateKey);
@@ -56,18 +89,18 @@ export default function DailyLog() {
 
   return (
     <Page
-      title="Daily log"
+      title={c.title}
       onBack={router.back}
-      footer={<Button label="Save" iconLeft="check" fullWidth disabled={note.length > NOTE_MAX} onPress={save} />}
-      overlay={failed ? <Toast kind="Error" message="Couldn’t save. Your entries are kept on this screen." action="Retry" onAction={() => { setFailed(false); save(); }} /> : null}
+      footer={<Button label={common.save} iconLeft="check" fullWidth disabled={note.length > NOTE_MAX} onPress={save} />}
+      overlay={failed ? <Toast kind="Error" message={c.saveFailed} action={c.retry} onAction={() => { setFailed(false); save(); }} /> : null}
     >
       <View style={styles.head}>
         <Text accessibilityRole="header" style={[type('Headline', 'SemiBold'), styles.title]}>{formatDay(date)}</Text>
-        {cycleDay >= 1 ? <Tag label={`Cycle day ${cycleDay}`} /> : null}
-        {inPeriod ? <Tag label="Period" tone="Strong" /> : null}
+        {cycleDay >= 1 ? <Tag label={c.cycleDay(cycleDay)} /> : null}
+        {inPeriod ? <Tag label={c.period} tone="Strong" /> : null}
       </View>
 
-      <Section title="Flow">
+      <Section title={c.flow}>
         <View style={styles.flows} accessibilityRole="radiogroup">
           {FLOW_LEVELS.map((f) => (
             <FlowLevel key={f.level} level={f.level} selected={flow === f.level} onPress={() => setFlow(flow === f.level ? null : f.level)} />
@@ -75,26 +108,26 @@ export default function DailyLog() {
         </View>
       </Section>
 
-      <Section title="Pain">
+      <Section title={c.pain}>
         <View style={styles.chips}>
-          {PAIN.map((p) => <Choice key={p} label={p} selected={pain === p} onPress={() => setPain(pain === p ? null : p)} />)}
+          {PAIN.map((p) => <Choice key={p} label={common.pain[p]} selected={pain === p} onPress={() => setPain(pain === p ? null : p)} />)}
         </View>
       </Section>
 
-      <Section title="Mood">
+      <Section title={c.mood}>
         <View style={styles.chips}>
-          {MOODS.map((m) => <Choice key={m.mood} label={m.mood} icon={m.icon} selected={mood === m.mood} onPress={() => setMood(mood === m.mood ? null : m.mood)} />)}
+          {MOODS.map((m) => <Choice key={m.mood} label={common.mood[m.mood]} icon={m.icon} selected={mood === m.mood} onPress={() => setMood(mood === m.mood ? null : m.mood)} />)}
         </View>
       </Section>
 
-      <Section title="Symptoms">
+      <Section title={c.symptoms}>
         <View style={styles.chips}>
-          {offered.map((s) => <Choice key={s.label} label={s.label} icon={s.icon} selected={symptoms.includes(s.label)} onPress={() => toggle(s.label)} />)}
-          {showAll ? null : <Choice label="Add" icon="plus" onPress={() => setShowAll(true)} />}
+          {offered.map((s) => <Choice key={s.label} label={common.symptom[s.label] ?? s.label} icon={s.icon} selected={symptoms.includes(s.label)} onPress={() => toggle(s.label)} />)}
+          {showAll ? null : <Choice label={c.add} icon="plus" onPress={() => setShowAll(true)} />}
         </View>
       </Section>
 
-      <Section title="Note">
+      <Section title={c.note}>
         <TextArea value={note} onChangeText={setNote} max={NOTE_MAX} />
       </Section>
     </Page>

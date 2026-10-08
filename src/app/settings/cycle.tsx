@@ -3,14 +3,53 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Banner, Button, CYCLE_RANGE, Divider, LengthRow, ListRow, Page, PERIOD_RANGE } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { pastCycles } from '../../state/history';
 import { insights } from '../../state/insights';
 import { getLog } from '../../state/log';
 import { getOnboarding, setOnboarding } from '../../state/onboarding';
 import { color, radius, type } from '../../theme';
 
+const COPY = defineCopy({
+  en: {
+    title: 'Cycle settings',
+    intro: 'Used for estimates until you’ve logged enough cycles. After that, your own history takes over.',
+    save: 'Save changes',
+    cycleLength: 'Cycle length',
+    average: (n: number) => `Your average: ${n} days`,
+    cycleUsual: 'Most cycles are 21–35 days',
+    periodLength: 'Period length',
+    periodUsual: 'Usually 3–7 days',
+    calendar: 'Calendar',
+    showPredicted: 'Show predicted days',
+    showPredictedHint: 'Dashed outline on the calendar',
+    weekStart: 'Week starts on',
+    sunday: 'Sunday',
+    monday: 'Monday',
+    note: 'Changing these doesn’t edit periods you’ve already logged.',
+  },
+  tr: {
+    title: 'Döngü ayarları',
+    intro: 'Yeterince döngü kaydedene kadar tahminlerde bunlar kullanılır. Sonrasında kendi geçmişin devreye girer.',
+    save: 'Değişiklikleri kaydet',
+    cycleLength: 'Döngü süresi',
+    average: (n: number) => `Ortalaman: ${n} gün`,
+    cycleUsual: 'Çoğu döngü 21–35 gün sürer',
+    periodLength: 'Adet süresi',
+    periodUsual: 'Genellikle 3–7 gün',
+    calendar: 'Takvim',
+    showPredicted: 'Tahmini günleri göster',
+    showPredictedHint: 'Takvimde kesikli çerçeve',
+    weekStart: 'Hafta başlangıcı',
+    sunday: 'Pazar',
+    monday: 'Pazartesi',
+    note: 'Bunları değiştirmek daha önce kaydettiğin adetleri değiştirmez.',
+  },
+});
+
 // G2 Cycle settings. Edits a draft; Save changes applies it.
 export default function CycleSettings() {
+  const c = useCopy(COPY);
   const [draft, setDraft] = useState(() => {
     const s = getOnboarding();
     return { cycleLength: s.cycleLength, periodLength: s.periodLength, showPredicted: s.showPredicted, weekStartsOn: s.weekStartsOn };
@@ -23,12 +62,12 @@ export default function CycleSettings() {
 
   return (
     <Page
-      title="Cycle settings"
+      title={c.title}
       onBack={router.back}
-      intro="Used for estimates until you’ve logged enough cycles. After that, your own history takes over."
+      intro={c.intro}
       footer={
         <Button
-          label="Save changes"
+          label={c.save}
           fullWidth
           onPress={() => {
             setOnboarding(draft);
@@ -39,27 +78,27 @@ export default function CycleSettings() {
     >
       <View style={styles.card}>
         <LengthRow
-          title="Cycle length"
-          subtitle={avg ? `Your average: ${avg.avgCycle} days` : 'Most cycles are 21–35 days'}
+          title={c.cycleLength}
+          subtitle={avg ? c.average(avg.avgCycle) : c.cycleUsual}
           value={draft.cycleLength}
           {...CYCLE_RANGE}
           onChange={(v) => patch({ cycleLength: v })}
         />
         <View style={styles.divider} />
         <LengthRow
-          title="Period length"
-          subtitle={avg ? `Your average: ${avg.avgPeriod} days` : 'Usually 3–7 days'}
+          title={c.periodLength}
+          subtitle={avg ? c.average(avg.avgPeriod) : c.periodUsual}
           value={draft.periodLength}
           {...PERIOD_RANGE}
           onChange={(v) => patch({ periodLength: v })}
         />
       </View>
 
-      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>Calendar</Text>
+      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{c.calendar}</Text>
       <View style={[styles.card, { overflow: 'hidden' }]}>
         <ListRow
-          title="Show predicted days"
-          subtitle="Dashed outline on the calendar"
+          title={c.showPredicted}
+          subtitle={c.showPredictedHint}
           icon="calendar"
           trailing="Toggle"
           toggled={draft.showPredicted}
@@ -67,15 +106,15 @@ export default function CycleSettings() {
         />
         <Divider inset={0} />
         <ListRow
-          title="Week starts on"
+          title={c.weekStart}
           icon="calendar-grid"
           trailing="Value"
-          value={draft.weekStartsOn === 0 ? 'Sunday' : 'Monday'}
+          value={draft.weekStartsOn === 0 ? c.sunday : c.monday}
           onPress={() => patch({ weekStartsOn: draft.weekStartsOn === 0 ? 1 : 0 })}
         />
       </View>
 
-      <Banner message="Changing these doesn’t edit periods you’ve already logged." />
+      <Banner message={c.note} />
     </Page>
   );
 }

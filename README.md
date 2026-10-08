@@ -1,4 +1,4 @@
-# Period
+# Nilemy
 
 Menstrual cycle tracking app for iOS and Android (Expo + React Native + TypeScript).
 

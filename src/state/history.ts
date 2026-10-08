@@ -1,6 +1,25 @@
 import type { DayState, FlowLevelName } from '../components/Cycle';
+import { defineCopy, getCopy } from '../i18n';
+import { getCommon } from '../i18n/common';
 import { addDays, diffDays, fromISODate, toISODate } from '../lib/dates';
 import type { DayLog, Period } from './log';
+
+const COPY = defineCopy({
+  en: {
+    flow: (level: string) => `${level} flow`,
+    pain: (level: string) => `${level} pain`,
+    nothing: 'Nothing logged',
+    note: 'Note',
+    flowDays: (level: string, n: number) => `${level} ${n}d`,
+  },
+  tr: {
+    flow: (level: string) => `Akış: ${level}`,
+    pain: (level: string) => `Ağrı: ${level}`,
+    nothing: 'Kayıt yok',
+    note: 'Not',
+    flowDays: (level: string, n: number) => `${level} ${n} gün`,
+  },
+});
 
 // Derived views for History (D1–D3). Periods come newest first from the log store.
 
@@ -67,14 +86,17 @@ export function dayState(date: Date, s: CalendarSettings, today: Date): DayState
 
 /** "Medium flow · Mild pain · Okay" */
 export function daySummary(log: DayLog | undefined) {
-  if (!log) return 'Nothing logged';
+  const c = getCopy(COPY);
+  if (!log) return c.nothing;
+  // Values are stored in English; translate only for display.
+  const common = getCommon();
   const parts = [
-    log.flow && log.flow !== 'None' ? `${log.flow} flow` : null,
-    log.pain && log.pain !== 'None' ? `${log.pain} pain` : null,
-    log.mood,
-    ...log.symptoms,
+    log.flow && log.flow !== 'None' ? c.flow(common.flow[log.flow]) : null,
+    log.pain && log.pain !== 'None' ? c.pain(common.pain[log.pain]) : null,
+    log.mood ? common.mood[log.mood] : null,
+    ...log.symptoms.map((s) => common.symptom[s] ?? s),
   ].filter(Boolean);
-  return parts.length ? parts.join(' · ') : log.note ? 'Note' : 'Nothing logged';
+  return parts.length ? parts.join(' · ') : log.note ? c.note : c.nothing;
 }
 
 /** "Medium 2d · Light 2d · Spotting 1d" for the logged flow inside a period. */
@@ -86,5 +108,7 @@ export function flowBreakdown(period: Period, days: Record<string, DayLog>, usua
     if (flow && flow !== 'None') counts.set(flow, (counts.get(flow) ?? 0) + 1);
   }
   const order: FlowLevelName[] = ['Heavy', 'Medium', 'Light', 'Spotting'];
-  return order.filter((f) => counts.has(f)).map((f) => `${f} ${counts.get(f)}d`).join(' · ');
+  const c = getCopy(COPY);
+  const { flow } = getCommon();
+  return order.filter((f) => counts.has(f)).map((f) => c.flowDays(flow[f], counts.get(f)!)).join(' · ');
 }

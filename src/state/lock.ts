@@ -57,4 +57,3 @@ export function useLock() {
   return useSyncExternalStore(subscribeLock, getLock, getLock);
 }
 
-export const LOCK_AFTER_LABEL: Record<LockAfter, string> = { 0: 'Immediately', 60: 'After 1 minute', 300: 'After 5 minutes' };

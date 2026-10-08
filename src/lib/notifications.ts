@@ -2,6 +2,8 @@ import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { Platform } from 'react-native';
 
+import { defineCopy, getCopy } from '../i18n';
+import { cycleSettings } from '../state/cycle';
 import { pastCycles } from '../state/history';
 import { latestPeriod, getLog, subscribeLog } from '../state/log';
 import { getOnboarding, subscribeOnboarding } from '../state/onboarding';
@@ -10,6 +12,33 @@ import { addDays, fromISODate } from './dates';
 // I2 local notifications. One period reminder (G3) made of up to three messages around the
 // estimated start: the heads-up, "expected today" and "2 days late". Each opens a screen.
 export type NotificationAccess = 'granted' | 'undetermined' | 'denied' | 'unsupported';
+
+// Written in the language active when they're scheduled; a language change reschedules them
+// (it's an onboarding store change, see startReminders).
+const COPY = defineCopy({
+  en: {
+    channel: 'Period reminders',
+    soon: (lead: number) => (lead === 1 ? 'Your period may start tomorrow' : `Your period may start in ${lead} days`),
+    fromCycles: (n: number) => `An estimate from your last ${n} cycles.`,
+    fromUsual: 'An estimate from your usual cycle length.',
+    today: 'Your period is expected today',
+    anyDay: 'Your period may start any day now',
+    logIt: 'Log it in Nilemy when it starts.',
+    past: 'Your period is 2 days past the estimate',
+    shift: 'Cycles often shift a little. Log it whenever it starts.',
+  },
+  tr: {
+    channel: 'Adet hatırlatıcıları',
+    soon: (lead: number) => (lead === 1 ? 'Adetin yarın başlayabilir' : `Adetin ${lead} gün içinde başlayabilir`),
+    fromCycles: (n: number) => `Son ${n} döngüne göre bir tahmin.`,
+    fromUsual: 'Her zamanki döngü süren üzerinden bir tahmin.',
+    today: 'Adetinin bugün başlaması bekleniyor',
+    anyDay: 'Adetin her an başlayabilir',
+    logIt: 'Başladığında Nilemy’de kaydet.',
+    past: 'Tahmini tarihin üzerinden 2 gün geçti',
+    shift: 'Döngüler sık sık biraz kayar. Ne zaman başlarsa kaydet.',
+  },
+});
 
 const CHANNEL = 'period-reminders';
 const supported = Platform.OS !== 'web';
@@ -23,7 +52,7 @@ if (supported) {
 async function ensureChannel() {
   if (Platform.OS !== 'android') return;
   await Notifications.setNotificationChannelAsync(CHANNEL, {
-    name: 'Period reminders',
+    name: getCopy(COPY).channel,
     importance: Notifications.AndroidImportance.DEFAULT,
     // Lock screen shows only the app name unless the phone is unlocked.
     lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
@@ -56,23 +85,28 @@ function at(day: Date, hhmm: string) {
 export async function rescheduleReminders() {
   if (!supported) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
-  const { reminder, cycleLength, periodLength } = getOnboarding();
+  const onboarding = getOnboarding();
+  const { reminder, periodLength } = onboarding;
   const log = getLog();
   const latest = latestPeriod(log);
   if (!reminder.enabled || !latest || (await notificationAccess()) !== 'granted') return;
 
-  const expected = addDays(fromISODate(latest.start), cycleLength);
+  // Irregular cycles: remind before the earliest expected day, count "late" from the latest.
+  const { window } = cycleSettings(onboarding, log);
+  const expected = addDays(fromISODate(latest.start), window.min);
+  const latestExpected = addDays(fromISODate(latest.start), window.max);
   const cycles = pastCycles(log.periods, periodLength).length;
   const lead = reminder.daysBefore;
+  const c = getCopy(COPY);
   const messages = [
     {
       when: at(addDays(expected, -lead), reminder.time),
-      title: lead === 1 ? 'Your period may start tomorrow' : `Your period may start in ${lead} days`,
-      body: cycles >= 2 ? `An estimate from your last ${Math.min(cycles, 6)} cycles.` : 'An estimate from your usual cycle length.',
+      title: c.soon(lead),
+      body: cycles >= 2 ? c.fromCycles(Math.min(cycles, 6)) : c.fromUsual,
       url: '/home',
     },
-    { when: at(expected, reminder.time), title: 'Your period is expected today', body: 'Log it in Period when it starts.', url: '/log/period' },
-    { when: at(addDays(expected, 2), reminder.time), title: 'Your period is 2 days late', body: 'Cycles often vary. Log it when it starts.', url: '/home' },
+    { when: at(expected, reminder.time), title: window.min === window.max ? c.today : c.anyDay, body: c.logIt, url: '/log/period' },
+    { when: at(addDays(latestExpected, 2), reminder.time), title: c.past, body: c.shift, url: '/home' },
   ];
   const now = Date.now();
   await ensureChannel();
@@ -88,7 +122,7 @@ export async function rescheduleReminders() {
 let timer: ReturnType<typeof setTimeout> | null = null;
 const soon = () => {
   if (timer) clearTimeout(timer);
-  timer = setTimeout(() => rescheduleReminders().catch((e) => console.warn('Period: scheduling reminders failed', e)), 500);
+  timer = setTimeout(() => rescheduleReminders().catch((e) => console.warn('Nilemy: scheduling reminders failed', e)), 500);
 };
 
 /** After saved data is loaded: keep reminders in step with settings and logs, and open the

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AppState, Linking, Platform, StyleSheet, View } from 'react-native';
 
 import { Banner, BottomSheet, Choice, ListRow, Page, ReminderTiming } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { formatClock } from '../../lib/dates';
 import { notificationAccess, requestNotificationAccess, type NotificationAccess } from '../../lib/notifications';
 import { setOnboarding, useOnboarding } from '../../state/onboarding';
@@ -10,8 +11,32 @@ import { color, radius } from '../../theme';
 
 const TIMES = ['07:00', '08:00', '09:00', '12:00', '18:00', '20:00', '21:00'];
 
+const COPY = defineCopy({
+  en: {
+    title: 'Reminders',
+    offTitle: 'Notifications are off for Nilemy',
+    offMessage: (ios: boolean) => `Notifications are off for Nilemy in ${ios ? 'iPhone Settings' : 'your phone’s settings'}, so reminders can’t reach you.`,
+    openSettings: 'Open Settings',
+    period: 'Period reminder',
+    periodHint: 'Before your estimated start date',
+    remindAt: 'Remind me at',
+    only: 'This is the only reminder Nilemy sends. No marketing notifications.',
+  },
+  tr: {
+    title: 'Hatırlatıcılar',
+    offTitle: 'Nilemy için bildirimler kapalı',
+    offMessage: (ios: boolean) => `${ios ? 'iPhone Ayarları’nda' : 'Telefonunun ayarlarında'} Nilemy için bildirimler kapalı, bu yüzden hatırlatıcılar sana ulaşamıyor.`,
+    openSettings: 'Ayarları aç',
+    period: 'Adet hatırlatıcısı',
+    periodHint: 'Tahmini başlangıç tarihinden önce',
+    remindAt: 'Hatırlatma saati',
+    only: 'Nilemy yalnızca bu hatırlatıcıyı gönderir. Pazarlama bildirimi yok.',
+  },
+});
+
 // G3 Reminders, and G4 when notifications are turned off for Period in the phone's settings.
 export default function Reminders() {
+  const c = useCopy(COPY);
   const { reminder } = useOnboarding();
   const [picking, setPicking] = useState(false);
   const [access, setAccess] = useState<NotificationAccess>('undetermined');
@@ -31,21 +56,21 @@ export default function Reminders() {
   const on = reminder.enabled && !blocked;
 
   return (
-    <Page title="Reminders" onBack={router.back}>
+    <Page title={c.title} onBack={router.back}>
       {blocked ? (
         <Banner
           kind="Warning"
-          title="Notifications are off for Period"
-          message={`Notifications are off for Period in ${Platform.OS === 'ios' ? 'iPhone Settings' : 'your phone’s settings'}, so reminders can’t reach you.`}
-          action="Open Settings"
+          title={c.offTitle}
+          message={c.offMessage(Platform.OS === 'ios')}
+          action={c.openSettings}
           onAction={() => Linking.openSettings().catch(() => {})}
         />
       ) : null}
 
       <View style={styles.card}>
         <ListRow
-          title="Period reminder"
-          subtitle="Before your estimated start date"
+          title={c.period}
+          subtitle={c.periodHint}
           icon={blocked ? 'bell-off' : 'bell-ring'}
           trailing="Toggle"
           toggled={on}
@@ -63,14 +88,14 @@ export default function Reminders() {
         <>
           <ReminderTiming value={reminder.daysBefore} onChange={(n) => update({ daysBefore: n })} />
           <View style={styles.card}>
-            <ListRow title="Remind me at" icon="clock" trailing="Value" value={formatClock(reminder.time)} onPress={() => setPicking(true)} />
+            <ListRow title={c.remindAt} icon="clock" trailing="Value" value={formatClock(reminder.time)} onPress={() => setPicking(true)} />
           </View>
         </>
       ) : null}
 
-      <Banner message="This is the only reminder Period sends. No marketing notifications." />
+      <Banner message={c.only} />
 
-      <BottomSheet visible={picking} title="Remind me at" onClose={() => setPicking(false)}>
+      <BottomSheet visible={picking} title={c.remindAt} onClose={() => setPicking(false)}>
         <View style={styles.times} accessibilityRole="radiogroup">
           {TIMES.map((t) => (
             <Choice

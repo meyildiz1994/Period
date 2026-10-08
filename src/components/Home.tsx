@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { defineCopy, useCopy } from '../i18n';
 import { formatLong, weekdayInitial } from '../lib/dates';
 import type { StripDay } from '../state/cycle';
 import { color, overline, radius, type } from '../theme';
@@ -8,9 +9,37 @@ import { DayCell } from './Cycle';
 import { Skeleton } from './Display';
 import { Icon } from './Icon';
 
+const COPY = defineCopy({
+  en: {
+    period: ', period',
+    predicted: ', predicted period',
+    nextPeriod: 'Next period',
+    nextLabel: (title: string, subtitle: string) => `Next period. ${title}. ${subtitle}`,
+    openCalendar: 'Open calendar',
+    todayLog: 'Today’s log',
+    editLabel: 'Edit today’s log',
+    edit: 'Edit',
+    itemLabel: (label: string, value: string | null) => `${label}: ${value ?? 'not logged'}`,
+    loading: 'Loading',
+  },
+  tr: {
+    period: ', adet',
+    predicted: ', tahmini adet',
+    nextPeriod: 'Sonraki adet',
+    nextLabel: (title: string, subtitle: string) => `Sonraki adet. ${title}. ${subtitle}`,
+    openCalendar: 'Takvimi aç',
+    todayLog: 'Bugünün kaydı',
+    editLabel: 'Bugünün kaydını düzenle',
+    edit: 'Düzenle',
+    itemLabel: (label: string, value: string | null) => `${label}: ${value ?? 'kaydedilmedi'}`,
+    loading: 'Yükleniyor',
+  },
+});
+
 // Pieces of B1–B4 Home. Cards share radius 24 and a hairline border.
 
 export function WeekStrip({ days, onDay }: { days: StripDay[]; onDay?: (d: Date) => void }) {
+  const c = useCopy(COPY);
   return (
     <View style={[styles.card, styles.strip]}>
       {days.map(({ date, state }) => (
@@ -20,7 +49,7 @@ export function WeekStrip({ days, onDay }: { days: StripDay[]; onDay?: (d: Date)
             day={date.getDate()}
             state={state}
             onPress={onDay ? () => onDay(date) : undefined}
-            accessibilityLabel={`${formatLong(date)}${state === 'Period' ? ', period' : state === 'Predicted' ? ', predicted period' : ''}`}
+            accessibilityLabel={`${formatLong(date)}${state === 'Period' ? c.period : state === 'Predicted' ? c.predicted : ''}`}
           />
         </View>
       ))}
@@ -29,14 +58,15 @@ export function WeekStrip({ days, onDay }: { days: StripDay[]; onDay?: (d: Date)
 }
 
 export function NextPeriodCard({ title, subtitle, onCalendar }: { title: string; subtitle: string; onCalendar?: () => void }) {
+  const c = useCopy(COPY);
   return (
-    <View style={styles.next} accessible accessibilityLabel={`Next period. ${title}. ${subtitle}`}>
+    <View style={styles.next} accessible accessibilityLabel={c.nextLabel(title, subtitle)}>
       <View style={{ flex: 1 }}>
-        <Text style={[overline(13), { color: color['text/softest'] }]}>Next period</Text>
+        <Text style={[overline(13), { color: color['text/softest'] }]}>{c.nextPeriod}</Text>
         <Text style={[type('Title/Medium', 'Bold'), { color: color['text/on-brand'] }]}>{title}</Text>
         <Text style={[type('Body/Medium'), { color: color['text/softest'] }]}>{subtitle}</Text>
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Open calendar" onPress={onCalendar} style={styles.calendar}>
+      <Pressable accessibilityRole="button" accessibilityLabel={c.openCalendar} onPress={onCalendar} style={styles.calendar}>
         <Icon name="calendar" color="text/brand" />
       </Pressable>
     </View>
@@ -46,17 +76,18 @@ export function NextPeriodCard({ title, subtitle, onCalendar }: { title: string;
 export type LogItem = { label: string; value: string | null; icon: IconName };
 
 export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () => void }) {
+  const c = useCopy(COPY);
   return (
     <View style={[styles.card, styles.log]}>
       <View style={styles.logHead}>
-        <Text accessibilityRole="header" style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>Today’s log</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Edit today’s log" onPress={onEdit} hitSlop={12}>
-          <Text style={[type('Body/Medium', 'Medium'), { color: color['text/brand'] }]}>Edit</Text>
+        <Text accessibilityRole="header" style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{c.todayLog}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={c.editLabel} onPress={onEdit} hitSlop={12}>
+          <Text style={[type('Body/Medium', 'Medium'), { color: color['text/brand'] }]}>{c.edit}</Text>
         </Pressable>
       </View>
       <View style={styles.logItems}>
         {items.map((it) => (
-          <View key={it.label} style={styles.logItem} accessible accessibilityLabel={`${it.label}: ${it.value ?? 'not logged'}`}>
+          <View key={it.label} style={styles.logItem} accessible accessibilityLabel={c.itemLabel(it.label, it.value)}>
             <View style={styles.logBadge}>
               <Icon name={it.icon} size={16} color="text/brand" />
             </View>
@@ -71,8 +102,9 @@ export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () 
 
 /** B3: mirrors ring, strip, next-period and log cards so nothing jumps when data arrives. */
 export function HomeSkeleton() {
+  const c = useCopy(COPY);
   return (
-    <View style={styles.skeleton} accessibilityLabel="Loading">
+    <View style={styles.skeleton} accessibilityLabel={c.loading}>
       <Skeleton shape="Circle" width={220} height={220} />
       <View style={styles.skeletonBlocks}>
         <Skeleton shape="Block" width="100%" height={64} />

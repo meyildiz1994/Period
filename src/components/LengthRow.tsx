@@ -1,12 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { defineCopy, useCopy } from '../i18n';
 import { color, type } from '../theme';
 import { Stepper } from './Controls';
+
+const COPY = defineCopy({
+  en: { unit: 'days' },
+  tr: { unit: 'gün' },
+});
 
 // Label column + day Stepper, used for cycle and period length (A4, G2).
 export function LengthRow({ title, subtitle, hint, value, min, max, onChange }: {
   title: string; subtitle: string; hint?: string; value: number; min: number; max: number; onChange: (v: number) => void;
 }) {
+  const c = useCopy(COPY);
   return (
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
@@ -14,7 +21,7 @@ export function LengthRow({ title, subtitle, hint, value, min, max, onChange }: 
         <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{subtitle}</Text>
         {hint ? <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{hint}</Text> : null}
       </View>
-      <Stepper value={value} unit="days" min={min} max={max} onChange={onChange} />
+      <Stepper value={value} unit={c.unit} min={min} max={max} onChange={onChange} />
     </View>
   );
 }

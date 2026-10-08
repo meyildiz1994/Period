@@ -30,7 +30,7 @@ const csvCell = (v = '') => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
 
 export function buildExport(periods: Period[], days: Record<string, DayLog>, inc: ExportInclude, format: ExportFormat) {
   const data = rows(periods, days, inc);
-  if (format === 'json') return JSON.stringify({ app: 'Period', exportedAt: new Date().toISOString(), records: data }, null, 2);
+  if (format === 'json') return JSON.stringify({ app: 'Nilemy', exportedAt: new Date().toISOString(), records: data }, null, 2);
   return [COLUMNS.join(','), ...data.map((r) => COLUMNS.map((c) => csvCell(r[c])).join(','))].join('\n');
 }
 
