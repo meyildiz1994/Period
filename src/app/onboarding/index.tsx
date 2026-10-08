@@ -41,7 +41,7 @@ export default function Welcome() {
           {c.intro}
         </Text>
         <View style={styles.cta}>
-          <Button label={c.start} fullWidth onPress={() => router.push('/onboarding/goal')} />
+          <Button label={c.start} fullWidth onPress={() => router.push('/onboarding/name')} />
         </View>
       </View>
 

@@ -22,7 +22,7 @@ const COPY = defineCopy({
   },
 });
 
-// A5 · Step 4 of 5. Multi-select.
+// A5 · Step 5 of 6. Multi-select.
 export default function SymptomsStep() {
   const { symptoms } = useOnboarding();
   const c = useCopy(COPY);
@@ -33,7 +33,7 @@ export default function SymptomsStep() {
 
   return (
     <OnboardingStep
-      step={4}
+      step={5}
       title={c.title}
       body={c.body}
       onBack={router.back}

@@ -38,7 +38,7 @@ export default function Done() {
   const c = useCopy(COPY);
   return (
     <OnboardingStep
-      step={5}
+      step={6}
       done
       hero={<IconBadge icon="check" tone="Brand" size={64} />}
       title={c.title}

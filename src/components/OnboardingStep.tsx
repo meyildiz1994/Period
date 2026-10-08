@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { defineCopy, useCopy } from '../i18n';
@@ -8,14 +8,18 @@ import { color, layout, overline, type } from '../theme';
 import { IconButton } from './Controls';
 import { ProgressSteps } from './Navigation';
 
+/** Onboarding steps: name, goal, last period, cycle, symptoms, reminders. */
+export const ONBOARDING_STEPS = 6;
+
 const COPY = defineCopy({
-  en: { step: (n: number) => `Step ${n} of 5` },
-  tr: { step: (n: number) => `Adım ${n} / 5` },
+  en: { step: (n: number) => `Step ${n} of ${ONBOARDING_STEPS}` },
+  tr: { step: (n: number) => `Adım ${n} / ${ONBOARDING_STEPS}` },
 });
 
-// Shared frame for A2–A7: back · progress · Skip header, step overline, title, intro,
+// Shared frame for the onboarding steps (name, A2–A7): back · progress · Skip header, step overline, title, intro,
 // scrolling content and a footer pinned above the home indicator.
 type Props = {
+  /** 1-based; 0 shows no progress (the name step asked on its own). */
   step: number;
   title: string;
   body?: string;
@@ -34,16 +38,17 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
   const c = useCopy(COPY);
   const common = useCommon();
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    // The footer rides above the keyboard (A1b name field).
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.screen, { paddingTop: insets.top }]}>
       {done ? (
         <View style={styles.doneHeader}>
-          <ProgressSteps step={step} />
+          <ProgressSteps step={step} total={ONBOARDING_STEPS} />
         </View>
       ) : (
         <View style={styles.header}>
           <View style={styles.side}>{onBack ? <IconButton icon="chevron-left" label={common.back} onPress={onBack} /> : null}</View>
           <View style={styles.steps}>
-            <ProgressSteps step={step} />
+            {step > 0 ? <ProgressSteps step={step} total={ONBOARDING_STEPS} /> : null}
           </View>
           <View style={styles.skip}>
             {onSkip ? (
@@ -54,15 +59,15 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
           </View>
         </View>
       )}
-      <ScrollView contentContainerStyle={[styles.content, done && styles.doneContent]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, done && styles.doneContent]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {hero ? <View style={styles.hero}>{hero}</View> : null}
-        {done ? null : <Text style={[overline(13), { color: color['text/brand'] }]}>{c.step(step)}</Text>}
+        {done || step === 0 ? null : <Text style={[overline(13), { color: color['text/brand'] }]}>{c.step(step)}</Text>}
         <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.title, done && styles.center, hero ? { marginTop: 32 } : null]}>{title}</Text>
         {body ? <Text style={[type('Body/Medium'), styles.body, done && styles.center]}>{body}</Text> : null}
         <View style={[styles.slot, done && { marginTop: 32 }]}>{children}</View>
       </ScrollView>
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>{footer}</View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

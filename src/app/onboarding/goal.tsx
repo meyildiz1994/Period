@@ -38,14 +38,14 @@ const GOALS: { id: Goal; icon: IconName }[] = [
   { id: 'irregular', icon: 'activity' },
 ];
 
-// A2 · Step 1 of 5.
+// A2 · Step 2 of 6.
 export default function GoalStep() {
   const { goal } = useOnboarding();
   const c = useCopy(COPY);
   const next = () => router.push('/onboarding/last-period');
   return (
     <OnboardingStep
-      step={1}
+      step={2}
       title={c.title}
       body={c.body}
       onBack={router.back}

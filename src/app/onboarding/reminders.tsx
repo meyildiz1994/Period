@@ -20,7 +20,7 @@ const COPY = defineCopy({
   },
 });
 
-// A6 · Step 5 of 5. Off unless the user turns it on; "Turn on reminders" asks for permission
+// A6 · Step 6 of 6. Off unless the user turns it on; "Turn on reminders" asks for permission
 // and keeps the reminder off if it's declined (Reminders in Me shows how to fix that).
 export default function RemindersStep() {
   const { reminder } = useOnboarding();
@@ -33,7 +33,7 @@ export default function RemindersStep() {
 
   return (
     <OnboardingStep
-      step={5}
+      step={6}
       title={c.title}
       body={c.body}
       onBack={router.back}
