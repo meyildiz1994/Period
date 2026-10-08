@@ -8,6 +8,7 @@ export * from './Icon';
 export * from './Inputs';
 export * from './LengthRow';
 export * from './LockGate';
+export * from './Logo';
 export * from './Navigation';
 export * from './DateWheel';
 export * from './Home';

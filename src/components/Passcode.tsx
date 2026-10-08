@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, type } from '../theme';
 import { KeypadKey, PasscodeDot } from './Cycle';
-import { Icon } from './Icon';
+import { LogoMark } from './Logo';
 
 export const PASSCODE_LENGTH = 4;
 const ROWS = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']];
@@ -29,7 +29,7 @@ export function PasscodePad({ title, subtitle, error, entered, disabled, onDigit
       {header}
       <View style={styles.top}>
         <View style={styles.mark}>
-          <Icon name="drop-fill" size={28} color="text/brand" />
+          <LogoMark size={56} />
         </View>
         <Text accessibilityRole="header" style={[type('Title/Small', 'Bold'), { color: color['text/primary'] }]}>{title}</Text>
         <Text accessibilityLiveRegion="polite" style={[type('Body/Medium'), styles.subtitle, { color: color[error ? 'feedback/danger' : 'text/secondary'] }]}>
@@ -61,7 +61,7 @@ export function PasscodePad({ title, subtitle, error, entered, disabled, onDigit
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
   top: { alignItems: 'center', gap: 12, marginTop: 40, paddingHorizontal: 24 },
-  mark: { width: 56, height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'], marginBottom: 4 },
+  mark: { marginBottom: 4 },
   subtitle: { textAlign: 'center' },
   dots: { flexDirection: 'row', gap: 20, marginTop: 16 },
   keypad: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', gap: 16 },

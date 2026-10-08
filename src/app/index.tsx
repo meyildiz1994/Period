@@ -1,40 +1,54 @@
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 
+import { AnimatedLogoMark } from '../components';
 import { color, type } from '../theme';
 import { startReminders } from '../lib/notifications';
 import { getOnboarding, useOnboarding } from '../state/onboarding';
 
-// I1 Splash: brand mark on surface/brand for 0.8 s, then A1 Welcome or Home once saved data is read.
+// I1 Splash: the logo draws itself (the N like a path, then the dot), the name fades in, then
+// A1 Welcome or Home once saved data is read. The native launch screen before it is the same
+// colour with no image, so the drawing starts from a blank screen.
+const HOLD_MS = 350;
+
 export default function Splash() {
   const { hydrated } = useOnboarding();
-  const [shownAt] = useState(() => Date.now());
+  const [drawn, setDrawn] = useState(false);
+  const [name] = useState(() => new Animated.Value(0));
+  const left = useRef(false);
+
   useEffect(() => {
-    if (!hydrated) return;
+    if (!drawn) return;
+    Animated.timing(name, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+  }, [drawn, name]);
+
+  useEffect(() => {
+    if (!hydrated || !drawn || left.current) return;
     const t = setTimeout(() => {
+      left.current = true;
       router.replace(getOnboarding().done ? '/home' : '/onboarding');
       // After the first screen is in place, so a tapped notification can open its screen on top.
       startReminders();
-    }, Math.max(0, 800 - (Date.now() - shownAt)));
+    }, HOLD_MS);
     return () => clearTimeout(t);
-  }, [hydrated, shownAt]);
+  }, [hydrated, drawn]);
 
   return (
     <View style={styles.screen} accessible accessibilityLabel="Period. Track, understand, manage.">
-      <StatusBar style="light" />
-      {/* Same image as the native launch screen, so the hand-off doesn't jump. */}
-      <Image source={require('../../assets/splash-icon.png')} style={styles.mark} accessibilityIgnoresInvertColors />
-      <Text style={[type('Display', 'Bold'), styles.name]}>Period</Text>
-      <Text style={[type('Body/Medium'), styles.tagline]}>Track · Understand · Manage</Text>
+      <StatusBar style="dark" />
+      <AnimatedLogoMark size={168} onDone={() => setDrawn(true)} />
+      <Animated.View style={{ opacity: name, alignItems: 'center' }}>
+        <Animated.Text style={[type('Display', 'Bold'), styles.name]}>Period</Animated.Text>
+        <Animated.Text style={[type('Body/Medium'), styles.tagline]}>Track · Understand · Manage</Animated.Text>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/brand'] },
-  mark: { width: 88, height: 88 },
-  name: { marginTop: 24, color: color['text/on-brand'] },
-  tagline: { marginTop: 12, color: color['text/on-brand'] },
+  screen: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: color['bg/canvas'] },
+  name: { marginTop: 16, color: color['text/brand'] },
+  tagline: { marginTop: 8, color: color['text/secondary'] },
 });

@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
-import { Banner, Divider, Icon, ListRow, Page } from '../../components';
+import { Banner, Divider, ListRow, LogoMark, Page } from '../../components';
 import { APP_VERSION } from '../../lib/app';
 import { color, radius, type } from '../../theme';
 
@@ -12,9 +12,7 @@ export default function About() {
   return (
     <Page title="About Period" onBack={router.back}>
       <View style={[styles.card, styles.hero]}>
-        <View style={styles.mark}>
-          <Icon name="drop-fill" size={28} color="text/brand" />
-        </View>
+        <LogoMark size={64} />
         <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>Period</Text>
         <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>Version {APP_VERSION}</Text>
         <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>
@@ -36,6 +34,5 @@ export default function About() {
 const styles = StyleSheet.create({
   card: { borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
   hero: { alignItems: 'center', gap: 8, paddingVertical: 24, paddingHorizontal: 24 },
-  mark: { width: 56, height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'], marginBottom: 4 },
   center: { textAlign: 'center' },
 });

@@ -35,6 +35,8 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 11 · Flexible cycles (`cycleSettings` in `src/state/cycle.ts`): after 2 logged cycles the average of the last 6 replaces the onboarding cycle length (Home, History calendar, reminders). Irregular = spread over 7 days across ≥3 cycles, or the user said so (A2 goal / A3 regularity) before that. Irregular cycles show a window ("In 17–27 days", "Any day now") and a Neutral ring ("Irregular cycle", no phase estimates); late counts from the end of the window. The late ring keeps counting ("Day 41 · 2 days late").
 
+- [x] Logo · New mark from the user's SVG (Figma 40:374, no wordmark) in `src/components/Logo.tsx`: `LogoMark` (A1, About, lock screens) and `AnimatedLogoMark` (I1 Splash: the N drawn like a path, then the dot, via react-native-svg masks). Icons, favicon and the launch screen regenerated (light #FCF5F6 background, transparent launch image).
+
 ## Open
 - Step 10b needs the user's accounts: Expo (free) for `eas build`, Apple Developer (99 USD/yr) for TestFlight, Google Play Console (25 USD once) for internal testing. Asked which ones exist / which platform first.
 - Greeting is "Hi there" because no name is collected yet (`name` in the store).
