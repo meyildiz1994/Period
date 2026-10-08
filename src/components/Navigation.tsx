@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { defineCopy, useCopy } from '../i18n';
@@ -88,7 +89,11 @@ export function TabBar({ active, onTab, onLog }: { active?: TabName; onTab: (t: 
   };
   return (
     <View style={[styles.tabWrap, { paddingBottom: Math.max(insets.bottom, 24) }]}>
-      <View style={[styles.tabBar, elevation.card]} accessibilityRole="tablist">
+      {/* Frosted glass like the iOS tab bar: content blurs through a light material, with a soft
+          white rim. Android has no live blur here, so it gets the translucent fill alone. */}
+      <View style={[styles.tabBar, Platform.OS === 'ios' && elevation.card]} accessibilityRole="tablist">
+        <BlurView intensity={40} tint="systemChromeMaterialLight" style={[StyleSheet.absoluteFill, styles.glass]} />
+        <View style={[StyleSheet.absoluteFill, styles.glass, styles.glassFill]} pointerEvents="none" />
         {tab(TABS[0])}
         {tab(TABS[1])}
         <Pressable accessibilityRole="button" accessibilityLabel={c.log} onPress={onLog} style={({ pressed }) => [styles.fab, elevation.brand, pressed && { backgroundColor: color['surface/brand-pressed'] }]}>
@@ -127,7 +132,13 @@ const styles = StyleSheet.create({
   tabWrap: { paddingTop: 8, paddingHorizontal: 16 },
   tabBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 68, paddingHorizontal: 8,
-    borderRadius: 999, backgroundColor: color['surface/default'],
+    borderRadius: 999,
+  },
+  glass: { borderRadius: 999, overflow: 'hidden' },
+  // Light milky layer and rim; more opaque on Android, where there is no live blur.
+  glassFill: {
+    backgroundColor: Platform.OS === 'android' ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.35)',
+    borderWidth: StyleSheet.hairlineWidth * 2, borderColor: 'rgba(255,255,255,0.75)',
   },
   tab: { width: 64, height: 56, gap: 4, alignItems: 'center', justifyContent: 'center' },
   fab: { width: 56, height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/brand'] },
