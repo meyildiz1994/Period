@@ -33,14 +33,19 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Step 10a · Icons and launch screen: `assets/` replaced the Expo placeholders with the I3 teardrop on #80244E (store icon 1024 RGB without alpha, Android adaptive foreground/background/monochrome, favicon) and the I1 mark as `splash-icon.png`; `expo-splash-screen` shows it at 88 pt on #80244E and the in-app Splash uses the same image. Teardrop path (bbox x −1..1, y −1.82..1, tip rounded with a 0.12 stroke): `M0 -1.82 C0.38 -1.32 1 -0.72 1 0 A1 1 0 0 1 -1 0 C-1 -0.72 -0.38 -1.32 0 -1.82 Z`. `eas.json` with `preview` (internal, Android APK) and `production` (auto-increment) profiles.
 
+- [x] Step 11 · Flexible cycles (`cycleSettings` in `src/state/cycle.ts`): after 2 logged cycles the average of the last 6 replaces the onboarding cycle length (Home, History calendar, reminders). Irregular = spread over 7 days across ≥3 cycles, or the user said so (A2 goal / A3 regularity) before that. Irregular cycles show a window ("In 17–27 days", "Any day now") and a Neutral ring ("Irregular cycle", no phase estimates); late counts from the end of the window. The late ring keeps counting ("Day 41 · 2 days late").
+
 ## Open
-- Step 10a PR on `claude/eager-newton-ippaxr` also carries the Cycle Ring v2 update (phase colours, drop, Ovulation phase; `docs/screens.md` › Cycle Ring v2). Merge it.
 - Step 10b needs the user's accounts: Expo (free) for `eas build`, Apple Developer (99 USD/yr) for TestFlight, Google Play Console (25 USD once) for internal testing. Asked which ones exist / which platform first.
 - Greeting is "Hi there" because no name is collected yet (`name` in the store).
 - Web preview artifact (private): https://claude.ai/artifact/Ae7vuqSM5nrqfPPCKDzQuv. Republish it from a web export after each step: copy `_expo/static/js/web/entry-*.js` to `app/period.js` with `"/assets/` rewritten to `"assets/` (the service rejects paths starting with `_`), keep the page's base/replaceState snippet. The splash image is now an asset: publish `assets/assets/splash-icon*.png` too.
 - The user runs the app in Expo Go on their phone (`git pull`, `npm install`, `npx expo start` in the cloned folder). Expo Go shows its own icon and launch screen; ours appear in an EAS build.
 
 ## Next
+Product roadmap agreed 2026-10-08 (user's feedback, order 11 → 14):
+- [ ] Step 12 · "I don't get periods right now" mode (pregnancy, breastfeeding, menopause, hormonal contraception): ring replaced by daily logging, period reminders off, a gentle "consider talking to a doctor" note after 90 days without a period.
+- [ ] Step 13 · Goal personalisation: trying to conceive / avoiding pregnancy / just tracking. Daily log gains sex (protected / unprotected), contraception method, ovulation test. Fertile window shown to both; for "avoiding" with a "not reliable as contraception" warning (Terms).
+- [ ] Step 14 · Monthly summary in Insights (cycle length, top symptoms, mood mix, change vs last month), optional notification on the 1st.
 - [ ] Step 10b · EAS build (`npx eas-cli@latest build --profile preview`), TestFlight / Play internal test.
 
 ## Notes for the next session

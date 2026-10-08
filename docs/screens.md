@@ -55,6 +55,7 @@ Shared patterns
 
 ## v1 decisions (2026-10-06)
 - No accounts in v1 (user's call): F1–F7, H6–H7, "Back up with an account" (G1), "Already backed up? Sign in" (A1), "Account backup" (H1) are not built. A7 "Backup is optional" became "Export anytime"; Privacy "Where it lives" says there is no account or cloud backup; Terms drops "Your account".
+- Flexible cycles (2026-10-08, not in Figma): estimates use the average of the last 6 logged cycles once 2 exist. Irregular cycles (spread > 7 days, or the user said so) get a Neutral ring (arc surface/brand, track surface/muted, day text/brand, label "Irregular cycle", no phase), the Next period card shows a window ("In 17–27 days" / "Oct 25 – Nov 4 · estimate", then "Any day now" / "Expected by Oct 16 · estimate"). B4 Late keeps counting: label "Period expected", "Day 41", caption "2 days late".
 - Export failed (H4) copy is generic ("couldn't be saved… free space") because the real cause isn't always known.
 - Notifications: the period reminder schedules the I2 heads-up, "expected today" and "2 days late" messages. "How was today?" is not scheduled: G3 says it's the only reminder Period sends and there's no setting for a daily nudge.
 - Passcode setup (not in Figma) reuses the G6 layout: "Choose a passcode" → "Enter it again"; Change passcode asks for the current one first. Five wrong tries lock the keypad for 30 s.

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Banner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
-import { formatLong, formatShort, toISODate } from '../../lib/dates';
+import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
@@ -53,8 +53,9 @@ export default function Home() {
           <CycleRing
             phase="Late"
             progress={1}
-            label="Period expected"
-            day={late === 0 ? 'Today' : `${days(late)} late`}
+            label={late === 0 ? 'Period expected today' : 'Period expected'}
+            day={`Day ${status.cycleDay}`}
+            caption={late === 0 ? undefined : `${days(late)} late`}
           />
         </View>
         {late > 0 ? (
@@ -65,7 +66,12 @@ export default function Home() {
     );
   } else {
     const s = status;
-    const next = s.daysUntilNext === 1 ? 'Tomorrow' : `In ${days(s.daysUntilNext)}`;
+    const untilLatest = s.daysUntilNext + diffDays(s.nextStart, s.latestStart);
+    const next = !s.irregular
+      ? { title: s.daysUntilNext === 1 ? 'Tomorrow' : `In ${days(s.daysUntilNext)}`, subtitle: `Around ${formatShort(s.nextStart)} · estimate` }
+      : s.daysUntilNext <= 0
+        ? { title: 'Any day now', subtitle: `Expected by ${formatShort(s.latestStart)} · estimate` }
+        : { title: `In ${s.daysUntilNext}–${days(untilLatest)}`, subtitle: `${formatMonthDay(s.nextStart)} – ${formatMonthDay(s.latestStart)} · estimate` };
     body = (
       <>
         <View style={styles.ring}>
@@ -73,11 +79,12 @@ export default function Home() {
             phase={s.phase}
             progress={s.progress}
             size={220}
+            label={s.phase === 'Neutral' ? 'Irregular cycle' : undefined}
             day={`Day ${s.cycleDay}`}
           />
         </View>
         <WeekStrip days={weekStrip(settings, today)} />
-        <NextPeriodCard title={next} subtitle={`Around ${formatShort(s.nextStart)} · estimate`} onCalendar={() => router.navigate('/history')} />
+        <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         <TodayLogCard
           onEdit={() => router.push('/log/daily')}
           items={[

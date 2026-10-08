@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Divider, EmptyState, Icon, IconBadge, MonthCalendar, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { addMonths, formatLong, formatMonthDay, startOfMonth, toISODate } from '../../lib/dates';
+import { useCycleSettings } from '../../state/cycle';
 import { cycleOf, daySummary, dayState, pastCycles, periodLength } from '../../state/history';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
@@ -15,7 +16,8 @@ export default function History() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { periods, days } = useLog();
-  const { cycleLength, periodLength: usual, showPredicted, weekStartsOn, name } = useOnboarding();
+  const { periodLength: usual, showPredicted, weekStartsOn, name } = useOnboarding();
+  const { cycleLength } = useCycleSettings();
   const [today] = useState(() => new Date());
   const [month, setMonth] = useState(() => startOfMonth(today));
   const [selected, setSelected] = useState(today);

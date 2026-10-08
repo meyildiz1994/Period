@@ -8,13 +8,15 @@ import { Icon } from './Icon';
 // Figma: Cycle Ring (Phase). Signature component. Each phase has its own arc colour, drop and
 // "Day N" colour; the arc ends in a knob at today. Phases are calendar estimates, not medical
 // readings, and the screen reader label says so.
-export type Phase = 'Menstrual' | 'Follicular' | 'Ovulation' | 'Luteal' | 'Late' | 'Empty';
+// Neutral is for irregular cycles, where no phase is estimated.
+export type Phase = 'Menstrual' | 'Follicular' | 'Ovulation' | 'Luteal' | 'Neutral' | 'Late' | 'Empty';
 
 const PHASE_COLOR: Record<Phase, { arc: ColorToken; track: ColorToken; drop: ColorToken; day: ColorToken }> = {
   Menstrual: { arc: 'phase/menstrual', track: 'phase/menstrual-track', drop: 'phase/menstrual', day: 'phase/menstrual' },
   Follicular: { arc: 'phase/follicular', track: 'phase/follicular-track', drop: 'phase/follicular', day: 'phase/follicular' },
   Ovulation: { arc: 'phase/ovulation', track: 'phase/ovulation-track', drop: 'phase/ovulation', day: 'phase/ovulation' },
   Luteal: { arc: 'phase/luteal', track: 'phase/luteal-track', drop: 'phase/luteal', day: 'phase/luteal' },
+  Neutral: { arc: 'surface/brand', track: 'surface/muted', drop: 'surface/brand', day: 'text/brand' },
   Late: { arc: 'phase/menstrual', track: 'phase/menstrual-track', drop: 'phase/menstrual', day: 'phase/menstrual' },
   Empty: { arc: 'surface/strong', track: 'surface/strong', drop: 'surface/neutral', day: 'text/accent' },
 };

@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { Platform } from 'react-native';
 
+import { cycleSettings } from '../state/cycle';
 import { pastCycles } from '../state/history';
 import { latestPeriod, getLog, subscribeLog } from '../state/log';
 import { getOnboarding, subscribeOnboarding } from '../state/onboarding';
@@ -56,12 +57,16 @@ function at(day: Date, hhmm: string) {
 export async function rescheduleReminders() {
   if (!supported) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
-  const { reminder, cycleLength, periodLength } = getOnboarding();
+  const onboarding = getOnboarding();
+  const { reminder, periodLength } = onboarding;
   const log = getLog();
   const latest = latestPeriod(log);
   if (!reminder.enabled || !latest || (await notificationAccess()) !== 'granted') return;
 
-  const expected = addDays(fromISODate(latest.start), cycleLength);
+  // Irregular cycles: remind before the earliest expected day, count "late" from the latest.
+  const { window } = cycleSettings(onboarding, log);
+  const expected = addDays(fromISODate(latest.start), window.min);
+  const latestExpected = addDays(fromISODate(latest.start), window.max);
   const cycles = pastCycles(log.periods, periodLength).length;
   const lead = reminder.daysBefore;
   const messages = [
@@ -71,8 +76,8 @@ export async function rescheduleReminders() {
       body: cycles >= 2 ? `An estimate from your last ${Math.min(cycles, 6)} cycles.` : 'An estimate from your usual cycle length.',
       url: '/home',
     },
-    { when: at(expected, reminder.time), title: 'Your period is expected today', body: 'Log it in Period when it starts.', url: '/log/period' },
-    { when: at(addDays(expected, 2), reminder.time), title: 'Your period is 2 days late', body: 'Cycles often vary. Log it when it starts.', url: '/home' },
+    { when: at(expected, reminder.time), title: window.min === window.max ? 'Your period is expected today' : 'Your period may start any day now', body: 'Log it in Period when it starts.', url: '/log/period' },
+    { when: at(addDays(latestExpected, 2), reminder.time), title: 'Your period is 2 days late', body: 'Cycles often vary. Log it when it starts.', url: '/home' },
   ];
   const now = Date.now();
   await ensureChannel();
