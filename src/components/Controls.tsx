@@ -1,8 +1,14 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { defineCopy, useCopy } from '../i18n';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
+
+const COPY = defineCopy({
+  en: { decrease: 'Decrease', increase: 'Increase' },
+  tr: { decrease: 'Azalt', increase: 'Artır' },
+});
 
 // Figma: Icon Button (Type × Size). Icon-only, so a label is required for screen readers.
 type IconButtonType = 'Tonal' | 'Plain' | 'Brand' | 'Surface';
@@ -143,6 +149,7 @@ export function OptionCard({ title, subtitle, icon = 'heart', selected, onPress 
 export function Stepper({ value, unit, onChange, min = 1, max = 99, size = 'Medium' }: {
   value: number; unit?: string; onChange: (v: number) => void; min?: number; max?: number; size?: 'Medium' | 'Large';
 }) {
+  const c = useCopy(COPY);
   const L = size === 'Large';
   const b = L ? 48 : 40;
   const btn = (icon: IconName, next: number, label: string, disabled: boolean) => (
@@ -159,12 +166,12 @@ export function Stepper({ value, unit, onChange, min = 1, max = 99, size = 'Medi
   );
   return (
     <View style={[styles.stepper, L && { alignSelf: 'stretch' }]} accessibilityRole="adjustable" accessibilityValue={{ now: value, min, max, text: `${value} ${unit ?? ''}` }}>
-      {btn('minus', value - 1, 'Decrease', value <= min)}
+      {btn('minus', value - 1, c.decrease, value <= min)}
       <View style={styles.stepperValue}>
         <Text style={[type(L ? 'Title/Small' : 'Headline', 'SemiBold'), { color: color['text/brand'], letterSpacing: 0 }]}>{value}</Text>
         {unit ? <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{unit}</Text> : null}
       </View>
-      {btn('plus', value + 1, 'Increase', value >= max)}
+      {btn('plus', value + 1, c.increase, value >= max)}
     </View>
   );
 }

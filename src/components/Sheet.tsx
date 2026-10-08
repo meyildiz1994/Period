@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useCommon } from '../i18n/common';
 import { color, radius, type } from '../theme';
 import type { IconName } from '../theme/icons';
 import { IconButton } from './Controls';
@@ -10,6 +11,7 @@ import { Icon } from './Icon';
 // Figma: Bottom Sheet. Scrim fades in, the sheet slides up; tapping the scrim or the close button dismisses.
 export function BottomSheet({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: ReactNode }) {
   const insets = useSafeAreaInsets();
+  const { close } = useCommon();
   const [slide] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -22,14 +24,14 @@ export function BottomSheet({ visible, title, onClose, children }: { visible: bo
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.root}>
-        <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose}>
+        <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={close} onPress={onClose}>
           <View style={styles.scrim} />
         </Pressable>
         <Animated.View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16), transform: [{ translateY }] }]} accessibilityViewIsModal>
           <View style={styles.grabber} />
           <View style={styles.head}>
             <Text accessibilityRole="header" style={[type('Title/Small', 'SemiBold'), { color: color['text/primary'] }]}>{title}</Text>
-            <IconButton icon="x" label="Close" type="Tonal" onPress={onClose} />
+            <IconButton icon="x" label={close} type="Tonal" onPress={onClose} />
           </View>
           {children}
         </Animated.View>

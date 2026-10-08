@@ -4,15 +4,40 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BottomSheet, Icon, SheetOption, TabBar, type TabName } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { formatShort, fromISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings } from '../../state/cycle';
 import { color, type } from '../../theme';
 
 const ROUTES: Record<TabName, string> = { Home: 'home', History: 'history', Insights: 'insights', Me: 'me' };
 
+const COPY = defineCopy({
+  en: {
+    title: 'Log',
+    period: 'Period',
+    periodSub: 'Log a start or end date',
+    daily: 'Daily log',
+    dailySub: 'Flow, pain, mood, symptoms or a note',
+    started: (date: string) => `Period started ${date}`,
+    lastStarted: (date: string) => `Last period started ${date}`,
+    history: 'History',
+  },
+  tr: {
+    title: 'Kaydet',
+    period: 'Adet',
+    periodSub: 'Başlangıç ya da bitiş tarihi kaydet',
+    daily: 'Günlük kayıt',
+    dailySub: 'Akış, ağrı, ruh hali, belirtiler ya da not',
+    started: (date: string) => `Adet başladı: ${date}`,
+    lastStarted: (date: string) => `Son adet başlangıcı: ${date}`,
+    history: 'Geçmiş',
+  },
+});
+
 // Main tabs. The bar floats over the screen (content scrolls under it), so screens add
 // TAB_BAR_SPACE at the bottom of their content.
 export default function TabsLayout() {
+  const c = useCopy(COPY);
   const [logOpen, setLogOpen] = useState(false);
   const settings = useCycleSettings();
   const status = cycleStatus(settings, new Date());
@@ -47,14 +72,14 @@ export default function TabsLayout() {
     </Tabs>
 
     {/* C1 Quick Log */}
-    <BottomSheet visible={logOpen} title="Log" onClose={() => setLogOpen(false)}>
-      <SheetOption icon="drop" brand title="Period" subtitle="Log a start or end date" onPress={() => go('/log/period')} />
-      <SheetOption icon="notes" title="Daily log" subtitle="Flow, pain, mood, symptoms or a note" onPress={() => go('/log/daily')} />
+    <BottomSheet visible={logOpen} title={c.title} onClose={() => setLogOpen(false)}>
+      <SheetOption icon="drop" brand title={c.period} subtitle={c.periodSub} onPress={() => go('/log/period')} />
+      <SheetOption icon="notes" title={c.daily} subtitle={c.dailySub} onPress={() => go('/log/daily')} />
       {settings.lastPeriodStart ? (
         <View style={styles.footer}>
           <Icon name="history" size={20} color="text/secondary" />
           <Text style={[type('Body/Small'), styles.footerText]}>
-            {inPeriod ? 'Period started' : 'Last period started'} {formatShort(fromISODate(settings.lastPeriodStart))}
+            {(inPeriod ? c.started : c.lastStarted)(formatShort(fromISODate(settings.lastPeriodStart)))}
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -64,7 +89,7 @@ export default function TabsLayout() {
               router.navigate('/history');
             }}
           >
-            <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>History</Text>
+            <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>{c.history}</Text>
           </Pressable>
         </View>
       ) : null}

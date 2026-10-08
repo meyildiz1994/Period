@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 
-import { defineCopy, useCopy } from '../i18n';
+import { defineCopy, getCopy, useCopy } from '../i18n';
 import { authenticate, unlockLabel, useBiometricKind } from '../lib/biometrics';
 import { checkPasscode, getLock, setLock, useLock } from '../state/lock';
 import { Button } from './Button';
@@ -70,7 +70,7 @@ function LockScreen() {
   const offerBiometrics = biometrics && kind !== null;
 
   const unlockWithBiometrics = async () => {
-    if (await authenticate(c.unlock)) setLock({ locked: false });
+    if (await authenticate(getCopy(COPY).unlock)) setLock({ locked: false });
   };
 
   useEffect(() => {

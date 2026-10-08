@@ -39,6 +39,8 @@ Read this first when resuming. Update it in every PR.
 
 - [x] Rename · The app is now **Nilemy** (user's call, 2026-10-08): every place the app names itself, `app.json` name/slug/scheme/bundle ids (`com.meyildiz.nilemy`), package name, export JSON `app`. Menstrual "period" wording is unchanged. Storage keys (`period.key.v1`, `period.dat`, `period.state.v1`) and the notification channel id stay, so saved data and settings survive the rename. The GitHub repo and local folder are still called Period.
 
+- [x] Turkish · Every screen in Turkish and English (`src/i18n`): the app follows the phone language (`expo-localization`) until the user picks one from the A1 corner switch (TR | EN) or Me › Language (`/settings/language`); the choice is `onboarding.language` (kept on Delete all). Each file has its own `COPY = defineCopy({ en, tr })` read with `useCopy` (or `getCopy` outside React); shared words (flow, pain, mood, symptoms, phases, "N days") are in `src/i18n/common.ts`. Logged values stay stored in English and are translated only for display. Dates format per language (`src/lib/dates.ts`: "14 Kasım", 24-hour clock). Notifications are scheduled in the current language and rescheduled when it changes. **New screens must put their text in a COPY with both languages.**
+
 ## Open
 - Step 10b needs the user's accounts: Expo (free) for `eas build`, Apple Developer (99 USD/yr) for TestFlight, Google Play Console (25 USD once) for internal testing. Asked which ones exist / which platform first.
 - Greeting is "Hi there" because no name is collected yet (`name` in the store).
@@ -54,6 +56,7 @@ Product roadmap agreed 2026-10-08 (user's feedback, order 11 → 14):
 
 ## Notes for the next session
 - Figma MCP is on the Starter plan and its monthly call quota ran out on 2026-10-06. Build from `docs/screens.md`; the user can send more screenshots if something is missing.
+- i18n: never hard-code user-visible English; add it to the file's COPY with a Turkish line (voice: warm, "sen", calm about lateness).
 - Before every push: `npx expo lint` and `npx tsc --noEmit` must both be clean (ESLint with `eslint-config-expo`, set up in step 3).
 - In the cloud container `api.expo.dev` is blocked: use `EXPO_OFFLINE=1 npx expo install <pkg>`. Verify with `npx tsc --noEmit` and `EXPO_OFFLINE=1 npx expo export --platform ios`. Visual check: `EXPO_OFFLINE=1 npx expo export --platform web`, serve the folder, screenshot at 390×844 with Playwright.
 - Figma pink naming trap: Figma script's `C.p100` = pink/200 = `surface/muted`, `C.p200` = pink/300 = `surface/strong`, `C.p50` = pink/100 = `surface/subtle`, `C.p300` = pink/400 = `border/default`.

@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Divider, EmptyState, Icon, IconBadge, MonthCalendar, SectionHeader, TopBar, useTabBarSpace } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { addMonths, formatLong, formatMonthDay, startOfMonth, toISODate } from '../../lib/dates';
 import { useCycleSettings } from '../../state/cycle';
 import { cycleOf, daySummary, dayState, pastCycles, periodLength } from '../../state/history';
@@ -11,8 +12,40 @@ import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, radius, type } from '../../theme';
 
+const COPY = defineCopy({
+  en: {
+    title: 'History',
+    emptyTitle: 'No cycles yet',
+    emptyBody: 'Your past cycles appear here after you log a period.',
+    logPeriod: 'Log period',
+    cycleDay: (n: number, inPeriod: boolean) => `Cycle day ${n}${inPeriod ? ' · Period' : ''}`,
+    pastCycles: 'Past cycles',
+    seeInsights: 'See insights',
+    cycleLabel: (from: string, to: string, length: number, periodDays: number) => `${from} to ${to}, ${length} days, ${periodDays}-day period`,
+    periodDays: (n: number) => `${n}-day period`,
+    length: (n: number) => `${n} days`,
+    noFullTitle: 'No full cycles yet',
+    noFullBody: 'A cycle appears here once your next period starts.',
+  },
+  tr: {
+    title: 'Geçmiş',
+    emptyTitle: 'Henüz döngü yok',
+    emptyBody: 'Bir adet kaydettiğinde geçmiş döngülerin burada görünür.',
+    logPeriod: 'Adet kaydet',
+    cycleDay: (n: number, inPeriod: boolean) => `Döngünün ${n}. günü${inPeriod ? ' · Adet' : ''}`,
+    pastCycles: 'Geçmiş döngüler',
+    seeInsights: 'Analize git',
+    cycleLabel: (from: string, to: string, length: number, periodDays: number) => `${from} – ${to}, ${length} gün, ${periodDays} günlük adet`,
+    periodDays: (n: number) => `${n} günlük adet`,
+    length: (n: number) => `${n} gün`,
+    noFullTitle: 'Henüz tamamlanan döngü yok',
+    noFullBody: 'Bir sonraki adetin başladığında döngü burada görünür.',
+  },
+});
+
 // D1 History, D4 when nothing is logged yet.
 export default function History() {
+  const c = useCopy(COPY);
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { periods, days } = useLog();
@@ -30,7 +63,7 @@ export default function History() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <TopBar kind="Root" title="History" userName={name ?? undefined} onAvatar={() => router.navigate('/me')} />
+      <TopBar kind="Root" title={c.title} userName={name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         <MonthCalendar
           month={month}
@@ -45,7 +78,7 @@ export default function History() {
         />
 
         {periods.length === 0 ? (
-          <EmptyState icon="history" title="No cycles yet" body="Your past cycles appear here after you log a period." action="Log period" onAction={() => router.push('/log/period')} />
+          <EmptyState icon="history" title={c.emptyTitle} body={c.emptyBody} action={c.logPeriod} onAction={() => router.push('/log/period')} />
         ) : (
           <>
             <Pressable
@@ -58,7 +91,7 @@ export default function History() {
                 <Text style={[type('Body/Large', 'SemiBold'), { color: color['text/primary'] }]}>{formatLong(selected)}</Text>
                 {owner ? (
                   <Text style={[type('Body/Medium', 'Medium'), { color: color['text/brand'] }]}>
-                    Cycle day {owner.cycleDay}{inPeriod ? ' · Period' : ''}
+                    {c.cycleDay(owner.cycleDay, inPeriod)}
                   </Text>
                 ) : null}
                 <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{daySummary(days[selectedKey])}</Text>
@@ -66,33 +99,33 @@ export default function History() {
               <Icon name="chevron-right" size={20} color="text/secondary" />
             </Pressable>
 
-            <SectionHeader title="Past cycles" action="See insights" onAction={() => router.navigate('/insights')} />
+            <SectionHeader title={c.pastCycles} action={c.seeInsights} onAction={() => router.navigate('/insights')} />
             {cycles.length ? (
               <View style={styles.list}>
-                {cycles.map((c, i) => (
-                  <View key={c.period.start}>
+                {cycles.map((cycle, i) => (
+                  <View key={cycle.period.start}>
                     {i > 0 ? <Divider inset={0} /> : null}
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={`${formatMonthDay(c.start)} to ${formatMonthDay(c.end)}, ${c.length} days, ${c.periodDays}-day period`}
-                      onPress={() => router.push(`/cycle/${c.period.start}`)}
+                      accessibilityLabel={c.cycleLabel(formatMonthDay(cycle.start), formatMonthDay(cycle.end), cycle.length, cycle.periodDays)}
+                      onPress={() => router.push(`/cycle/${cycle.period.start}`)}
                       style={({ pressed }) => [styles.row, pressed && { backgroundColor: color['surface/subtle'] }]}
                     >
                       <IconBadge icon="calendar" />
                       <View style={{ flex: 1, gap: 2 }}>
                         <Text style={[type('Body/Large', 'Medium'), { color: color['text/primary'] }]}>
-                          {formatMonthDay(c.start)} – {formatMonthDay(c.end)}
+                          {formatMonthDay(cycle.start)} – {formatMonthDay(cycle.end)}
                         </Text>
-                        <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{c.periodDays}-day period</Text>
+                        <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{c.periodDays(cycle.periodDays)}</Text>
                       </View>
-                      <Text style={[type('Body/Large', 'Medium'), { color: color['text/brand'] }]}>{c.length} days</Text>
+                      <Text style={[type('Body/Large', 'Medium'), { color: color['text/brand'] }]}>{c.length(cycle.length)}</Text>
                       <Icon name="chevron-right" size={20} color="text/secondary" />
                     </Pressable>
                   </View>
                 ))}
               </View>
             ) : (
-              <EmptyState icon="history" title="No full cycles yet" body="A cycle appears here once your next period starts." />
+              <EmptyState icon="history" title={c.noFullTitle} body={c.noFullBody} />
             )}
           </>
         )}

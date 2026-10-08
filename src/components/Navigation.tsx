@@ -1,11 +1,26 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { defineCopy, useCopy } from '../i18n';
+import { useCommon } from '../i18n/common';
 import { color, elevation, type } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Avatar } from './Display';
 import { IconButton } from './Controls';
 import { Icon } from './Icon';
+
+const COPY = defineCopy({
+  en: {
+    me: 'Me',
+    log: 'Log',
+    tabs: { Home: 'Home', History: 'History', Insights: 'Insights', Me: 'Me' } as Record<TabName, string>,
+  },
+  tr: {
+    me: 'Ben',
+    log: 'Kaydet',
+    tabs: { Home: 'Ana sayfa', History: 'Geçmiş', Insights: 'Analiz', Me: 'Ben' },
+  },
+});
 
 // Figma: Top Bar (Type). Root = tab destinations (large title, avatar). Back = pushed pages. Modal = sheets.
 // The bell was removed on 2026-10-06: there is no in-app notification centre.
@@ -15,11 +30,13 @@ type TopBarProps =
   | { kind: 'Modal'; title: string; onClose: () => void };
 
 export function TopBar(props: TopBarProps) {
+  const c = useCopy(COPY);
+  const common = useCommon();
   if (props.kind === 'Root') {
     return (
       <View style={[styles.bar, styles.root]}>
         <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), { flex: 1, color: color['text/primary'] }]}>{props.title}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Me" onPress={props.onAvatar} hitSlop={4}>
+        <Pressable accessibilityRole="button" accessibilityLabel={c.me} onPress={props.onAvatar} hitSlop={4}>
           <Avatar name={props.userName} />
         </Pressable>
       </View>
@@ -28,13 +45,13 @@ export function TopBar(props: TopBarProps) {
   return (
     <View style={[styles.bar, styles.sub]}>
       <View style={styles.side}>
-        {props.kind === 'Back' ? <IconButton icon="chevron-left" label="Back" onPress={props.onBack} /> : null}
+        {props.kind === 'Back' ? <IconButton icon="chevron-left" label={common.back} onPress={props.onBack} /> : null}
       </View>
       <Text accessibilityRole="header" numberOfLines={1} style={[type('Body/Large', 'SemiBold'), styles.title, { color: color['text/primary'] }]}>
         {props.title}
       </Text>
       <View style={styles.side}>
-        {props.kind === 'Modal' ? <IconButton icon="x" label="Close" type="Tonal" onPress={props.onClose} /> : null}
+        {props.kind === 'Modal' ? <IconButton icon="x" label={common.close} type="Tonal" onPress={props.onClose} /> : null}
         {props.kind === 'Back' && props.action ? <IconButton icon={props.action.icon} label={props.action.label} onPress={props.action.onPress} /> : null}
       </View>
     </View>
@@ -52,19 +69,20 @@ const TABS: { name: TabName; icon: IconName }[] = [
 
 export function TabBar({ active, onTab, onLog }: { active?: TabName; onTab: (t: TabName) => void; onLog: () => void }) {
   const insets = useSafeAreaInsets();
+  const c = useCopy(COPY);
   const tab = (t: (typeof TABS)[number]) => {
     const on = active === t.name;
     return (
       <Pressable
         key={t.name}
         accessibilityRole="tab"
-        accessibilityLabel={t.name}
+        accessibilityLabel={c.tabs[t.name]}
         accessibilityState={{ selected: on }}
         onPress={() => onTab(t.name)}
         style={styles.tab}
       >
         <Icon name={t.icon} color={on ? 'text/brand' : 'text/secondary'} />
-        <Text style={[type('Footnote', on ? 'SemiBold' : 'Medium'), { color: color[on ? 'text/brand' : 'text/secondary'] }]}>{t.name}</Text>
+        <Text style={[type('Footnote', on ? 'SemiBold' : 'Medium'), { color: color[on ? 'text/brand' : 'text/secondary'] }]}>{c.tabs[t.name]}</Text>
       </Pressable>
     );
   };
@@ -73,7 +91,7 @@ export function TabBar({ active, onTab, onLog }: { active?: TabName; onTab: (t: 
       <View style={[styles.tabBar, elevation.card]} accessibilityRole="tablist">
         {tab(TABS[0])}
         {tab(TABS[1])}
-        <Pressable accessibilityRole="button" accessibilityLabel="Log" onPress={onLog} style={({ pressed }) => [styles.fab, elevation.brand, pressed && { backgroundColor: color['surface/brand-pressed'] }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={c.log} onPress={onLog} style={({ pressed }) => [styles.fab, elevation.brand, pressed && { backgroundColor: color['surface/brand-pressed'] }]}>
           <Icon name="plus" color="text/on-brand" />
         </Pressable>
         {tab(TABS[2])}

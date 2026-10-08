@@ -1,9 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
+import { defineCopy, useCopy } from '../i18n';
+import { useCommon } from '../i18n/common';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
+
+const COPY = defineCopy({
+  en: { estimate: ', estimate', flow: (level: string) => `Flow ${level}` },
+  tr: { estimate: ', tahmini', flow: (level: string) => `Akış: ${level}` },
+});
 
 // Figma: Cycle Ring (Phase). Signature component. Each phase has its own arc colour, drop and
 // "Day N" colour; the arc ends in a knob at today. Phases are calendar estimates, not medical
@@ -25,7 +32,7 @@ type CycleRingProps = {
   phase: Phase;
   /** 0–1 progress through the cycle. Ignored for Empty; Late draws a full ring. */
   progress: number;
-  /** Defaults to "<Phase> Phase". */
+  /** Defaults to the phase name ("Menstrual Phase"). */
   label?: string;
   day: string;
   /** Extra line under the day (D3 "days"). The phase rings themselves have none. */
@@ -53,8 +60,10 @@ export function CycleRing({ phase, progress, label, day, caption, note, size = 2
   const tone = PHASE_COLOR[phase];
   const angle = p * 2 * Math.PI - Math.PI / 2;
   const dot = { x: c + r * Math.cos(angle), y: c + r * Math.sin(angle) };
-  const title = label ?? `${phase} Phase`;
-  const estimate = phase === 'Empty' || phase === 'Late' ? '' : ', estimate';
+  const copy = useCopy(COPY);
+  const common = useCommon();
+  const title = label ?? common.phase[phase];
+  const estimate = phase === 'Empty' || phase === 'Late' ? '' : copy.estimate;
 
   return (
     <View style={{ width: size, height: size }} accessible accessibilityLabel={`${title}${estimate}. ${day}.${caption ? ` ${caption}` : ''}${note ? ` ${note}.` : ''}`}>
@@ -140,16 +149,18 @@ export const FLOW_LEVELS: { level: FlowLevelName; icon: IconName }[] = [
 
 export function FlowLevel({ level, selected, onPress }: { level: FlowLevelName; selected?: boolean; onPress?: () => void }) {
   const icon = FLOW_LEVELS.find((l) => l.level === level)!.icon;
+  const c = useCopy(COPY);
+  const name = useCommon().flow[level];
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityLabel={`Flow ${level}`}
+      accessibilityLabel={c.flow(name)}
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
       style={[styles.flow, selected ? { backgroundColor: color['surface/brand'] } : { backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'] }]}
     >
       <Icon name={icon} size={20} color={selected ? 'text/on-brand' : level === 'None' ? 'text/tertiary' : 'text/brand'} />
-      <Text style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>{level}</Text>
+      <Text style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>{name}</Text>
     </Pressable>
   );
 }

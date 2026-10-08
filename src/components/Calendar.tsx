@@ -1,13 +1,35 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { addDays, formatLong, formatMonthYear, sameDay, startOfMonth } from '../lib/dates';
+import { defineCopy, useCopy } from '../i18n';
+import { addDays, formatLong, formatMonthYear, sameDay, startOfMonth, weekdayInitial } from '../lib/dates';
 import { color, radius, type } from '../theme';
 import { IconButton } from './Controls';
 import { DayCell, type DayState } from './Cycle';
 
-const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-const LABEL: Partial<Record<DayState, string>> = { Period: 'period', Predicted: 'predicted period', Logged: 'logged' };
+// Sunday 4 January 2026, so the initials follow the app language.
+const SUNDAY = new Date(2026, 0, 4);
+
+const COPY = defineCopy({
+  en: {
+    state: { Period: 'period', Predicted: 'predicted period', Logged: 'logged' } as Partial<Record<DayState, string>>,
+    today: 'today',
+    prev: 'Previous month',
+    next: 'Next month',
+    legendPeriod: 'Period',
+    legendPredicted: 'Predicted',
+    legendLogged: 'Symptoms logged',
+  },
+  tr: {
+    state: { Period: 'adet', Predicted: 'tahmini adet', Logged: 'kayıt var' },
+    today: 'bugün',
+    prev: 'Önceki ay',
+    next: 'Sonraki ay',
+    legendPeriod: 'Adet',
+    legendPredicted: 'Tahmini',
+    legendLogged: 'Belirti kaydı',
+  },
+});
 
 // Month calendar card for History (D1, D4). Weeks start on Sunday or Monday (G2 setting).
 export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPrev, onNext, legend = true, weekStartsOn = 0 }: {
@@ -21,9 +43,11 @@ export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPre
   legend?: boolean;
   weekStartsOn?: 0 | 1;
 }) {
+  const c = useCopy(COPY);
+  const initials = Array.from({ length: 7 }, (_, i) => weekdayInitial(addDays(SUNDAY, i)));
   const first = startOfMonth(month);
   const lead = (first.getDay() - weekStartsOn + 7) % 7;
-  const weekdays = [...WEEKDAYS.slice(weekStartsOn), ...WEEKDAYS.slice(0, weekStartsOn)];
+  const weekdays = [...initials.slice(weekStartsOn), ...initials.slice(0, weekStartsOn)];
   const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
   const cells: (Date | null)[] = [
     ...Array.from({ length: lead }, () => null),
@@ -35,9 +59,9 @@ export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPre
   return (
     <View style={styles.card}>
       <View style={styles.nav}>
-        <IconButton icon="chevron-left" label="Previous month" type="Tonal" size="Small" onPress={onPrev} />
+        <IconButton icon="chevron-left" label={c.prev} type="Tonal" size="Small" onPress={onPrev} />
         <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), { color: color['text/primary'] }]}>{formatMonthYear(first)}</Text>
-        <IconButton icon="chevron-right" label="Next month" type="Tonal" size="Small" onPress={onNext} />
+        <IconButton icon="chevron-right" label={c.next} type="Tonal" size="Small" onPress={onNext} />
       </View>
       <View style={styles.week}>
         {weekdays.map((d, i) => (
@@ -56,7 +80,7 @@ export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPre
                   day={d.getDate()}
                   state={state}
                   onPress={() => onSelect(d)}
-                  accessibilityLabel={`${formatLong(d)}${LABEL[base] ? `, ${LABEL[base]}` : ''}${sameDay(d, today) ? ', today' : ''}`}
+                  accessibilityLabel={`${formatLong(d)}${c.state[base] ? `, ${c.state[base]}` : ''}${sameDay(d, today) ? `, ${c.today}` : ''}`}
                 />
               </View>
             );
@@ -65,9 +89,9 @@ export function MonthCalendar({ month, stateOf, selected, today, onSelect, onPre
       ))}
       {legend ? (
         <View style={styles.legend}>
-          <LegendItem label="Period"><View style={[styles.swatch, { backgroundColor: color['surface/strong'] }]} /></LegendItem>
-          <LegendItem label="Predicted"><View style={[styles.swatch, styles.dashed]} /></LegendItem>
-          <LegendItem label="Symptoms logged"><View style={styles.dot} /></LegendItem>
+          <LegendItem label={c.legendPeriod}><View style={[styles.swatch, { backgroundColor: color['surface/strong'] }]} /></LegendItem>
+          <LegendItem label={c.legendPredicted}><View style={[styles.swatch, styles.dashed]} /></LegendItem>
+          <LegendItem label={c.legendLogged}><View style={styles.dot} /></LegendItem>
         </View>
       ) : null}
     </View>
