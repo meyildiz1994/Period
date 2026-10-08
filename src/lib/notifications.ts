@@ -77,7 +77,7 @@ export async function rescheduleReminders() {
       url: '/home',
     },
     { when: at(expected, reminder.time), title: window.min === window.max ? 'Your period is expected today' : 'Your period may start any day now', body: 'Log it in Nilemy when it starts.', url: '/log/period' },
-    { when: at(addDays(latestExpected, 2), reminder.time), title: 'Your period is 2 days late', body: 'Cycles often vary. Log it when it starts.', url: '/home' },
+    { when: at(addDays(latestExpected, 2), reminder.time), title: 'Your period is 2 days past the estimate', body: 'Cycles often shift a little. Log it whenever it starts.', url: '/home' },
   ];
   const now = Date.now();
   await ensureChannel();

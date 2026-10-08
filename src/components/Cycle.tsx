@@ -30,6 +30,8 @@ type CycleRingProps = {
   day: string;
   /** Extra line under the day (D3 "days"). The phase rings themselves have none. */
   caption?: string;
+  /** Soft pill under the day (B4 "3 days past estimate"): visible without reading as a warning. */
+  note?: string;
   size?: number;
   /** Today's marker at the end of the arc. Off for D3, where the arc is the period's share. */
   knob?: boolean;
@@ -39,7 +41,7 @@ type CycleRingProps = {
   dayRole?: 'Display' | 'Title/Large';
 };
 
-export function CycleRing({ phase, progress, label, day, caption, size = 260, knob = true, icon = true, dayRole }: CycleRingProps) {
+export function CycleRing({ phase, progress, label, day, caption, note, size = 260, knob = true, icon = true, dayRole }: CycleRingProps) {
   // 20 at the 260 hero size, scaled down for Home (220) and Cycle details (200).
   const stroke = Math.round(size / 13);
   // Home's 220 ring uses smaller text than the 260 hero ring.
@@ -55,7 +57,7 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260, kn
   const estimate = phase === 'Empty' || phase === 'Late' ? '' : ', estimate';
 
   return (
-    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${title}${estimate}. ${day}.${caption ? ` ${caption}` : ''}`}>
+    <View style={{ width: size, height: size }} accessible accessibilityLabel={`${title}${estimate}. ${day}.${caption ? ` ${caption}` : ''}${note ? ` ${note}.` : ''}`}>
       <Svg width={size} height={size}>
         <Circle cx={c} cy={c} r={r} stroke={color[tone.track]} strokeWidth={stroke} fill="none" />
         {p > 0 ? (
@@ -79,6 +81,11 @@ export function CycleRing({ phase, progress, label, day, caption, size = 260, kn
         ) : null}
         <Text style={[type(dayRole ?? (compact ? 'Title/Large' : 'Display'), 'Bold'), styles.centerText, { color: color[tone.day] }]}>{day}</Text>
         {caption ? <Text style={[type(compact ? 'Caption' : 'Body/Small'), styles.centerText, { color: color['text/secondary'] }]}>{caption}</Text> : null}
+        {note ? (
+          <View style={styles.note}>
+            <Text style={[type(compact ? 'Caption' : 'Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>{note}</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -177,6 +184,7 @@ export function KeypadKey({ digit, icon, label, onPress }: { digit?: string; ico
 }
 
 const styles = StyleSheet.create({
+  note: { marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999, backgroundColor: color['surface/muted'] },
   centerText: { textAlign: 'center' },
   ringCenter: { alignItems: 'center', justifyContent: 'center' },
   day: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', gap: 2 },
