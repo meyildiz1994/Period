@@ -45,7 +45,7 @@ const COPY = defineCopy({
 
 const REGULARITY: Regularity[] = ['regular', 'irregular', 'unsure'];
 
-// A4 · Step 3 of 5. Starts from common defaults (28 / 5).
+// A4 · Step 4 of 6. Starts from common defaults (28 / 5).
 export default function CycleStep() {
   const { cycleLength, periodLength, regularity } = useOnboarding();
   const next = () => router.push('/onboarding/symptoms');
@@ -53,7 +53,7 @@ export default function CycleStep() {
 
   return (
     <OnboardingStep
-      step={3}
+      step={4}
       title={c.title}
       body={c.body}
       onBack={router.back}

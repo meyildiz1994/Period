@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Avatar, Button, Divider, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
+import { Avatar, Button, Divider, Icon, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { defineCopy, LANGUAGES, useCopy, useLang } from '../../i18n';
 import { useCommon } from '../../i18n/common';
 import { APP_VERSION } from '../../lib/app';
@@ -16,6 +16,8 @@ const COPY = defineCopy({
   en: {
     title: 'Me',
     saved: 'Saved on this device',
+    editName: 'Change your name',
+    addName: 'Add your name',
     settings: 'Settings',
     cycle: 'Cycle settings',
     cycleSub: 'Cycle and period length',
@@ -33,6 +35,8 @@ const COPY = defineCopy({
   tr: {
     title: 'Ben',
     saved: 'Bu cihazda kayıtlı',
+    editName: 'Adını değiştir',
+    addName: 'Adını ekle',
     settings: 'Ayarlar',
     cycle: 'Döngü ayarları',
     cycleSub: 'Döngü ve adet süresi',
@@ -67,7 +71,10 @@ export default function Me() {
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         <View style={styles.profile}>
           <Avatar name={name ?? undefined} size="Large" />
-          {name ? <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{name}</Text> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={c.editName} onPress={() => router.push('/settings/name')} hitSlop={8} style={styles.name}>
+            <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{name || c.addName}</Text>
+            <Icon name="pencil" size={16} color="text/brand" />
+          </Pressable>
           <View style={styles.pill}>
             <View style={styles.dot} />
             <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{c.saved}</Text>
@@ -134,6 +141,7 @@ export default function Me() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
   content: { paddingHorizontal: layout.gutter, gap: 12 },
+  name: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   profile: { alignItems: 'center', gap: 12, paddingVertical: 24, paddingHorizontal: 20, borderRadius: radius.xl, backgroundColor: color['surface/muted'] },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: color['surface/default'] },
   dot: { width: 6, height: 6, borderRadius: 999, backgroundColor: color['text/primary'] },

@@ -41,7 +41,9 @@ export default function Splash() {
     if (!hydrated || !drawn || left.current) return;
     const t = setTimeout(() => {
       left.current = true;
-      router.replace(getOnboarding().done ? '/home' : '/onboarding');
+      const { done, name } = getOnboarding();
+      // Finished onboarding before the name step existed: ask for it once, then go Home.
+      router.replace(!done ? '/onboarding' : name ? '/home' : { pathname: '/onboarding/name', params: { then: 'home' } });
       // After the first screen is in place, so a tapped notification can open its screen on top.
       startReminders();
     }, HOLD_MS);

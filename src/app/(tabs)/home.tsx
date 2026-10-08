@@ -3,10 +3,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { useTip } from '../../i18n/tips';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { useLog } from '../../state/log';
@@ -60,8 +61,10 @@ const COPY = defineCopy({
   },
 });
 
-// B1 Home (in cycle), B2 empty, B3 loading, B4 late. Designed to fit 844 without scrolling;
-// the ScrollView only matters on shorter phones or with large text.
+// B1 Home (in cycle), B2 empty, B3 loading, B4 late. Fits an 844 pt phone (with the status bar
+// and home indicator) without scrolling: the ring is 184 and the tip card has a fixed height.
+// The ScrollView only matters on shorter phones or with large text.
+const RING = 184;
 export default function Home() {
   const c = useCopy(COPY);
   const common = useCommon();
@@ -74,6 +77,7 @@ export default function Home() {
   const today = new Date();
   const status = cycleStatus(settings, today);
   const todayLog = logs[toISODate(today)];
+  const tip = useTip(status.kind === 'cycle' ? status.phase : 'Empty', today);
   const openLog = () => router.push('/log/period');
 
   let body;
@@ -129,11 +133,12 @@ export default function Home() {
           <CycleRing
             phase={s.phase}
             progress={s.progress}
-            size={220}
+            size={RING}
             label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
             day={common.day(s.cycleDay)}
           />
         </View>
+        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
         <WeekStrip days={weekStrip(settings, today)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         <TodayLogCard
@@ -161,7 +166,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
-  content: { paddingHorizontal: layout.gutter, gap: 12 },
+  content: { paddingHorizontal: layout.gutter, gap: 10 },
   ring: { alignItems: 'center', marginTop: 4, marginBottom: 4 },
   date: { marginTop: 8, color: color['text/secondary'] },
   lateNote: { textAlign: 'center', color: color['text/secondary'], paddingHorizontal: 8 },

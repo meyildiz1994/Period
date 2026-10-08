@@ -25,7 +25,7 @@ const COPY = defineCopy({
   },
 });
 
-// A3 · Step 2 of 5. Defaults to today; the wheel never lists future dates.
+// A3 · Step 3 of 6. Defaults to today; the wheel never lists future dates.
 export default function LastPeriodStep() {
   const c = useCopy(COPY);
   const today = new Date();
@@ -35,7 +35,7 @@ export default function LastPeriodStep() {
 
   return (
     <OnboardingStep
-      step={2}
+      step={3}
       title={c.title}
       body={c.body}
       onBack={router.back}
