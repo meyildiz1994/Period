@@ -7,6 +7,7 @@ export * from './Feedback';
 export * from './Icon';
 export * from './Inputs';
 export * from './LengthRow';
+export * from './LanguageSwitch';
 export * from './LockGate';
 export * from './Logo';
 export * from './Navigation';

@@ -20,6 +20,8 @@ export type OnboardingState = {
   showPredicted: boolean;
   /** First column of the History calendar: 0 Sunday, 1 Monday (G2). */
   weekStartsOn: 0 | 1;
+  /** App language; null follows the phone's language (Welcome corner switch, Me › Language). */
+  language: 'en' | 'tr' | null;
   /** Shown in the Home greeting and avatar. Not asked in onboarding; set from Me later. */
   name: string | null;
   done: boolean;
@@ -37,6 +39,7 @@ const initial: OnboardingState = {
   reminder: { enabled: false, daysBefore: 1, time: '09:00' },
   showPredicted: true,
   weekStartsOn: 0,
+  language: null,
   name: null,
   done: false,
   hydrated: false,
@@ -52,7 +55,7 @@ export function setOnboarding(patch: Partial<OnboardingState>) {
 
 /** Back to first-launch answers; the saved data stays loaded. */
 export function resetOnboarding() {
-  setOnboarding({ ...initial, hydrated: true });
+  setOnboarding({ ...initial, language: state.language, hydrated: true });
 }
 
 export function getOnboarding() {

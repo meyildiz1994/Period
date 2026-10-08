@@ -47,7 +47,8 @@
           "imageWidth": 88,
           "backgroundColor": "#FCF5F6"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "scheme": "nilemy",
     "backgroundColor": "#FCF5F6"
