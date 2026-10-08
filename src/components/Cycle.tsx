@@ -73,9 +73,9 @@ export function CycleRing({ phase, progress, label, day, caption, note, size = 2
         ) : null}
       </Svg>
       <View style={[StyleSheet.absoluteFill, styles.ringCenter, { paddingHorizontal: stroke + 4 }]}>
-        {icon ? <PhaseDrop size={size * 0.2} fill={color[tone.drop]} /> : null}
+        {icon ? <PhaseDrop size={size * (note ? 0.13 : 0.2)} fill={color[tone.drop]} /> : null}
         {label !== '' ? (
-          <Text style={[type(compact ? 'Caption' : 'Body/Small', 'Medium'), styles.centerText, { color: color['text/secondary'], marginTop: icon ? size * 0.03 : 0 }]}>
+          <Text style={[type(compact ? 'Caption' : 'Body/Small', 'Medium'), styles.centerText, { color: color['text/secondary'], marginTop: icon ? size * (note ? 0.02 : 0.03) : 0 }]}>
             {title}
           </Text>
         ) : null}

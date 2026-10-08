@@ -18,14 +18,14 @@ export default function Welcome() {
         <Text style={[type('Body/Medium'), styles.body]}>
           Log your period in seconds, see what your cycle is doing and plan ahead.
         </Text>
+        <View style={styles.cta}>
+          <Button label="Get started" fullWidth onPress={() => router.push('/onboarding/goal')} />
+        </View>
       </View>
 
-      <View style={styles.footer}>
-        <View style={styles.privacy}>
-          <Icon name="lock" size={16} color="text/secondary" />
-          <Text style={[type('Caption'), { color: color['text/secondary'] }]}>Your logs stay on this phone.</Text>
-        </View>
-        <Button label="Get started" fullWidth onPress={() => router.push('/onboarding/goal')} />
+      <View style={styles.privacy}>
+        <Icon name="lock" size={16} color="text/secondary" />
+        <Text style={[type('Caption'), { color: color['text/secondary'] }]}>Your logs stay on this phone.</Text>
       </View>
     </View>
   );
@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
   logo: { marginTop: 24 },
   title: { textAlign: 'center', color: color['text/primary'] },
   body: { marginTop: 32, textAlign: 'center', color: color['text/secondary'], maxWidth: 300 },
-  footer: { paddingHorizontal: 24, gap: 16 },
-  privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  // 50 pt under the intro line (user's call), so the button sits with the welcome, not the bottom edge.
+  cta: { marginTop: 50, alignSelf: 'stretch', paddingHorizontal: 24 - layout.gutter },
+  privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingBottom: 8 },
 });
