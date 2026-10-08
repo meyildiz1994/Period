@@ -3,16 +3,63 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Banner, Button, CycleRing, Dialog, Divider, EmptyState, Page, Tag } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
+import { useCommon } from '../../i18n/common';
 import { addDays, formatMonthDay } from '../../lib/dates';
 import { flowBreakdown, pastCycles } from '../../state/history';
 import { deletePeriod, useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, radius, type } from '../../theme';
 
-const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
+const COPY = defineCopy({
+  en: {
+    title: 'Cycle details',
+    notFound: 'Cycle not found',
+    notFoundBody: 'This cycle may have been edited or deleted.',
+    cycleLength: 'Cycle length',
+    period: 'Period',
+    periodLength: 'Period length',
+    flow: 'Flow',
+    editDates: 'Edit dates',
+    deleteCycle: 'Delete cycle',
+    cycle: (n: number) => `Cycle ${n}`,
+    daysCaption: 'days',
+    periodLegend: (days: string) => `Period (${days})`,
+    rest: 'Rest of cycle',
+    breakdown: 'Breakdown',
+    matched: (count: number, avg: string) => `This cycle matched your ${count}-cycle average of ${avg}.`,
+    compared: (diff: string, longer: boolean, count: number, avg: string) =>
+      `This cycle was ${diff} ${longer ? 'longer' : 'shorter'} than your ${count}-cycle average of ${avg}.`,
+    confirmTitle: 'Delete this cycle?',
+    confirmBody: 'The period that starts this cycle is removed and estimates are recalculated. Daily logs stay.',
+  },
+  tr: {
+    title: 'Döngü ayrıntıları',
+    notFound: 'Döngü bulunamadı',
+    notFoundBody: 'Bu döngü düzenlenmiş ya da silinmiş olabilir.',
+    cycleLength: 'Döngü süresi',
+    period: 'Adet',
+    periodLength: 'Adet süresi',
+    flow: 'Akış',
+    editDates: 'Tarihleri düzenle',
+    deleteCycle: 'Döngüyü sil',
+    cycle: (n: number) => `${n}. döngü`,
+    daysCaption: 'gün',
+    periodLegend: (days: string) => `Adet (${days})`,
+    rest: 'Döngünün geri kalanı',
+    breakdown: 'Ayrıntılar',
+    matched: (count: number, avg: string) => `Bu döngü, son ${count} döngünün ${avg} olan ortalamasıyla aynı.`,
+    compared: (diff: string, longer: boolean, count: number, avg: string) =>
+      `Bu döngü, son ${count} döngünün ${avg} olan ortalamasından ${diff} ${longer ? 'daha uzun' : 'daha kısa'} sürdü.`,
+    confirmTitle: 'Bu döngü silinsin mi?',
+    confirmBody: 'Bu döngüyü başlatan adet kaydı silinir ve tahminler yeniden hesaplanır. Günlük kayıtların kalır.',
+  },
+});
 
 // D3 Cycle details for the completed cycle that began with the period starting on `start`.
 export default function CycleDetails() {
+  const t = useCopy(COPY);
+  const { days } = useCommon();
   const { start } = useLocalSearchParams<{ start: string }>();
   const { periods, days: logs } = useLog();
   const { periodLength: usual } = useOnboarding();
@@ -22,8 +69,8 @@ export default function CycleDetails() {
 
   if (!c) {
     return (
-      <Page title="Cycle details" onBack={router.back}>
-        <EmptyState icon="calendar" title="Cycle not found" body="This cycle may have been edited or deleted." />
+      <Page title={t.title} onBack={router.back}>
+        <EmptyState icon="calendar" title={t.notFound} body={t.notFoundBody} />
       </Page>
     );
   }
@@ -33,42 +80,42 @@ export default function CycleDetails() {
   const flow = flowBreakdown(c.period, logs, usual);
   const periodEnd = addDays(c.start, c.periodDays - 1);
   const rows: [string, string][] = [
-    ['Cycle length', days(c.length)],
-    ['Period', `${formatMonthDay(c.start)} – ${formatMonthDay(periodEnd)}`],
-    ['Period length', days(c.periodDays)],
-    ...(flow ? [['Flow', flow] as [string, string]] : []),
+    [t.cycleLength, days(c.length)],
+    [t.period, `${formatMonthDay(c.start)} – ${formatMonthDay(periodEnd)}`],
+    [t.periodLength, days(c.periodDays)],
+    ...(flow ? [[t.flow, flow] as [string, string]] : []),
   ];
 
   return (
     <Page
-      title="Cycle details"
+      title={t.title}
       onBack={router.back}
       footer={
         <>
-          <Button label="Edit dates" type="Outline" iconLeft="calendar-edit" fullWidth onPress={() => router.push(`/log/period?start=${c.period.start}`)} />
-          <Button label="Delete cycle" type="GhostDanger" iconLeft="trash" fullWidth onPress={() => setConfirm(true)} />
+          <Button label={t.editDates} type="Outline" iconLeft="calendar-edit" fullWidth onPress={() => router.push(`/log/period?start=${c.period.start}`)} />
+          <Button label={t.deleteCycle} type="GhostDanger" iconLeft="trash" fullWidth onPress={() => setConfirm(true)} />
         </>
       }
     >
       <View style={[styles.card, styles.summary]}>
-        <Tag label={`Cycle ${c.number}`} icon="calendar" />
+        <Tag label={t.cycle(c.number)} icon="calendar" />
         <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>
           {formatMonthDay(c.start)} – {formatMonthDay(c.end)}, {c.end.getFullYear()}
         </Text>
-        <CycleRing phase="Menstrual" progress={c.periodDays / c.length} size={200} knob={false} icon={false} label="" day={String(c.length)} caption="days" dayRole="Display" />
+        <CycleRing phase="Menstrual" progress={c.periodDays / c.length} size={200} knob={false} icon={false} label="" day={String(c.length)} caption={t.daysCaption} dayRole="Display" />
         <View style={styles.legend}>
           <View style={styles.legendItem}>
             <View style={[styles.dot, { backgroundColor: color['surface/brand'] }]} />
-            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>Period ({days(c.periodDays)})</Text>
+            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{t.periodLegend(days(c.periodDays))}</Text>
           </View>
           <View style={styles.legendItem}>
             <View style={[styles.dot, { backgroundColor: color['surface/strong'] }]} />
-            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>Rest of cycle</Text>
+            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{t.rest}</Text>
           </View>
         </View>
       </View>
 
-      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>Breakdown</Text>
+      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{t.breakdown}</Text>
       <View style={styles.card}>
         {rows.map(([label, value], i) => (
           <View key={label}>
@@ -85,8 +132,8 @@ export default function CycleDetails() {
         <Banner
           message={
             diff === 0
-              ? `This cycle matched your ${cycles.length}-cycle average of ${days(average)}.`
-              : `This cycle was ${days(Math.abs(diff))} ${diff > 0 ? 'longer' : 'shorter'} than your ${cycles.length}-cycle average of ${days(average)}.`
+              ? t.matched(cycles.length, days(average))
+              : t.compared(days(Math.abs(diff)), diff > 0, cycles.length, days(average))
           }
         />
       ) : null}
@@ -94,9 +141,9 @@ export default function CycleDetails() {
       <Dialog
         visible={confirm}
         destructive
-        title="Delete this cycle?"
-        body="The period that starts this cycle is removed and estimates are recalculated. Daily logs stay."
-        confirmLabel="Delete cycle"
+        title={t.confirmTitle}
+        body={t.confirmBody}
+        confirmLabel={t.deleteCycle}
         onCancel={() => setConfirm(false)}
         onConfirm={() => {
           setConfirm(false);
