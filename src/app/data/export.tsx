@@ -1,6 +1,6 @@
 import * as Sharing from 'expo-sharing';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Banner, Button, Checkbox, Choice, IconBadge, Page } from '../../components';
@@ -8,6 +8,7 @@ import { buildExport, formatSize, writeExport, type ExportFormat, type ExportInc
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
 import { useLog } from '../../state/log';
+import { clearExports } from '../../state/persist';
 import { color, radius, type } from '../../theme';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -63,6 +64,12 @@ export default function ExportData() {
   const [format, setFormat] = useState<ExportFormat>('csv');
   const [ready, setReady] = useState<Ready | null>(null);
   const [failed, setFailed] = useState(false);
+  // The export is plaintext: remove it from the cache when leaving this screen.
+  useEffect(() => () => {
+    try {
+      clearExports();
+    } catch {}
+  }, []);
   const notes = Object.values(days).filter((d) => d.note).length;
   const nothing = !include.periods && !include.days && !include.notes;
 

@@ -1,7 +1,7 @@
 import { gcm } from '@noble/ciphers/aes.js';
 import { bytesToHex, bytesToUtf8, concatBytes, hexToBytes, utf8ToBytes } from '@noble/ciphers/utils.js';
 import { getRandomBytes } from 'expo-crypto';
-import { File, Paths } from 'expo-file-system';
+import { Directory, File, Paths } from 'expo-file-system';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
@@ -16,6 +16,9 @@ import { getOnboarding, setOnboarding, subscribeOnboarding } from './onboarding'
 const VERSION = 1;
 const KEY_NAME = 'period.key.v1';
 const FILE_NAME = 'period.dat';
+const TEMP_NAME = 'period.dat.tmp';
+/** Exports are written to the cache with this prefix (lib/export.ts) and removed on Delete all. */
+export const EXPORT_PREFIX = 'nilemy-export-';
 const WEB_KEY = 'period.state.v1';
 
 type Saved = {
@@ -57,9 +60,12 @@ async function write(data: Saved) {
   }
   const nonce = getRandomBytes(12);
   const sealed = concatBytes(nonce, gcm(await key(), nonce).encrypt(utf8ToBytes(json)));
-  const f = file();
-  if (!f.exists) f.create();
-  f.write(sealed);
+  // Write a temp file and move it into place, so a crash mid-write can't leave a broken file.
+  const tmp = new File(Paths.document, TEMP_NAME);
+  if (tmp.exists) tmp.delete();
+  tmp.create();
+  tmp.write(sealed);
+  await tmp.move(file(), { overwrite: true });
 }
 
 function snapshot(): Saved {
@@ -99,6 +105,10 @@ export async function hydrate() {
     saved = await read();
   } catch (e) {
     console.warn('Nilemy: saved data could not be read; starting fresh', e);
+    // Keep the unreadable file aside instead of letting the next save overwrite it.
+    try {
+      if (!web && file().exists) file().rename(`period-unreadable-${Date.now()}.dat`);
+    } catch {}
   }
   if (saved?.v === VERSION) {
     replaceLog(saved.log);
@@ -107,7 +117,39 @@ export async function hydrate() {
   } else {
     setOnboarding({ hydrated: true });
   }
+  try {
+    clearExports();
+  } catch {}
   subscribeOnboarding(schedule);
   subscribeLog(schedule);
   subscribeLock(schedule);
+}
+
+/**
+ * Delete all (H2): removes the data file, its key and any export left in the cache, so nothing
+ * readable is left behind. Throws if something couldn't be removed. The stores are reset by the
+ * caller first; the next save writes a fresh file with a new key.
+ */
+export async function wipe() {
+  if (timer) clearTimeout(timer);
+  timer = null;
+  await pending.catch(() => {});
+  if (web) {
+    globalThis.localStorage?.removeItem(WEB_KEY);
+    return;
+  }
+  for (const name of [FILE_NAME, TEMP_NAME]) {
+    const f = new File(Paths.document, name);
+    if (f.exists) f.delete();
+  }
+  await SecureStore.deleteItemAsync(KEY_NAME, { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+  clearExports();
+}
+
+/** Removes plaintext exports left in the cache (after sharing, at launch, on Delete all). */
+export function clearExports() {
+  if (web) return;
+  for (const item of new Directory(Paths.cache).list()) {
+    if (item instanceof File && item.name.startsWith(EXPORT_PREFIX)) item.delete();
+  }
 }

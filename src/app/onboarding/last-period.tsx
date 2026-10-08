@@ -25,7 +25,7 @@ const COPY = defineCopy({
   },
 });
 
-// A3 · Step 3 of 6. Defaults to today; the wheel never lists future dates.
+// A3 · Step 3 of 6. Defaults to today; future dates show dimmed and can't be picked.
 export default function LastPeriodStep() {
   const c = useCopy(COPY);
   const today = new Date();
@@ -52,7 +52,7 @@ export default function LastPeriodStep() {
       }
     >
       <Card style={styles.card}>
-        <DateWheel value={date} onChange={setDate} max={today} minYear={today.getFullYear() - 2} />
+        <DateWheel value={date} onChange={setDate} max={today} />
         <View style={styles.hint}>
           <Icon name="info" size={16} color="text/secondary" />
           <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{c.future}</Text>

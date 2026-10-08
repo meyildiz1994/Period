@@ -68,7 +68,6 @@ export default function LogPeriod() {
   const [failed, setFailed] = useState(false);
 
   const endError = ended && diffDays(start, end) < 0;
-  const minYear = today.getFullYear() - 2;
 
   const save = async () => {
     try {
@@ -94,7 +93,7 @@ export default function LogPeriod() {
           <Text style={[type('Body/Large', 'SemiBold'), styles.flex, { color: color['text/primary'] }]}>{c.started}</Text>
           <Tag label={formatShort(start)} />
         </View>
-        <DateWheel rows={3} value={start} onChange={setStart} max={today} minYear={minYear} />
+        <DateWheel rows={3} value={start} onChange={setStart} max={today} />
         <View style={styles.divider} />
         <View style={styles.row}>
           <View style={styles.flex}>
@@ -125,7 +124,7 @@ export default function LogPeriod() {
                 </Text>
               </View>
             ) : null}
-            {pickingEnd ? <DateWheel rows={3} value={end} onChange={setEnd} max={today} minYear={minYear} /> : null}
+            {pickingEnd ? <DateWheel rows={3} value={end} onChange={setEnd} max={today} /> : null}
           </View>
         ) : (
           <View style={styles.well}>

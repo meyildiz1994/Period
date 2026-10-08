@@ -1,6 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useCommon } from '../i18n/common';
+import { useLock } from '../state/lock';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Button } from './Button';
@@ -63,8 +64,11 @@ export function Dialog({ visible, destructive, title, body, confirmLabel, cancel
   onConfirm: () => void; onCancel: () => void;
 }) {
   const { cancel } = useCommon();
+  const lock = useLock();
+  const shut = lock.enabled && lock.locked;
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+    // Native modals sit above the lock overlay, so they close while the app is locked.
+    <Modal visible={visible && !shut} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.scrim}>
         <View style={[styles.dialog, elevation.overlay]} accessibilityViewIsModal>
           <View style={[styles.badge56, { backgroundColor: color[destructive ? 'feedback/danger-subtle' : 'surface/muted'] }]}>
