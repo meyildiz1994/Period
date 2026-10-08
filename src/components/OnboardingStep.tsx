@@ -2,9 +2,16 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { defineCopy, useCopy } from '../i18n';
+import { useCommon } from '../i18n/common';
 import { color, layout, overline, type } from '../theme';
 import { IconButton } from './Controls';
 import { ProgressSteps } from './Navigation';
+
+const COPY = defineCopy({
+  en: { step: (n: number) => `Step ${n} of 5` },
+  tr: { step: (n: number) => `Adım ${n} / 5` },
+});
 
 // Shared frame for A2–A7: back · progress · Skip header, step overline, title, intro,
 // scrolling content and a footer pinned above the home indicator.
@@ -24,6 +31,8 @@ type Props = {
 
 export function OnboardingStep({ step, title, body, children, footer, onBack, onSkip, done, hero }: Props) {
   const insets = useSafeAreaInsets();
+  const c = useCopy(COPY);
+  const common = useCommon();
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {done ? (
@@ -32,14 +41,14 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
         </View>
       ) : (
         <View style={styles.header}>
-          <View style={styles.side}>{onBack ? <IconButton icon="chevron-left" label="Back" onPress={onBack} /> : null}</View>
+          <View style={styles.side}>{onBack ? <IconButton icon="chevron-left" label={common.back} onPress={onBack} /> : null}</View>
           <View style={styles.steps}>
             <ProgressSteps step={step} />
           </View>
           <View style={styles.skip}>
             {onSkip ? (
               <Pressable accessibilityRole="button" onPress={onSkip} hitSlop={8} style={styles.skipButton}>
-                <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>Skip</Text>
+                <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>{common.skip}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -47,7 +56,7 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
       )}
       <ScrollView contentContainerStyle={[styles.content, done && styles.doneContent]} showsVerticalScrollIndicator={false}>
         {hero ? <View style={styles.hero}>{hero}</View> : null}
-        {done ? null : <Text style={[overline(13), { color: color['text/brand'] }]}>Step {step} of 5</Text>}
+        {done ? null : <Text style={[overline(13), { color: color['text/brand'] }]}>{c.step(step)}</Text>}
         <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.title, done && styles.center, hero ? { marginTop: 32 } : null]}>{title}</Text>
         {body ? <Text style={[type('Body/Medium'), styles.body, done && styles.center]}>{body}</Text> : null}
         <View style={[styles.slot, done && { marginTop: 32 }]}>{children}</View>

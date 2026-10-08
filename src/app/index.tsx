@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
 import { AnimatedLogoMark } from '../components';
+import { defineCopy, useCopy } from '../i18n';
 import { color, type } from '../theme';
 import { startReminders } from '../lib/notifications';
 import { getOnboarding, useOnboarding } from '../state/onboarding';
@@ -13,11 +14,23 @@ import { getOnboarding, useOnboarding } from '../state/onboarding';
 // colour with no image, so the drawing starts from a blank screen.
 const HOLD_MS = 350;
 
+const COPY = defineCopy({
+  en: {
+    tagline: 'Track · Understand · Manage',
+    label: 'Nilemy. Track, understand, manage.',
+  },
+  tr: {
+    tagline: 'Takip et · Anla · Yönet',
+    label: 'Nilemy. Takip et, anla, yönet.',
+  },
+});
+
 export default function Splash() {
   const { hydrated } = useOnboarding();
   const [drawn, setDrawn] = useState(false);
   const [name] = useState(() => new Animated.Value(0));
   const left = useRef(false);
+  const c = useCopy(COPY);
 
   useEffect(() => {
     if (!drawn) return;
@@ -36,12 +49,12 @@ export default function Splash() {
   }, [hydrated, drawn]);
 
   return (
-    <View style={styles.screen} accessible accessibilityLabel="Nilemy. Track, understand, manage.">
+    <View style={styles.screen} accessible accessibilityLabel={c.label}>
       <StatusBar style="dark" />
       <AnimatedLogoMark size={168} onDone={() => setDrawn(true)} />
       <Animated.View style={{ opacity: name, alignItems: 'center' }}>
         <Animated.Text style={[type('Display', 'Bold'), styles.name]}>Nilemy</Animated.Text>
-        <Animated.Text style={[type('Body/Medium'), styles.tagline]}>Track · Understand · Manage</Animated.Text>
+        <Animated.Text style={[type('Body/Medium'), styles.tagline]}>{c.tagline}</Animated.Text>
       </Animated.View>
     </View>
   );

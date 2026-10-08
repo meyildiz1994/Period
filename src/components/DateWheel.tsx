@@ -1,11 +1,25 @@
 import { useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { defineCopy, useCopy } from '../i18n';
 import { color, elevation, radius, type } from '../theme';
 
 // Day · month · year wheel used in A3 (5 rows) and C2 (3 rows). Drag a column or tap a row to pick.
 // Future dates are never listed, so the value can't go past `max`.
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const COPY = defineCopy({
+  en: {
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    day: 'Day',
+    month: 'Month',
+    year: 'Year',
+  },
+  tr: {
+    months: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+    day: 'Gün',
+    month: 'Ay',
+    year: 'Yıl',
+  },
+});
 const ROW = 40;
 const SELECTED = 52;
 const PAD = 8;
@@ -21,6 +35,7 @@ type Props = {
 const daysIn = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
 
 export function DateWheel({ value, onChange, max, minYear, rows = 5 }: Props) {
+  const c = useCopy(COPY);
   const y = value.getFullYear();
   const m = value.getMonth();
   const d = value.getDate();
@@ -43,14 +58,14 @@ export function DateWheel({ value, onChange, max, minYear, rows = 5 }: Props) {
     <View style={[styles.well, { height }]}>
       <View style={[styles.selected, elevation.hairline, { top: PAD + side * ROW }]} />
       <Column
-        label="Day"
+        label={c.day}
         labels={Array.from({ length: dayCount }, (_, i) => String(i + 1))}
         index={d - 1}
         side={side}
         onSelect={(i) => set(y, m, i + 1)}
       />
-      <Column label="Month" labels={MONTHS.slice(0, monthCount)} index={m} side={side} onSelect={(i) => set(y, i, d)} />
-      <Column label="Year" labels={years.map(String)} index={y - minYear} side={side} onSelect={(i) => set(years[i], m, d)} />
+      <Column label={c.month} labels={c.months.slice(0, monthCount)} index={m} side={side} onSelect={(i) => set(y, i, d)} />
+      <Column label={c.year} labels={years.map(String)} index={y - minYear} side={side} onSelect={(i) => set(years[i], m, d)} />
     </View>
   );
 }

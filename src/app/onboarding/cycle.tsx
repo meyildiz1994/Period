@@ -2,34 +2,69 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, CYCLE_RANGE, LengthRow, OnboardingStep, PERIOD_RANGE, Radio } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { setOnboarding, useOnboarding, type Regularity } from '../../state/onboarding';
 import { color, type } from '../../theme';
 
-const REGULARITY: { id: Regularity; title: string; subtitle: string }[] = [
-  { id: 'regular', title: 'Regular', subtitle: 'Varies by a few days' },
-  { id: 'irregular', title: 'Irregular', subtitle: 'Varies by a week or more' },
-  { id: 'unsure', title: 'Not sure', subtitle: 'We’ll learn from your logs' },
-];
+const COPY = defineCopy({
+  en: {
+    title: 'Your usual cycle',
+    body: 'We start with common defaults. Change them if you know your numbers.',
+    continue: 'Continue',
+    cycleTitle: 'Cycle length',
+    cycleSubtitle: 'First day of one period to the next',
+    cycleHint: 'Most cycles are 21–35 days',
+    periodTitle: 'Period length',
+    periodSubtitle: 'Days of bleeding',
+    periodHint: 'Usually 3–7 days',
+    regularQuestion: 'Is your cycle regular?',
+    regularity: {
+      regular: { title: 'Regular', subtitle: 'Varies by a few days' },
+      irregular: { title: 'Irregular', subtitle: 'Varies by a week or more' },
+      unsure: { title: 'Not sure', subtitle: 'We’ll learn from your logs' },
+    } as Record<Regularity, { title: string; subtitle: string }>,
+  },
+  tr: {
+    title: 'Olağan döngün',
+    body: 'Yaygın değerlerle başlıyoruz. Kendi değerlerini biliyorsan değiştir.',
+    continue: 'Devam',
+    cycleTitle: 'Döngü süresi',
+    cycleSubtitle: 'Bir adetin ilk gününden sonrakine',
+    cycleHint: 'Çoğu döngü 21–35 gündür',
+    periodTitle: 'Adet süresi',
+    periodSubtitle: 'Kanamalı gün sayısı',
+    periodHint: 'Genellikle 3–7 gün',
+    regularQuestion: 'Döngün düzenli mi?',
+    regularity: {
+      regular: { title: 'Düzenli', subtitle: 'Birkaç gün değişir' },
+      irregular: { title: 'Düzensiz', subtitle: 'Bir hafta ya da daha fazla değişir' },
+      unsure: { title: 'Emin değilim', subtitle: 'Kayıtlarından öğreneceğiz' },
+    },
+  },
+});
+
+const REGULARITY: Regularity[] = ['regular', 'irregular', 'unsure'];
 
 // A4 · Step 3 of 5. Starts from common defaults (28 / 5).
 export default function CycleStep() {
   const { cycleLength, periodLength, regularity } = useOnboarding();
   const next = () => router.push('/onboarding/symptoms');
+  const c = useCopy(COPY);
 
   return (
     <OnboardingStep
       step={3}
-      title="Your usual cycle"
-      body="We start with common defaults. Change them if you know your numbers."
+      title={c.title}
+      body={c.body}
       onBack={router.back}
       onSkip={next}
-      footer={<Button label="Continue" fullWidth onPress={next} />}
+      footer={<Button label={c.continue} fullWidth onPress={next} />}
     >
       <Card padded={false} style={styles.card}>
         <LengthRow
-          title="Cycle length"
-          subtitle="First day of one period to the next"
-          hint="Most cycles are 21–35 days"
+          title={c.cycleTitle}
+          subtitle={c.cycleSubtitle}
+          hint={c.cycleHint}
           value={cycleLength}
           min={CYCLE_RANGE.min}
           max={CYCLE_RANGE.max}
@@ -37,9 +72,9 @@ export default function CycleStep() {
         />
         <View style={styles.divider} />
         <LengthRow
-          title="Period length"
-          subtitle="Days of bleeding"
-          hint="Usually 3–7 days"
+          title={c.periodTitle}
+          subtitle={c.periodSubtitle}
+          hint={c.periodHint}
           value={periodLength}
           min={PERIOD_RANGE.min}
           max={PERIOD_RANGE.max}
@@ -47,10 +82,10 @@ export default function CycleStep() {
         />
       </Card>
 
-      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>Is your cycle regular?</Text>
+      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{c.regularQuestion}</Text>
       <Card padded={false} style={[styles.card, styles.radioCard]}>
         <View accessibilityRole="radiogroup">
-          {REGULARITY.map((r, i) => (
+          {REGULARITY.map((id) => ({ id, ...c.regularity[id] })).map((r, i) => (
             <View key={r.id}>
               {i > 0 ? <View style={styles.radioDivider} /> : null}
               <Pressable
