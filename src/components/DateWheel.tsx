@@ -1,8 +1,8 @@
-import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { defineCopy, useCopy } from '../i18n';
+import { tick } from '../lib/haptics';
 import { color, elevation, radius, type } from '../theme';
 
 // Day · month · year wheel used in A3 (5 rows) and C2 (3 rows), like the iOS picker: each column
@@ -74,19 +74,22 @@ export function DateWheel({ value, onChange, max, minYear, rows = 5 }: Props) {
 function Column({ label, labels, index, side, onSelect }: {
   label: string; labels: string[]; index: number; side: number; onSelect: (i: number) => void;
 }) {
-  const scroll = useRef<Animated.FlatList<string> | null>(null);
+  const scroll = useRef<ScrollView | null>(null);
   const [y] = useState(() => new Animated.Value(index * ROW));
   // Row under the centre while the finger or momentum moves the column (for the haptic tick).
   const passing = useRef(index);
   const moving = useRef(false);
 
   const clamp = (i: number) => Math.max(0, Math.min(labels.length - 1, i));
-  const scrollTo = (i: number, animated = true) => scroll.current?.scrollToOffset({ offset: i * ROW, animated });
+  const scrollTo = (i: number, animated = true) => scroll.current?.scrollTo({ y: i * ROW, animated });
 
   // Keep the column on the value when it changes from outside (a shorter month clamps the day,
   // an accessibility action, a tap).
+  // The first jump (Android ignores contentOffset) is instant.
+  const shown = useRef(false);
   useEffect(() => {
-    if (!moving.current) scrollTo(index);
+    if (!moving.current) scrollTo(index, shown.current);
+    shown.current = true;
   }, [index]);
 
   const onScroll = Animated.event([{ nativeEvent: { contentOffset: { y } } }], { useNativeDriver: true });
@@ -106,7 +109,7 @@ function Column({ label, labels, index, side, onSelect }: {
       const i = Math.max(0, Math.min(count - 1, Math.round(value / ROW)));
       if (i !== passing.current) {
         passing.current = i;
-        if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
+        tick();
       }
       if (still) clearTimeout(still);
       still = setTimeout(() => {
@@ -142,12 +145,11 @@ function Column({ label, labels, index, side, onSelect }: {
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => step(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
     >
-      <Animated.FlatList
+      {/* A plain scroll view: at most 31 rows, and it sits inside the page's ScrollView where a
+          virtualized list isn't allowed. */}
+      <Animated.ScrollView
         ref={scroll}
-        data={labels}
-        keyExtractor={(item, i) => `${i}-${item}`}
-        getItemLayout={(_, i) => ({ length: ROW, offset: ROW * i, index: i })}
-        initialScrollIndex={index}
+        contentOffset={{ x: 0, y: index * ROW }}
         contentContainerStyle={{ paddingVertical: side * ROW }}
         showsVerticalScrollIndicator={false}
         snapToInterval={ROW}
@@ -162,8 +164,11 @@ function Column({ label, labels, index, side, onSelect }: {
           const v = e.nativeEvent.velocity?.y ?? 0;
           if (Math.abs(v) < 0.05) settle(e.nativeEvent.contentOffset.y);
         }}
-        renderItem={({ item, index: i }) => <Row text={item} i={i} y={y} side={side} onPress={() => { scrollTo(i); onSelect(i); }} />}
-      />
+      >
+        {labels.map((text, i) => (
+          <Row key={`${i}-${text}`} text={text} i={i} y={y} side={side} onPress={() => { scrollTo(i); onSelect(i); }} />
+        ))}
+      </Animated.ScrollView>
     </View>
   );
 }

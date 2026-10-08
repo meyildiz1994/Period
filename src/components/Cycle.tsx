@@ -3,6 +3,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { defineCopy, useCopy } from '../i18n';
 import { useCommon } from '../i18n/common';
+import { withTick } from '../lib/haptics';
 import { color, elevation, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Icon } from './Icon';
@@ -156,7 +157,7 @@ export function FlowLevel({ level, selected, onPress }: { level: FlowLevelName; 
       accessibilityRole="radio"
       accessibilityLabel={c.flow(name)}
       accessibilityState={{ selected: !!selected }}
-      onPress={onPress}
+      onPress={withTick(onPress)}
       style={[styles.flow, selected ? { backgroundColor: color['surface/brand'] } : { backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'] }]}
     >
       <Icon name={icon} size={20} color={selected ? 'text/on-brand' : level === 'None' ? 'text/tertiary' : 'text/brand'} />
