@@ -76,7 +76,7 @@
   .glow::after { width: 30vmax; height: 22vmax; right: 22vw; bottom: -10vmax; background: var(--blush); transform: rotate(18deg); }
 
   .copy { position: relative; z-index: 1; display: grid; gap: clamp(16px, 3vh, 28px); justify-items: start; min-width: 0; }
-  .logo { width: clamp(132px, 15vw, 188px); height: auto; display: block; }
+  .logo { width: clamp(120px, 12vw, 160px); height: auto; display: block; }
   .logo .wordmark { fill: var(--wordmark); }
   h1 {
     margin: 0;
@@ -99,11 +99,6 @@
   .cta:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
   .stores.ping .store { animation: ping .9s ease 2; }
   @keyframes ping { 50% { transform: scale(1.04); } }
-  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-  .facts li {
-    font-size: 13px; font-weight: 600; letter-spacing: .01em; color: var(--brand);
-    background: var(--blush); border-radius: 999px; padding: 7px 12px;
-  }
 
   .stores { display: flex; flex-wrap: wrap; gap: 12px; }
   .store {
@@ -188,19 +183,19 @@
     .page {
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto minmax(0, 1fr) auto auto;
-      align-items: stretch; gap: 14px;
+      align-items: stretch; gap: 20px;
       padding-block: max(56px, calc(env(safe-area-inset-top) + 48px)) max(12px, env(safe-area-inset-bottom));
     }
     .copy { display: contents; }
-    .head { display: grid; gap: 10px; justify-items: center; text-align: center; }
-    .logo { width: clamp(96px, 26vw, 128px); }
+    .head { display: grid; gap: 12px; justify-items: center; text-align: center; }
+    .logo { width: clamp(80px, 21vw, 100px); }
     h1 { font-size: clamp(22px, 6.2vw, 28px); max-width: 20ch; }
-    .lede, .facts, .cta { display: none; }
+    .lede, .cta { display: none; }
     /* The phone takes whatever height its row has left (minus the dots), so it can never spill
        over the headline or the store buttons, whatever the screen or how the headline wraps. */
     .stage { min-height: 0; align-content: center; container-type: size; }
     .phone { --h: min(52vh, 560px); --h: min(calc(100cqh - 30px), 560px, calc(100cqw * 844 / 390)); }
-    .stores { justify-content: center; order: 3; padding-top: 16px; }
+    .stores { justify-content: center; order: 3; padding-top: 4px; }
     .store { height: 48px; }
     .store b { font-size: 16px; }
     .foot { position: static; order: 4; font-size: 11px; line-height: 1.4; }
@@ -210,17 +205,21 @@
   }
   @media (max-width: 760px) and (max-height: 720px) {
     h1 { font-size: 21px; }
-    .logo { width: 92px; }
+    .logo { width: 76px; }
   }
   @media (max-width: 760px) and (max-height: 620px) {
-    .logo { width: 72px; }
+    .logo { width: 64px; }
     h1 { font-size: 19px; }
   }
   @media (min-width: 761px) and (max-height: 800px) {
-    .logo { width: clamp(110px, 11vw, 150px); }
-    .facts { display: none; }
+    .logo { width: clamp(104px, 10vw, 136px); }
   }
-  @media (min-width: 761px) { .head { display: grid; gap: clamp(16px, 3vh, 28px); justify-items: start; } }
+  @media (min-width: 761px) {
+    .head { display: grid; gap: clamp(20px, 3.6vh, 32px); justify-items: start; }
+    .copy { gap: clamp(28px, 5vh, 48px); }
+    .logo { margin-bottom: clamp(4px, 1.5vh, 16px); }
+    .lede { max-width: 46ch; }
+  }
 
   @media (prefers-reduced-motion: reduce) { .screen img, .dots button { transition: none; } }
 </style>
@@ -249,11 +248,6 @@
       <h1 data-i18n="title">Regl olmak yeterince uğraştırıcı. <em>Takip etmek de öyle olmasın.</em></h1>
       <p class="lede" data-i18n="lede">Nilemy ile adet tarihlerini kolayca kaydet, önceki döngülerine göz at ve bir sonraki adetinin ne zaman başlayabileceğini gör. Gereksiz adımlarla uğraşmadan, ihtiyacın olan her şey tek yerde.</p>
       <a class="cta" href="#stores" id="cta" data-i18n="cta">Nilemy’yi Keşfet</a>
-      <ul class="facts">
-        <li data-i18n="f1">Hesap gerekmez</li>
-        <li data-i18n="f2">Reklam yok</li>
-        <li data-i18n="f3">Türkçe ve İngilizce</li>
-      </ul>
     </div>
     <div class="stores" id="stores">
       <a class="store" href="#" aria-disabled="true" id="store-ios">
@@ -286,7 +280,7 @@
     tr: {
       title: 'Regl olmak yeterince uğraştırıcı. <em>Takip etmek de öyle olmasın.</em>',
       lede: 'Nilemy ile adet tarihlerini kolayca kaydet, önceki döngülerine göz at ve bir sonraki adetinin ne zaman başlayabileceğini gör. Gereksiz adımlarla uğraşmadan, ihtiyacın olan her şey tek yerde.',
-      cta: 'Nilemy’yi Keşfet', f1: 'Hesap gerekmez', f2: 'Reklam yok', f3: 'Türkçe ve İngilizce',
+      cta: 'Nilemy’yi Keşfet',
       iosSmall: 'App Store’dan', iosBig: 'İndir', playSmall: 'Google Play’den', playBig: 'İndir', soon: 'Yakında',
       foot: 'Nilemy tıbbi bir cihaz değildir · Doğum kontrolü için kullanılmaz',
       privacy: 'Gizlilik', support: 'Destek',
@@ -295,7 +289,7 @@
     en: {
       title: 'Your period is complicated enough. <em>Tracking it shouldn’t be.</em>',
       lede: 'Nilemy makes it easy to log your period, check past cycles, and get a better idea of what to expect next. No unnecessary steps. Just the things you actually need.',
-      cta: 'Get Nilemy', f1: 'No account needed', f2: 'No ads', f3: 'English and Turkish',
+      cta: 'Get Nilemy',
       iosSmall: 'Download on the', iosBig: 'App Store', playSmall: 'Get it on', playBig: 'Google Play', soon: 'Soon',
       foot: 'Nilemy isn’t a medical device · Not for contraception',
       privacy: 'Privacy', support: 'Support',
