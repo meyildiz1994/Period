@@ -15,7 +15,7 @@ const COPY = defineCopy({
       ['Where it lives', 'On this phone only, encrypted. There’s no account or server, so nothing is sent anywhere unless you export it. If your phone’s iCloud or Google backup is on, the encrypted file can be included, but it only opens on this phone.'],
       ['What we never do', 'We don’t sell your data, show ads or share logs with anyone.'],
       ['Your control', 'Export or delete everything at any time in Your data.'],
-      ['Full policy', 'Read the full policy at nilemy.com/privacy. Questions: niluferaktenyildiz@gmail.com'],
+      ['Full policy', 'Read the full policy at nilemy.com/privacy. Questions: info@nilemy.com'],
     ] as [string, string][],
   },
   tr: {
@@ -27,7 +27,7 @@ const COPY = defineCopy({
       ['Nerede duruyor', 'Yalnızca bu telefonda, şifreli olarak. Hesap ya da sunucu yok; sen dışa aktarmadıkça hiçbir şey bir yere gönderilmez. Telefonunun iCloud ya da Google yedeği açıksa şifreli dosya yedeğe dahil olabilir, ama yalnızca bu telefonda açılır.'],
       ['Asla yapmadıklarımız', 'Verilerini satmayız, reklam göstermeyiz ve kayıtlarını kimseyle paylaşmayız.'],
       ['Kontrol sende', 'Verilerin bölümünden istediğin zaman her şeyi dışa aktarabilir ya da silebilirsin.'],
-      ['Politikanın tamamı', 'Politikanın tamamını nilemy.com/privacy adresinde okuyabilirsin. Soruların için: niluferaktenyildiz@gmail.com'],
+      ['Politikanın tamamı', 'Politikanın tamamını nilemy.com/privacy adresinde okuyabilirsin. Soruların için: info@nilemy.com'],
     ],
   },
 });
