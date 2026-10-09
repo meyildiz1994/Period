@@ -106,7 +106,7 @@ Nilemy has no accounts and no server: there is nothing to sign in to and no demo
 - **App Privacy:** Data Not Collected.
 - **Age rating:** No to everything except "Medical/Treatment Information": Infrequent/Mild (the app shows general wellbeing tips and cycle estimates).
 - **Export compliance (encryption):** The app uses standard encryption (AES-256-GCM) only to protect the user's own data on the device. Answer the questions together when App Store Connect asks; don't guess.
-- **EU (DSA) trader status:** decision pending (trader / not a trader / leave out EU).
+- **EU (DSA) trader status:** not a trader for now (the app is free and earns nothing). Switch to trader before monetising in phase 2.
 
 ## Screenshots
 
