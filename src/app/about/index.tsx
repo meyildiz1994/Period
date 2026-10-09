@@ -6,7 +6,7 @@ import { defineCopy, useCopy } from '../../i18n';
 import { APP_VERSION } from '../../lib/app';
 import { color, radius, type } from '../../theme';
 
-const SUPPORT = 'niluferaktenyildiz@gmail.com';
+const SUPPORT = 'info@nilemy.com';
 
 const COPY = defineCopy({
   en: {
