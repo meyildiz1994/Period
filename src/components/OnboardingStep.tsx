@@ -55,7 +55,7 @@ export function OnboardingStep({ step, title, body, children, footer, onBack, on
           <View style={styles.skip}>
             {onSkip ? (
               <Pressable accessibilityRole="button" onPress={onSkip} hitSlop={8} style={styles.skipButton}>
-                <Text style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>{common.skip}</Text>
+                <Text numberOfLines={1} style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>{common.skip}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
   doneHeader: { height: 40, alignItems: 'center', justifyContent: 'center' },
   side: { width: 44, height: 44 },
   steps: { flex: 1, alignItems: 'center' },
-  skip: { width: 54, alignItems: 'flex-end' },
-  skipButton: { paddingHorizontal: 12, minHeight: layout.minTouch, justifyContent: 'center' },
+  skip: { minWidth: 44, alignItems: 'flex-end' },
+  skipButton: { paddingHorizontal: 8, minHeight: layout.minTouch, justifyContent: 'center' },
   content: { paddingHorizontal: layout.gutter, paddingTop: 4, paddingBottom: 24 },
   doneContent: { paddingTop: 0 },
   title: { marginTop: 12, color: color['text/primary'] },
