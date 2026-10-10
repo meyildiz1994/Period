@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 
 import { defineCopy, useCopy } from '../i18n';
 import { formatLong, weekdayInitial } from '../lib/dates';
@@ -28,7 +28,7 @@ const COPY = defineCopy({
     nothingYet: 'Nothing logged yet',
     log: 'Log today',
     fertileBadge: 'Fertile',
-    peakBadge: 'Peak fertile day',
+    peakBadge: 'Most fertile',
     estimate: ', estimate',
   },
   tr: {
@@ -47,7 +47,7 @@ const COPY = defineCopy({
     nothingYet: 'Henüz kayıt yok',
     log: 'Bugünü kaydet',
     fertileBadge: 'Doğurgan',
-    peakBadge: 'En doğurgan gün',
+    peakBadge: 'En doğurgan',
     estimate: ', tahmini',
   },
 });
@@ -165,46 +165,66 @@ export function TipCard({ heading, text }: { heading: string; text: string }) {
 }
 
 /**
- * Little sticker on the ring's top-right while today is in the estimated fertile window.
- * Pops in once with a soft spring (skipped with Reduce Motion) and sits slightly tilted.
+ * A little smiling flower beside the ring (in the empty top-right corner, never over it) while
+ * today is in the estimated fertile window. Pops in, then sways gently; still with Reduce Motion.
  */
 export function FertileBadge({ fertile }: { fertile: Exclude<Fertile, null> }) {
   const c = useCopy(COPY);
   const [pop] = useState(() => new Animated.Value(0));
+  const [sway] = useState(() => new Animated.Value(0));
   useEffect(() => {
     let live = true;
+    let loop: Animated.CompositeAnimation | null = null;
     AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
       if (!live) return;
-      if (reduce) pop.setValue(1);
-      else Animated.spring(pop, { toValue: 1, friction: 5, tension: 120, useNativeDriver: true }).start();
+      if (reduce) return pop.setValue(1);
+      loop = Animated.loop(Animated.sequence([
+        Animated.timing(sway, { toValue: 1, duration: 1400, useNativeDriver: true }),
+        Animated.timing(sway, { toValue: -1, duration: 2800, useNativeDriver: true }),
+        Animated.timing(sway, { toValue: 0, duration: 1400, useNativeDriver: true }),
+      ]));
+      Animated.spring(pop, { toValue: 1, friction: 4, tension: 90, useNativeDriver: true }).start(() => live && loop?.start());
     });
-    return () => { live = false; };
-  }, [pop]);
+    return () => { live = false; loop?.stop(); };
+  }, [pop, sway]);
   const label = fertile === 'ovulation' ? c.peakBadge : c.fertileBadge;
-  const scale = pop.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] });
-  const rotate = pop.interpolate({ inputRange: [0, 1], outputRange: ['-20deg', '-8deg'] });
+  const scale = pop.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] });
+  const rotate = sway.interpolate({ inputRange: [-1, 1], outputRange: ['-7deg', '7deg'] });
+  const lift = sway.interpolate({ inputRange: [-1, 0, 1], outputRange: [0, -2, 0] });
   return (
-    <Animated.View
-      accessible
-      accessibilityLabel={`${label}${c.estimate}`}
-      style={[styles.sticker, { opacity: pop, transform: [{ scale }, { rotate }] }]}
-    >
-      <Blossom size={16} />
-      <Text numberOfLines={1} style={[type('Caption', 'SemiBold'), { color: color['phase/ovulation'] }]}>{label}</Text>
-    </Animated.View>
+    <View style={styles.buddy} accessible accessibilityLabel={`${label}${c.estimate}`}>
+      <Animated.View style={{ opacity: pop, transform: [{ translateY: lift }, { scale }, { rotate }] }}>
+        <FlowerBuddy size={48} sparkles={fertile === 'ovulation' ? 2 : 1} />
+      </Animated.View>
+      <Animated.Text numberOfLines={2} style={[type('Caption', 'SemiBold'), styles.buddyText, { opacity: pop }]}>{label}</Animated.Text>
+    </View>
   );
 }
 
-/** Five round petals around a white heart: the sticker's little flower. */
-function Blossom({ size }: { size: number }) {
-  const petals = [0, 1, 2, 3, 4].map((i) => {
-    const a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-    return { x: 8 + 4.2 * Math.cos(a), y: 8 + 4.2 * Math.sin(a) };
+/** Six lilac petals around a white face with dot eyes, rosy cheeks and a small smile. */
+function FlowerBuddy({ size, sparkles }: { size: number; sparkles: 1 | 2 }) {
+  const ink = color['phase/ovulation'];
+  const petals = [0, 1, 2, 3, 4, 5].map((i) => {
+    const a = (i * Math.PI) / 3 - Math.PI / 2;
+    return { x: 30 + 15 * Math.cos(a), y: 31 + 15 * Math.sin(a) };
   });
+  const star = (x: number, y: number, r: number) =>
+    `M${x} ${y - r} Q${x} ${y} ${x + r} ${y} Q${x} ${y} ${x} ${y + r} Q${x} ${y} ${x - r} ${y} Q${x} ${y} ${x} ${y - r} Z`;
   return (
-    <Svg width={size} height={size} viewBox="0 0 16 16">
-      {petals.map((p, i) => <Circle key={i} cx={p.x} cy={p.y} r={3.4} fill={color['phase/ovulation']} />)}
-      <Circle cx={8} cy={8} r={2.4} fill={color['surface/default']} />
+    <Svg width={size} height={size} viewBox="0 0 60 60">
+      {/* Outline layer first, fill on top: one soft outer edge instead of overlapping rings. */}
+      {petals.map((p, i) => <Circle key={`o${i}`} cx={p.x} cy={p.y} r={10.5} fill={ink} stroke={ink} strokeWidth={3.2} />)}
+      {petals.map((p, i) => <Circle key={`f${i}`} cx={p.x} cy={p.y} r={10.5} fill={color['phase/ovulation-track']} />)}
+      <Circle cx={30} cy={31} r={13} fill={color['surface/default']} stroke={ink} strokeWidth={1.6} />
+      <Circle cx={25.2} cy={29.5} r={1.9} fill={ink} />
+      <Circle cx={34.8} cy={29.5} r={1.9} fill={ink} />
+      <Circle cx={25.8} cy={28.9} r={0.6} fill={color['surface/default']} />
+      <Circle cx={35.4} cy={28.9} r={0.6} fill={color['surface/default']} />
+      <Ellipse cx={22} cy={34} rx={2.6} ry={1.6} fill={color['phase/luteal']} opacity={0.35} />
+      <Ellipse cx={38} cy={34} rx={2.6} ry={1.6} fill={color['phase/luteal']} opacity={0.35} />
+      <Path d="M27 34.2 Q30 37.2 33 34.2" stroke={ink} strokeWidth={1.6} strokeLinecap="round" fill="none" />
+      <Path d={star(53, 8, 4.5)} fill={color['phase/luteal']} />
+      {sparkles === 2 ? <Path d={star(6, 50, 3.2)} fill={color['phase/luteal']} /> : null}
     </Svg>
   );
 }
@@ -245,12 +265,9 @@ const styles = StyleSheet.create({
   logBadge: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   // Fixed height (heading + two lines) so Home never shifts or scrolls as the tip changes.
   tip: { height: 76, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, borderRadius: radius.xl, backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'] },
-  sticker: {
-    position: 'absolute', top: -2, right: -26, flexDirection: 'row', alignItems: 'center', gap: 5,
-    paddingLeft: 8, paddingRight: 11, paddingVertical: 5, borderRadius: 999,
-    backgroundColor: color['phase/ovulation-track'], borderWidth: 2, borderColor: color['surface/default'],
-    shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2,
-  },
+  // In the corner of the full-width ring row, outside the 232 pt ring, so it stays narrow.
+  buddy: { position: 'absolute', top: -6, right: -6, width: 80, alignItems: 'center', gap: 2 },
+  buddyText: { color: color['phase/ovulation'], textAlign: 'center', lineHeight: 15 },
   tipBadge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   skeleton: { alignItems: 'center', gap: 16 },
   skeletonBlocks: { alignSelf: 'stretch', gap: 12 },

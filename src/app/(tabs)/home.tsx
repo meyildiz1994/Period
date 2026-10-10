@@ -140,16 +140,14 @@ export default function Home() {
     body = (
       <>
         <View style={styles.ring}>
-          <View>
-            <CycleRing
-              phase={s.phase}
-              progress={s.progress}
-              size={RING}
-              label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
-              day={common.day(s.cycleDay)}
-            />
-            {s.fertile ? <FertileBadge fertile={s.fertile} /> : null}
-          </View>
+          <CycleRing
+            phase={s.phase}
+            progress={s.progress}
+            size={RING}
+            label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
+            day={common.day(s.cycleDay)}
+          />
+          {s.fertile ? <FertileBadge fertile={s.fertile} /> : null}
         </View>
         <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
