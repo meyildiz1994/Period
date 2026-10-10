@@ -26,7 +26,7 @@ const COPY = defineCopy({
     signIn: 'Sign in',
     noAccount: 'Continue without signing in',
     orWith: 'Or continue with',
-    google: 'Google',
+    google: 'Continue with Google',
     newHere: 'Don’t have an account?',
     signUp: 'Sign up',
     errorTitle: 'Couldn’t sign in',
@@ -48,7 +48,7 @@ const COPY = defineCopy({
     signIn: 'Giriş yap',
     noAccount: 'Giriş yapmadan devam et',
     orWith: 'ya da şununla devam et',
-    google: 'Google',
+    google: 'Google ile devam et',
     newHere: 'Hesabın yok mu?',
     signUp: 'Kayıt ol',
     errorTitle: 'Giriş yapılamadı',
@@ -62,7 +62,7 @@ const COPY = defineCopy({
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // A1 Welcome. With accounts: a plum hero (logo, tagline, flower), email sign-in, "Continue
-// without signing in" right under the button, Google / Apple, and a link to sign up.
+// without signing in" right under the button, Google (with Apple under it on iPhone) and a link to sign up.
 // Without accounts: the logo, intro line and "Get started".
 export default function Welcome() {
   return accountsAvailable ? <SignInWelcome /> : <PlainWelcome />;
@@ -167,7 +167,7 @@ function SignInWelcome() {
             </ProviderButton>
             {appleAvailable ? (
               <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
                 buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
                 cornerRadius={26}
                 style={styles.apple}
@@ -233,8 +233,9 @@ const styles = StyleSheet.create({
   actions: { gap: 4 },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   line: { flex: 1, height: 1, backgroundColor: color['surface/divider'] },
-  providers: { flexDirection: 'row', gap: 12 },
-  apple: { flex: 1, height: 52 },
+  // Google first; on iPhone the Apple button sits right under it (Android shows Google only).
+  providers: { gap: 12 },
+  apple: { height: 52, width: '100%' },
   signUp: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 6 },
   plain: { justifyContent: 'space-between' },
   corner: { alignItems: 'flex-end', paddingHorizontal: layout.gutter, paddingTop: 8 },

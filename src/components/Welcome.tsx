@@ -70,7 +70,7 @@ export function GoogleMark({ size = 20 }: { size?: number }) {
   );
 }
 
-/** White pill for a third-party sign-in (Google), sized to sit beside the Apple button. */
+/** White pill for a third-party sign-in (Google), matching the Apple button under it. */
 export function ProviderButton({ label, onPress, disabled, children }: { label: string; onPress: () => void; disabled?: boolean; children: React.ReactNode }) {
   return (
     <Pressable
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   cardTop: { position: 'absolute', top: 0, left: 0, right: 0, height: 12, backgroundColor: color['surface/brand'] },
   provider: {
-    flex: 1, height: 52, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    height: 52, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
     borderWidth: 1, borderColor: color['border/subtle'],
   },
   providerLabel: { fontFamily: fontFamily.SemiBold, fontSize: 16, color: color['text/primary'] },
