@@ -1,8 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
 import { defineCopy, useCopy } from '../i18n';
 import { formatLong, weekdayInitial } from '../lib/dates';
-import type { StripDay } from '../state/cycle';
+import type { Fertile, StripDay } from '../state/cycle';
 import { color, overline, radius, type } from '../theme';
 import type { IconName } from '../theme/icons';
 import { DayCell } from './Cycle';
@@ -13,6 +15,7 @@ const COPY = defineCopy({
   en: {
     period: ', period',
     predicted: ', predicted period',
+    fertile: ', fertile day, estimate',
     nextPeriod: 'Next period',
     nextLabel: (title: string, subtitle: string) => `Next period. ${title}. ${subtitle}`,
     openCalendar: 'Open calendar',
@@ -24,10 +27,14 @@ const COPY = defineCopy({
     today: 'Today',
     nothingYet: 'Nothing logged yet',
     log: 'Log today',
+    fertileBadge: 'Fertile',
+    peakBadge: 'Peak fertile day',
+    estimate: ', estimate',
   },
   tr: {
     period: ', adet',
     predicted: ', tahmini adet',
+    fertile: ', doğurgan gün, tahmini',
     nextPeriod: 'Sonraki adet',
     nextLabel: (title: string, subtitle: string) => `Sonraki adet. ${title}. ${subtitle}`,
     openCalendar: 'Takvimi aç',
@@ -39,6 +46,9 @@ const COPY = defineCopy({
     today: 'Bugün',
     nothingYet: 'Henüz kayıt yok',
     log: 'Bugünü kaydet',
+    fertileBadge: 'Doğurgan',
+    peakBadge: 'En doğurgan gün',
+    estimate: ', tahmini',
   },
 });
 
@@ -49,14 +59,15 @@ export function WeekStrip({ days, onDay }: { days: StripDay[]; onDay?: (d: Date)
   const c = useCopy(COPY);
   return (
     <View style={[styles.card, styles.strip]}>
-      {days.map(({ date, state }) => (
+      {days.map(({ date, state, fertile }) => (
         <View key={date.toDateString()} style={styles.stripDay}>
           <Text style={[type('Caption'), { color: color['text/tertiary'] }]}>{weekdayInitial(date)}</Text>
           <DayCell
             day={date.getDate()}
             state={state}
+            fertile={fertile}
             onPress={onDay ? () => onDay(date) : undefined}
-            accessibilityLabel={`${formatLong(date)}${state === 'Period' ? c.period : state === 'Predicted' ? c.predicted : ''}`}
+            accessibilityLabel={`${formatLong(date)}${state === 'Period' ? c.period : state === 'Predicted' ? c.predicted : ''}${fertile ? c.fertile : ''}`}
           />
         </View>
       ))}
@@ -153,6 +164,51 @@ export function TipCard({ heading, text }: { heading: string; text: string }) {
   );
 }
 
+/**
+ * Little sticker on the ring's top-right while today is in the estimated fertile window.
+ * Pops in once with a soft spring (skipped with Reduce Motion) and sits slightly tilted.
+ */
+export function FertileBadge({ fertile }: { fertile: Exclude<Fertile, null> }) {
+  const c = useCopy(COPY);
+  const [pop] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    let live = true;
+    AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+      if (!live) return;
+      if (reduce) pop.setValue(1);
+      else Animated.spring(pop, { toValue: 1, friction: 5, tension: 120, useNativeDriver: true }).start();
+    });
+    return () => { live = false; };
+  }, [pop]);
+  const label = fertile === 'ovulation' ? c.peakBadge : c.fertileBadge;
+  const scale = pop.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] });
+  const rotate = pop.interpolate({ inputRange: [0, 1], outputRange: ['-20deg', '-8deg'] });
+  return (
+    <Animated.View
+      accessible
+      accessibilityLabel={`${label}${c.estimate}`}
+      style={[styles.sticker, { opacity: pop, transform: [{ scale }, { rotate }] }]}
+    >
+      <Blossom size={16} />
+      <Text numberOfLines={1} style={[type('Caption', 'SemiBold'), { color: color['phase/ovulation'] }]}>{label}</Text>
+    </Animated.View>
+  );
+}
+
+/** Five round petals around a white heart: the sticker's little flower. */
+function Blossom({ size }: { size: number }) {
+  const petals = [0, 1, 2, 3, 4].map((i) => {
+    const a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+    return { x: 8 + 4.2 * Math.cos(a), y: 8 + 4.2 * Math.sin(a) };
+  });
+  return (
+    <Svg width={size} height={size} viewBox="0 0 16 16">
+      {petals.map((p, i) => <Circle key={i} cx={p.x} cy={p.y} r={3.4} fill={color['phase/ovulation']} />)}
+      <Circle cx={8} cy={8} r={2.4} fill={color['surface/default']} />
+    </Svg>
+  );
+}
+
 /** B3: mirrors ring, strip, next-period and log cards so nothing jumps when data arrives. */
 export function HomeSkeleton() {
   const c = useCopy(COPY);
@@ -189,6 +245,12 @@ const styles = StyleSheet.create({
   logBadge: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   // Fixed height (heading + two lines) so Home never shifts or scrolls as the tip changes.
   tip: { height: 76, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, borderRadius: radius.xl, backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'] },
+  sticker: {
+    position: 'absolute', top: -2, right: -26, flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingLeft: 8, paddingRight: 11, paddingVertical: 5, borderRadius: 999,
+    backgroundColor: color['phase/ovulation-track'], borderWidth: 2, borderColor: color['surface/default'],
+    shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 2,
+  },
   tipBadge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   skeleton: { alignItems: 'center', gap: 16 },
   skeletonBlocks: { alignSelf: 'stretch', gap: 12 },

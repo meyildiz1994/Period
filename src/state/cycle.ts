@@ -72,6 +72,8 @@ export type CycleStatus =
       daysUntilNext: number;
       irregular: boolean;
       lastStart: Date;
+      /** Inside the estimated fertile window ('ovulation' on its peak day); null otherwise or when irregular. */
+      fertile: Fertile;
     }
   /** Latest expected start has come (daysLate 0) or passed without a new period being logged. */
   | { kind: 'late'; daysLate: number; cycleDay: number; expected: Date; lastStart: Date };
@@ -93,7 +95,17 @@ export function cycleStatus(s: CycleSettings, today: Date): CycleStatus {
   return {
     kind: 'cycle', cycleDay, periodDay, phase, progress: cycleDay / s.window.max,
     nextStart, latestStart, daysUntilNext: diffDays(today, nextStart), irregular: s.irregular, lastStart,
+    fertile: periodDay === null && !s.irregular ? fertileOn(cycleDay, s.cycleLength) : null,
   };
+}
+
+export type Fertile = 'window' | 'ovulation' | null;
+
+/** Calendar estimate of the fertile window: the five days before ovulation, ovulation day and the day after. */
+export function fertileOn(cycleDay: number, cycleLength: number): Fertile {
+  const ovulation = cycleLength - 14;
+  if (cycleDay === ovulation) return 'ovulation';
+  return cycleDay >= ovulation - 5 && cycleDay <= ovulation + 1 ? 'window' : null;
 }
 
 /** Calendar estimate: ovulation is taken as 14 days before the next period, ±1 day. */
@@ -105,7 +117,7 @@ export function phaseOf(cycleDay: number, inPeriod: boolean, cycleLength: number
   return 'Luteal';
 }
 
-export type StripDay = { date: Date; state: 'Default' | 'Period' | 'Predicted' | 'Selected' };
+export type StripDay = { date: Date; state: 'Default' | 'Period' | 'Predicted' | 'Selected'; fertile?: boolean };
 
 /** Week strip on Home: the seven days of this week, starting on the user's first weekday. */
 export function weekStrip(s: CycleSettings, today: Date, weekStartsOn: 0 | 1 = 0): StripDay[] {
@@ -116,14 +128,21 @@ export function weekStrip(s: CycleSettings, today: Date, weekStartsOn: 0 | 1 = 0
     const i = diffDays(start, d);
     return i >= 0 && i < length;
   };
-  return [0, 1, 2, 3, 4, 5, 6].map((i) => {
+  // Fertile days get a small dot; irregular cycles have no phase estimates, so no dots either.
+  const fertile = (d: Date) => {
+    if (!lastStart || s.irregular) return false;
+    const i = diffDays(lastStart, d);
+    if (i < span) return false;
+    return fertileOn((i % s.cycleLength) + 1, s.cycleLength) !== null;
+  };
+  return [0, 1, 2, 3, 4, 5, 6].map((i): StripDay => {
     const offset = first + i;
     const date = addDays(today, offset);
-    if (offset === 0) return { date, state: 'Selected' };
+    if (offset === 0) return { date, state: 'Selected', fertile: fertile(date) };
     if (!lastStart) return { date, state: 'Default' };
     if (inRange(date, lastStart, span)) return { date, state: offset < 0 ? 'Period' : 'Predicted' };
     if (offset > 0 && inRange(date, addDays(lastStart, s.cycleLength), s.periodLength)) return { date, state: 'Predicted' };
-    return { date, state: 'Default' };
+    return { date, state: 'Default', fertile: fertile(date) };
   });
 }
 
