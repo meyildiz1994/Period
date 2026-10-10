@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Banner, Button, Checkbox, Input, Page, PasswordInput, useAuthProblems } from '../../components';
+import { AuthPage, Banner, Button, Checkbox, Input, PasswordInput, useAuthProblems } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { authProblem, signInWithEmail, signUpWithEmail, type AuthProblem } from '../../lib/account';
 import { afterSignIn, type Then } from '../../lib/accountFlow';
@@ -93,65 +93,65 @@ export default function EmailAccount() {
   };
 
   return (
-    <Page
-      title={signup ? c.signupTitle : c.signIn}
-      onBack={router.back}
-      footer={<Button label={signup ? c.create : c.signIn} fullWidth loading={busy} disabled={busy} onPress={submit} />}
-    >
-      <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), { color: color['text/primary'] }]}>{signup ? c.signupTitle : c.signinTitle}</Text>
-      <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{signup ? c.signupBody : c.signinBody}</Text>
+    <AuthPage heading={signup ? c.signupTitle : c.signinTitle} intro={signup ? c.signupBody : c.signinBody} onBack={router.back}>
       {problem && problem !== 'cancelled' ? (
         <Banner kind={problem === 'offline' ? 'Warning' : 'Error'} title={signup ? c.signupError : c.signinError} message={problems[problem]} />
       ) : null}
-      <Input
-        label={c.email}
-        iconLeft="mail"
-        value={email}
-        onChangeText={setEmail}
-        error={emailError}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete="email"
-        textContentType={signup ? 'username' : 'emailAddress'}
-        disabled={busy}
-      />
-      <PasswordInput
-        label={c.password}
-        value={password}
-        onChangeText={setPassword}
-        helper={signup ? c.min : undefined}
-        error={passwordError}
-        autoComplete={signup ? 'new-password' : 'current-password'}
-        textContentType={signup ? 'newPassword' : 'password'}
-        disabled={busy}
-        onSubmitEditing={submit}
-      />
+      <View style={styles.fields}>
+        <Input
+          pill
+          label={c.email}
+          iconLeft="mail"
+          value={email}
+          onChangeText={setEmail}
+          error={emailError}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          textContentType={signup ? 'username' : 'emailAddress'}
+          disabled={busy}
+        />
+        <PasswordInput
+          pill
+          label={c.password}
+          value={password}
+          onChangeText={setPassword}
+          helper={signup ? c.min : undefined}
+          error={passwordError}
+          autoComplete={signup ? 'new-password' : 'current-password'}
+          textContentType={signup ? 'newPassword' : 'password'}
+          disabled={busy}
+          onSubmitEditing={submit}
+        />
+      </View>
       {signup ? (
         <View style={styles.agree}>
           <Checkbox checked={agreed} onChange={setAgreed} label={c.agree} />
           <View style={{ flex: 1, gap: 4 }}>
-            <Text style={[type('Body/Medium'), { color: color['text/primary'] }]} onPress={() => setAgreed(!agreed)}>{c.agree}</Text>
+            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]} onPress={() => setAgreed(!agreed)}>{c.agree}</Text>
             {agreeError ? <Text style={[type('Caption'), { color: color['feedback/danger'] }]}>{c.agreeNeeded}</Text> : null}
           </View>
         </View>
       ) : (
-        <Text accessibilityRole="link" onPress={() => router.push({ pathname: '/account/reset', params: { email } })} style={[type('Body/Medium', 'SemiBold'), styles.right, { color: color['text/brand'] }]}>
+        <Text accessibilityRole="link" onPress={() => router.push({ pathname: '/account/reset', params: { email } })} style={[type('Body/Small', 'SemiBold'), styles.forgot, { color: color['text/brand'] }]}>
           {c.forgot}
         </Text>
       )}
+      <Button label={signup ? c.create : c.signIn} fullWidth loading={busy} disabled={busy} onPress={submit} />
       <View style={styles.row}>
         <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{signup ? c.haveAccount : c.newHere}</Text>
         <Text accessibilityRole="button" onPress={switchMode} style={[type('Body/Medium', 'SemiBold'), { color: color['text/brand'] }]}>
           {signup ? c.signIn : c.create}
         </Text>
       </View>
-    </Page>
+    </AuthPage>
   );
 }
 
 const styles = StyleSheet.create({
+  fields: { gap: 12 },
   agree: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  right: { alignSelf: 'flex-end' },
+  forgot: { alignSelf: 'flex-end', marginTop: -4 },
   row: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 6 },
 });

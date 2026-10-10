@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Banner, Button, Dialog, GoogleMark, Input, LanguageSwitch, LegalLine, LogoFull, PasswordInput, ProviderButton, WelcomeHero, useAuthProblems,
+  Banner, Button, Dialog, GoogleMark, Input, LanguageSwitch, LegalLine, LogoFull, OrDivider, PasswordInput, ProviderButton, WelcomeHero, useAuthProblems,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { accountsAvailable, appleAvailable, authProblem, signInWith, signInWithEmail, type AuthProblem } from '../../lib/account';
@@ -156,11 +156,7 @@ function SignInWelcome() {
             <Button label={c.signIn} fullWidth loading={busy === 'email'} disabled={!!busy} onPress={() => run('email')} />
             <Button label={c.noAccount} type="Ghost" size="Medium" fullWidth disabled={!!busy} onPress={() => setLocal(true)} />
           </View>
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{c.orWith}</Text>
-            <View style={styles.line} />
-          </View>
+          <OrDivider label={c.orWith} />
           <View style={styles.providers}>
             <ProviderButton label={c.google} disabled={!!busy} onPress={() => run('google')}>
               <GoogleMark />
@@ -231,8 +227,6 @@ const styles = StyleSheet.create({
   fields: { gap: 12 },
   forgot: { alignSelf: 'flex-end', marginTop: -4 },
   actions: { gap: 4 },
-  divider: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  line: { flex: 1, height: 1, backgroundColor: color['surface/divider'] },
   // Google first; on iPhone the Apple button sits right under it (Android shows Google only).
   providers: { gap: 12 },
   apple: { height: 52, width: '100%' },

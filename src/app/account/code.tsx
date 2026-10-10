@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { BackHandler, Share, StyleSheet, Text, View } from 'react-native';
 
-import { Banner, Button, Checkbox, IconBadge, Page } from '../../components';
+import { AuthPage, Banner, Button, Checkbox } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { finishAccount, type Then } from '../../lib/accountFlow';
 import { formatRecoveryCode } from '../../lib/vault';
@@ -53,13 +53,8 @@ export default function RecoveryCode() {
   };
 
   return (
-    <Page title={c.title} onBack={() => {}} footer={<Button label={c.continue} fullWidth disabled={!saved} onPress={done} />}>
+    <AuthPage heading={c.heading} intro={c.body}>
       <Stack.Screen options={{ gestureEnabled: false }} />
-      <View style={styles.hero}>
-        <IconBadge icon="key" size={64} />
-        <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.center, { color: color['text/primary'] }]}>{c.heading}</Text>
-        <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>{c.body}</Text>
-      </View>
       <View style={styles.code}>
         <Text selectable accessibilityLabel={shown.split('').join(' ')} style={[styles.codeText, { color: color['text/primary'] }]}>{shown}</Text>
       </View>
@@ -69,13 +64,12 @@ export default function RecoveryCode() {
         <Checkbox checked={saved} onChange={setSaved} label={c.saved} />
         <Text style={[type('Body/Medium'), { flex: 1, color: color['text/primary'] }]} onPress={() => setSaved(!saved)}>{c.saved}</Text>
       </View>
-    </Page>
+      <Button label={c.continue} fullWidth disabled={!saved} onPress={done} />
+    </AuthPage>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', gap: 12, paddingTop: 8 },
-  center: { textAlign: 'center' },
   code: { padding: 20, borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/muted'], alignItems: 'center' },
   codeText: { fontFamily: fontFamily.SemiBold, fontSize: 20, lineHeight: 30, letterSpacing: 1, textAlign: 'center' },
   check: { flexDirection: 'row', alignItems: 'center', gap: 12 },

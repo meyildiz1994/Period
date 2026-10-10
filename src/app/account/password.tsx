@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Banner, Button, Checkbox, IconBadge, Page, PasswordInput, Toast } from '../../components';
+import { AuthPage, Banner, Button, Checkbox, PasswordInput, Toast } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { changeVaultPassword, createVault, unlockVault } from '../../lib/account';
 import { finishAccount, type Then } from '../../lib/accountFlow';
@@ -125,32 +125,25 @@ export default function NilemyPassword() {
   const action = mode === 'create' ? c.continue : mode === 'unlock' ? c.open : c.save;
 
   return (
-    <Page
-      title={c.title}
-      onBack={router.back}
-      footer={<Button label={busy && making ? c.working : action} fullWidth loading={busy} disabled={busy} onPress={submit} />}
-      overlay={done ? <Toast message={c.changed} /> : null}
-    >
-      <View style={styles.hero}>
-        <IconBadge icon="key" size={64} />
-        <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.center, { color: color['text/primary'] }]}>{heading}</Text>
-        <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>{body}</Text>
-      </View>
+    <AuthPage heading={heading} intro={body} onBack={router.back} overlay={done ? <Toast message={c.changed} /> : null}>
       {error === 'failed' ? <Banner kind="Error" message={c.failed} /> : null}
-      <PasswordInput
-        label={mode === 'change' ? c.newPassword : c.password}
-        value={password}
-        onChangeText={setPassword}
-        helper={making ? c.min : undefined}
-        error={error === 'wrong' ? c.wrong : shortError}
-        autoComplete={making ? 'new-password' : 'current-password'}
-        textContentType={making ? 'newPassword' : 'password'}
-        disabled={busy}
-        autoFocus
-      />
-      {making ? (
-        <PasswordInput label={c.repeat} value={repeat} onChangeText={setRepeat} error={repeatError} autoComplete="new-password" textContentType="newPassword" disabled={busy} />
-      ) : null}
+      <View style={styles.fields}>
+        <PasswordInput
+          pill
+          label={mode === 'change' ? c.newPassword : c.password}
+          value={password}
+          onChangeText={setPassword}
+          helper={making ? c.min : undefined}
+          error={error === 'wrong' ? c.wrong : shortError}
+          autoComplete={making ? 'new-password' : 'current-password'}
+          textContentType={making ? 'newPassword' : 'password'}
+          disabled={busy}
+          autoFocus
+        />
+        {making ? (
+          <PasswordInput pill label={c.repeat} value={repeat} onChangeText={setRepeat} error={repeatError} autoComplete="new-password" textContentType="newPassword" disabled={busy} />
+        ) : null}
+      </View>
       {mode === 'create' ? (
         <>
           <Banner kind="Warning" message={c.createNote} />
@@ -170,14 +163,14 @@ export default function NilemyPassword() {
           {c.forgot}
         </Text>
       ) : null}
-    </Page>
+      <Button label={busy && making ? c.working : action} fullWidth loading={busy} disabled={busy} onPress={submit} />
+    </AuthPage>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', gap: 12, paddingTop: 8 },
-  center: { textAlign: 'center' },
-  right: { alignSelf: 'flex-end' },
+  fields: { gap: 12 },
+  right: { alignSelf: 'flex-end', marginTop: -4 },
   consent: { gap: 10, padding: 16, borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
   check: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
 });

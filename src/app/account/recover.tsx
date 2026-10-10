@@ -1,14 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { Banner, Button, Input, Page, PasswordInput } from '../../components';
+import { AuthPage, Banner, Button, Input, PasswordInput } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { recoverVault } from '../../lib/account';
 import type { Then } from '../../lib/accountFlow';
 import { normalizeRecoveryCode, PASSWORD_MIN } from '../../lib/vault';
 import { setAccount } from '../../state/account';
-import { color, type } from '../../theme';
 
 const COPY = defineCopy({
   en: {
@@ -80,14 +79,19 @@ export default function Recover() {
   };
 
   return (
-    <Page title={c.title} onBack={router.back} footer={<Button label={busy ? c.working : c.open} fullWidth loading={busy} disabled={busy} onPress={submit} />}>
-      <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), { color: color['text/primary'] }]}>{c.heading}</Text>
-      <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{c.body}</Text>
+    <AuthPage heading={c.heading} intro={c.body} onBack={router.back}>
       {error === 'failed' ? <Banner kind="Error" message={c.failed} /> : null}
-      <Input label={c.code} iconLeft="key" value={code} onChangeText={setCode} helper={c.codeHelp} error={codeError} autoCapitalize="characters" autoCorrect={false} disabled={busy} autoFocus />
-      <PasswordInput label={c.password} value={password} onChangeText={setPassword} error={shortError} autoComplete="new-password" textContentType="newPassword" disabled={busy} />
-      <PasswordInput label={c.repeat} value={repeat} onChangeText={setRepeat} error={repeatError} autoComplete="new-password" textContentType="newPassword" disabled={busy} />
+      <View style={styles.fields}>
+        <Input pill label={c.code} iconLeft="key" value={code} onChangeText={setCode} helper={c.codeHelp} error={codeError} autoCapitalize="characters" autoCorrect={false} disabled={busy} autoFocus />
+        <PasswordInput pill label={c.password} value={password} onChangeText={setPassword} error={shortError} autoComplete="new-password" textContentType="newPassword" disabled={busy} />
+        <PasswordInput pill label={c.repeat} value={repeat} onChangeText={setRepeat} error={repeatError} autoComplete="new-password" textContentType="newPassword" disabled={busy} />
+      </View>
+      <Button label={busy ? c.working : c.open} fullWidth loading={busy} disabled={busy} onPress={submit} />
       <Banner message={c.lost} />
-    </Page>
+    </AuthPage>
   );
 }
+
+const styles = StyleSheet.create({
+  fields: { gap: 12 },
+});
