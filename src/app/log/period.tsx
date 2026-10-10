@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Button, DateWheel, FLOW_LEVELS, FlowLevel, Icon, Page, Tag, Toast, Toggle, type FlowLevelName } from '../../components';
+import { Button, DateWheel, FLOW_LEVELS, FlowLevel, Icon, Page, Tag, Toast, type FlowLevelName } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { addDays, diffDays, formatMonthDay, formatShort, fromISODate, toISODate } from '../../lib/dates';
 import { getLog, latestPeriod, savePeriod, updateDay } from '../../state/log';
@@ -18,13 +18,11 @@ const COPY = defineCopy({
     saveFailed: 'Couldn’t save. Your entries are kept on this screen.',
     retry: 'Retry',
     started: 'Started',
-    hasEnded: 'Has it ended?',
-    pickLast: 'Pick the last day of bleeding',
-    leaveOff: 'Leave off while your period is ongoing',
     ended: 'Ended',
-    endedLabel: (date: string) => `Ended ${date}. Change date`,
+    ongoing: 'Still going',
+    notYet: 'It hasn’t ended yet',
     endError: (date: string) => `End date can’t be before the start date (${date}).`,
-    expectedEnd: (date: string) => `Expected to end around ${date} (estimate)`,
+    expectedEnd: (date: string) => `Expected to end around ${date} (estimate). Mark it ended from Home, or here.`,
     flowToday: 'Flow today',
   },
   tr: {
@@ -34,13 +32,11 @@ const COPY = defineCopy({
     saveFailed: 'Kaydedilemedi. Girdiklerin bu ekranda duruyor.',
     retry: 'Tekrar dene',
     started: 'Başladı',
-    hasEnded: 'Bitti mi?',
-    pickLast: 'Kanamanın son gününü seç',
-    leaveOff: 'Adetin sürerken kapalı bırak',
     ended: 'Bitti',
-    endedLabel: (date: string) => `Bitiş ${date}. Tarihi değiştir`,
+    ongoing: 'Devam ediyor',
+    notYet: 'Henüz bitmedi',
     endError: (date: string) => `Bitiş tarihi başlangıç tarihinden (${date}) önce olamaz.`,
-    expectedEnd: (date: string) => `Tahmini bitiş: ${date} civarı`,
+    expectedEnd: (date: string) => `Tahmini bitiş: ${date} civarı. Bittiğinde ana sayfadan ya da buradan işaretleyebilirsin.`,
     flowToday: 'Bugünkü akış',
   },
 });
@@ -63,7 +59,8 @@ export default function LogPeriod() {
   const [start, setStart] = useState(() => (editing ? fromISODate(editing.start) : today));
   const [ended, setEnded] = useState(() => !!editing?.end);
   const [end, setEnd] = useState(() => (editing?.end ? fromISODate(editing.end) : today));
-  const [pickingEnd, setPickingEnd] = useState(false);
+  // One date wheel open at a time: the start date for a new period, none when editing one.
+  const [picking, setPicking] = useState<'start' | 'end' | null>(() => (editing ? null : 'start'));
   // A period always has some flow, so one level is picked (Medium until the user changes it).
   const [flow, setFlow] = useState<FlowLevelName>(() => {
     const saved = getLog().days[todayKey]?.flow;
@@ -95,51 +92,37 @@ export default function LogPeriod() {
       overlay={failed ? <Toast kind="Error" message={c.saveFailed} action={c.retry} onAction={() => { setFailed(false); save(); }} /> : null}
     >
       <View style={styles.card}>
-        <View style={styles.row}>
-          <Text style={[type('Body/Large', 'SemiBold'), styles.flex, { color: color['text/primary'] }]}>{c.started}</Text>
-          <Tag label={formatShort(start)} />
-        </View>
-        <DateWheel rows={3} value={start} onChange={setStart} max={today} />
+        <DateRow label={c.started} value={formatShort(start)} open={picking === 'start'} onPress={() => setPicking(picking === 'start' ? null : 'start')} />
+        {picking === 'start' ? <DateWheel rows={3} value={start} onChange={setStart} max={today} /> : null}
         <View style={styles.divider} />
-        <View style={styles.row}>
-          <View style={styles.flex}>
-            <Text style={[type('Body/Large', 'SemiBold'), { color: color['text/primary'] }]}>{c.hasEnded}</Text>
-            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>
-              {ended ? c.pickLast : c.leaveOff}
-            </Text>
+        <DateRow
+          label={c.ended}
+          value={ended ? formatShort(end) : null}
+          placeholder={c.ongoing}
+          error={endError}
+          open={picking === 'end'}
+          onPress={() => {
+            setEnded(true);
+            setPicking(picking === 'end' ? null : 'end');
+          }}
+        />
+        {endError ? (
+          <View style={styles.error} accessibilityRole="alert">
+            <Icon name="alert-circle" size={16} color="feedback/danger" />
+            <Text style={[type('Body/Small'), styles.flex, { color: color['feedback/danger'] }]}>{c.endError(formatMonthDay(start))}</Text>
           </View>
-          <Toggle value={ended} onChange={setEnded} label={c.hasEnded} />
-        </View>
-        {ended ? (
-          <View style={styles.endBlock}>
-            <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{c.ended}</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={c.endedLabel(formatShort(end))}
-              onPress={() => setPickingEnd((v) => !v)}
-              style={[styles.field, endError ? styles.fieldError : null]}
-            >
-              <Icon name="calendar" size={20} color={endError ? 'feedback/danger' : 'text/brand'} />
-              <Text style={[type('Body/Large'), { color: color['text/primary'] }]}>{formatShort(end)}</Text>
+        ) : null}
+        {picking === 'end' ? (
+          <>
+            <DateWheel rows={3} value={end} onChange={setEnd} max={today} />
+            <Pressable accessibilityRole="button" onPress={() => { setEnded(false); setPicking(null); }} hitSlop={8} style={styles.notYet}>
+              <Text style={[type('Body/Medium', 'Medium'), { color: color['text/brand'] }]}>{c.notYet}</Text>
             </Pressable>
-            {endError ? (
-              <View style={styles.error} accessibilityRole="alert">
-                <Icon name="alert-circle" size={16} color="feedback/danger" />
-                <Text style={[type('Body/Small'), styles.flex, { color: color['feedback/danger'] }]}>
-                  {c.endError(formatMonthDay(start))}
-                </Text>
-              </View>
-            ) : null}
-            {pickingEnd ? <DateWheel rows={3} value={end} onChange={setEnd} max={today} /> : null}
-          </View>
-        ) : (
-          <View style={styles.well}>
-            <Icon name="info" size={16} color="text/secondary" />
-            <Text style={[type('Body/Small'), styles.flex, { color: color['text/secondary'] }]}>
-              {c.expectedEnd(formatShort(addDays(start, periodLength - 1)))}
-            </Text>
-          </View>
-        )}
+          </>
+        ) : null}
+        {!ended ? (
+          <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{c.expectedEnd(formatShort(addDays(start, periodLength - 1)))}</Text>
+        ) : null}
       </View>
 
       {coversToday ? (
@@ -161,14 +144,21 @@ const styles = StyleSheet.create({
   card: { padding: 20, gap: 12, borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   divider: { height: 1, backgroundColor: color['surface/divider'] },
-  well: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: radius.lg, backgroundColor: color['surface/subtle'] },
-  endBlock: { gap: 8 },
-  field: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, paddingHorizontal: 16,
-    borderRadius: radius.lg, borderWidth: 1, borderColor: color['border/subtle'],
-  },
-  fieldError: { borderWidth: 2, borderColor: color['feedback/danger'] },
   error: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  notYet: { alignSelf: 'center', paddingVertical: 4 },
   section: { marginTop: 8, color: color['text/primary'] },
   flows: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
 });
+
+/** "Started  7 Oct Wed ›": a label and the date (or a placeholder) that opens a wheel. */
+function DateRow({ label, value, placeholder, error, open, onPress }: {
+  label: string; value: string | null; placeholder?: string; error?: boolean; open: boolean; onPress: () => void;
+}) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${label}: ${value ?? placeholder}`} accessibilityState={{ expanded: open }} onPress={onPress} style={styles.row}>
+      <Text style={[type('Body/Large', 'SemiBold'), styles.flex, { color: color['text/primary'] }]}>{label}</Text>
+      {value ? <Tag label={value} tone={error ? 'Danger' : 'Brand'} /> : <Text style={[type('Body/Medium'), { color: color['text/tertiary'] }]}>{placeholder}</Text>}
+      <Icon name={open ? 'chevron-up' : 'chevron-down'} size={18} color="text/tertiary" />
+    </Pressable>
+  );
+}

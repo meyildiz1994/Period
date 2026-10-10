@@ -13,6 +13,8 @@ export const ICONS = {
   "calendar-day": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/><rect x=\"7\" y=\"13\" width=\"4\" height=\"4\" rx=\"1\"/>",
   "calendar-grid": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/><path d=\"M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01\"/>",
   "calendar-edit": "<path d=\"M21 11V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6M16 2v4M8 2v4M3 10h18\"/><path d=\"m18.4 13.6 2 2L15 21h-2v-2z\"/>",
+  "chevron-down": "<path d=\"m6 9 6 6 6-6\"/>",
+  "chevron-up": "<path d=\"m18 15-6-6-6 6\"/>",
   "chevron-left": "<path d=\"m15 18-6-6 6-6\"/>",
   "chevron-right": "<path d=\"m9 18 6-6-6-6\"/>",
   "arrow-left": "<path d=\"m12 19-7-7 7-7M19 12H5\"/>",

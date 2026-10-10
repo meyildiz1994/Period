@@ -138,8 +138,8 @@ export function DayCell({ day, state = 'Default', onPress, accessibilityLabel }:
   );
 }
 
-// Figma: Flow Level (Level × Selected). The icon shows the amount: spotting is a few specks,
-// light, medium and heavy fill one, two and three drops, so the levels read as a scale.
+// Figma: Flow Level (Level × Selected). The icon shows the amount: spotting is one small drop,
+// light, medium and heavy fill one, two and three of three drops, so the levels read as a scale.
 // 'None' is kept in the type for logs saved before 1.1 but is no longer offered.
 export type FlowLevelName = 'None' | 'Spotting' | 'Light' | 'Medium' | 'Heavy';
 export const FLOW_LEVELS: { level: Exclude<FlowLevelName, 'None'>; drops: number }[] = [
@@ -151,17 +151,22 @@ export const FLOW_LEVELS: { level: Exclude<FlowLevelName, 'None'>; drops: number
 
 const DROP = 'M6 15a5 5 0 0 0 5-5c0-1.4-.7-2.8-2.1-3.9S6.4 3.4 6 1.6c-.4 1.8-1.5 3.4-2.9 4.5S1 8.6 1 10a5 5 0 0 0 5 5z';
 
-/** Three drop slots, `drops` of them filled; 0 draws spotting specks instead. */
+/** Three drop slots, `drops` of them filled; 0 draws a single small drop (spotting). */
 function FlowGauge({ drops, on, off }: { drops: number; on: string; off: string }) {
   return (
     <Svg width={42} height={18} viewBox="0 0 42 18">
-      {drops === 0
-        ? [[8, 11, 2.2], [15, 6, 1.8], [21, 13, 2.6], [27, 7, 2], [34, 12, 1.8]].map(([cx, cy, r]) => <Circle key={cx} cx={cx} cy={cy} r={r} fill={on} />)
-        : [0, 1, 2].map((i) => (
-            <G key={i} transform={`translate(${i * 14}, 1)`}>
-              <Path d={DROP} fill={i < drops ? on : 'none'} stroke={i < drops ? on : off} strokeWidth={1.4} />
-            </G>
-          ))}
+      {drops === 0 ? (
+        // Spotting: one small filled drop on its own.
+        <G transform="translate(17, 3.5) scale(0.7)">
+          <Path d={DROP} fill={on} stroke={on} strokeWidth={1.4} />
+        </G>
+      ) : (
+        [0, 1, 2].map((i) => (
+          <G key={i} transform={`translate(${i * 14}, 1)`}>
+            <Path d={DROP} fill={i < drops ? on : 'none'} stroke={i < drops ? on : off} strokeWidth={1.4} />
+          </G>
+        ))
+      )}
     </Svg>
   );
 }

@@ -6,8 +6,8 @@ import { useCommon } from '../i18n/common';
 import { withTick } from '../lib/haptics';
 import { addDays, diffDays, formatMonthDay, formatMonthDayLong, fromISODate, toISODate } from '../lib/dates';
 import type { CycleSettings } from '../state/cycle';
-import type { DayLog, Pain, Period } from '../state/log';
-import { color, radius, type } from '../theme';
+import type { DayLog, Period } from '../state/log';
+import { color, elevation, type } from '../theme';
 import { Button } from './Button';
 import { Tag } from './Display';
 import { Icon } from './Icon';
@@ -16,50 +16,30 @@ import { BottomSheet } from './Sheet';
 const COPY = defineCopy({
   en: {
     ended: 'My period ended',
-    day: (n: number) => `Day ${n}`,
     endedLabel: 'Mark my period as ended',
     title: 'Period ended',
     lasted: (range: string, days: string) => `${range} · ${days}`,
-    usual: 'About as long as usual.',
-    shorter: (days: string) => `${days} shorter than usual.`,
-    longer: (days: string) => `${days} longer than usual.`,
-    flow: 'Flow',
-    noFlow: 'No flow logged',
-    logged: 'You logged',
-    times: (name: string, n: number) => (n > 1 ? `${name} · ${n} days` : name),
-    pain: (level: string) => `Pain up to ${level.toLowerCase()}`,
-    nothing: 'No symptoms logged this time. Anything you add in the daily log shows up here next time.',
-    next: (date: string) => `Next period around ${date}`,
-    nextRange: (from: string, to: string) => `Next period between ${from} and ${to}`,
-    estimate: 'Estimate',
+    next: (date: string) => `Next one around ${date}`,
+    nextRange: (from: string, to: string) => `Next one ${from} – ${to}`,
+    estimate: 'estimate',
     ok: 'Got it',
     changeEnd: 'Change end date',
   },
   tr: {
     ended: 'Adetim bitti',
-    day: (n: number) => `${n}. gün`,
     endedLabel: 'Adetimi bitti olarak işaretle',
     title: 'Adetin bitti',
     lasted: (range: string, days: string) => `${range} · ${days}`,
-    usual: 'Genelde sürdüğü kadar.',
-    shorter: (days: string) => `Her zamankinden ${days} kısa.`,
-    longer: (days: string) => `Her zamankinden ${days} uzun.`,
-    flow: 'Akış',
-    noFlow: 'Akış kaydedilmedi',
-    logged: 'Kaydettiklerin',
-    times: (name: string, n: number) => (n > 1 ? `${name} · ${n} gün` : name),
-    pain: (level: string) => `En fazla ${level.toLocaleLowerCase('tr')} ağrı`,
-    nothing: 'Bu sefer belirti kaydetmedin. Günlük kayda eklediklerin bir dahaki sefere burada görünür.',
-    next: (date: string) => `Sonraki adet ${date} civarı`,
+    next: (date: string) => `Sonraki adet ${date}`,
     nextRange: (from: string, to: string) => `Sonraki adet ${from} – ${to} arası`,
-    estimate: 'Tahmini',
+    estimate: 'tahmini',
     ok: 'Tamam',
     changeEnd: 'Bitiş tarihini değiştir',
   },
 });
 
 /**
- * While a logged period has no end yet (Home, under the ring): a small pill the user checks off
+ * While a logged period has no end yet (Home, floating bottom right): a pill the user checks off
  * like a to-do. The circle fills, then `onEnd` runs.
  */
 export function PeriodOngoingPill({ onEnd }: { onEnd: () => void }) {
@@ -80,20 +60,16 @@ export function PeriodOngoingPill({ onEnd }: { onEnd: () => void }) {
       disabled={checked}
       onPress={withTick(check)}
       hitSlop={8}
-      style={({ pressed }) => [styles.pill, pressed && { backgroundColor: color['surface/strong'] }]}
+      style={({ pressed }) => [styles.pill, elevation.brand, pressed && { opacity: 0.9 }]}
     >
       <View style={[styles.check, checked && styles.checked]}>
-        {checked ? <Icon name="check" size={14} color="text/on-brand" /> : null}
+        {checked ? <Icon name="check" size={14} color="text/brand" /> : null}
       </View>
-      <Text style={[type('Body/Default', 'SemiBold'), { color: color['text/brand'] }]}>{c.ended}</Text>
+      <Text style={[type('Body/Default', 'SemiBold'), { color: color['text/on-brand'] }]}>{c.ended}</Text>
     </Pressable>
   );
 }
 
-const PAIN_RANK: Record<Pain, number> = { None: 0, Mild: 1, Moderate: 2, Severe: 3 };
-/** Bar height per flow level, as a share of the tallest. */
-const FLOW_HEIGHT = { None: 0, Spotting: 0.25, Light: 0.5, Medium: 0.75, Heavy: 1 } as const;
-const BAR = 44;
 
 /** Shown on Home right after "It ended": the period at a glance and the next estimate. */
 export function PeriodEndSheet({ period, days, settings, usualLength, onClose, onChangeEnd }: {
@@ -106,72 +82,42 @@ export function PeriodEndSheet({ period, days, settings, usualLength, onClose, o
   const start = fromISODate(period.start);
   const end = fromISODate(period.end);
   const length = diffDays(start, end) + 1;
-  const dates = Array.from({ length }, (_, i) => addDays(start, i));
-  const logs = dates.map((d) => days[toISODate(d)]);
 
-  const symptoms = new Map<string, number>();
-  let pain: Pain | null = null;
-  for (const log of logs) {
-    for (const s of log?.symptoms ?? []) symptoms.set(s, (symptoms.get(s) ?? 0) + 1);
-    if (log?.pain && log.pain !== 'None' && (!pain || PAIN_RANK[log.pain] > PAIN_RANK[pain])) pain = log.pain;
+  // The symptoms logged most during the period, as tags. None logged: no tags, nothing else.
+  const counts = new Map<string, number>();
+  for (let i = 0; i < length; i++) {
+    for (const s of days[toISODate(addDays(start, i))]?.symptoms ?? []) counts.set(s, (counts.get(s) ?? 0) + 1);
   }
-  const top = [...symptoms].sort((a, b) => b[1] - a[1]).slice(0, 4);
-  const anyFlow = logs.some((l) => l?.flow && l.flow !== 'None');
+  const symptoms = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([s]) => common.symptom[s] ?? s);
 
-  const diff = length - usualLength;
-  const compare = Math.abs(diff) <= 1 ? c.usual : diff < 0 ? c.shorter(common.days(-diff)) : c.longer(common.days(diff));
   const nextStart = addDays(start, settings.window.min);
   const next = settings.irregular
     ? c.nextRange(formatMonthDay(nextStart), formatMonthDay(addDays(start, settings.window.max)))
     : c.next(formatMonthDayLong(nextStart));
 
   return (
-    <BottomSheet visible title={c.title} onClose={onClose}>
+    <BottomSheet visible title="" onClose={onClose}>
       <View style={styles.sheet}>
-        <View style={{ gap: 2, marginTop: -16 }}>
-          <Text style={[type('Body/Default', 'SemiBold'), { color: color['text/primary'] }]}>
+        <View style={styles.badge}>
+          <Icon name="drop-fill" size={28} color="text/brand" />
+        </View>
+        <View style={styles.center}>
+          <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.text, { color: color['text/primary'] }]}>{c.title}</Text>
+          <Text style={[type('Body/Default'), styles.text, { color: color['text/secondary'] }]}>
             {c.lasted(`${formatMonthDay(start)} – ${formatMonthDay(end)}`, common.days(length))}
           </Text>
-          <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{compare}</Text>
         </View>
-
-        {anyFlow && length <= 10 ? (
-          <View style={styles.block} accessible accessibilityLabel={`${c.flow}: ${logs.map((l, i) => `${c.day(i + 1)} ${l?.flow ? common.flow[l.flow] : '–'}`).join(', ')}`}>
-            <Text style={[type('Caption', 'SemiBold'), styles.label]}>{c.flow}</Text>
-            <View style={styles.bars}>
-              {logs.map((l, i) => (
-                <View key={i} style={styles.barCol}>
-                  <View style={styles.barTrack}>
-                    <View style={[styles.bar, { height: Math.max(4, BAR * FLOW_HEIGHT[l?.flow ?? 'None']), opacity: l?.flow && l.flow !== 'None' ? 1 : 0.25 }]} />
-                  </View>
-                  <Text style={[type('Caption'), { color: color['text/tertiary'] }]}>{dates[i].getDate()}</Text>
-                </View>
-              ))}
-            </View>
+        {symptoms.length ? (
+          <View style={styles.tags}>
+            {symptoms.map((s) => <Tag key={s} label={s} />)}
           </View>
         ) : null}
-
-        <View style={styles.block}>
-          <Text style={[type('Caption', 'SemiBold'), styles.label]}>{c.logged}</Text>
-          {top.length || pain ? (
-            <View style={styles.tags}>
-              {top.map(([s, n]) => <Tag key={s} size="Small" label={c.times(common.symptom[s] ?? s, n)} />)}
-              {pain ? <Tag size="Small" tone="Neutral" label={c.pain(common.pain[pain])} /> : null}
-            </View>
-          ) : (
-            <Text style={[type('Body/Small'), { color: color['text/secondary'] }]}>{c.nothing}</Text>
-          )}
-        </View>
-
         <View style={styles.next}>
-          <Icon name="calendar" size={20} color="text/brand" />
-          <View style={{ flex: 1 }}>
-            <Text style={[type('Body/Default', 'SemiBold'), { color: color['text/primary'] }]}>{next}</Text>
-            <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{c.estimate}</Text>
-          </View>
+          <Icon name="calendar" size={18} color="text/brand" />
+          <Text style={[type('Body/Default', 'Medium'), { color: color['text/primary'] }]}>{next}</Text>
+          <Text style={[type('Caption'), { color: color['text/tertiary'] }]}>{c.estimate}</Text>
         </View>
-
-        <View style={{ gap: 4 }}>
+        <View style={styles.actions}>
           <Button label={c.ok} fullWidth onPress={onClose} />
           <Button label={c.changeEnd} type="Ghost" size="Medium" fullWidth onPress={onChangeEnd} />
         </View>
@@ -182,18 +128,16 @@ export function PeriodEndSheet({ period, days, settings, usualLength, onClose, o
 
 const styles = StyleSheet.create({
   pill: {
-    alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingLeft: 14, paddingRight: 20,
-    borderRadius: 999, backgroundColor: color['surface/muted'],
+    flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingLeft: 16, paddingRight: 20,
+    borderRadius: 999, backgroundColor: color['surface/brand'],
   },
-  check: { width: 22, height: 22, borderRadius: 999, borderWidth: 1.5, borderColor: color['text/brand'], alignItems: 'center', justifyContent: 'center' },
-  checked: { borderWidth: 0, backgroundColor: color['surface/brand'] },
-  sheet: { gap: 20 },
-  block: { gap: 8 },
-  label: { color: color['text/secondary'] },
-  bars: { flexDirection: 'row', gap: 8 },
-  barCol: { flex: 1, alignItems: 'center', gap: 4, maxWidth: 32 },
-  barTrack: { height: BAR, justifyContent: 'flex-end' },
-  bar: { width: 14, borderRadius: 7, backgroundColor: color['surface/brand'] },
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  next: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, backgroundColor: color['surface/subtle'] },
+  check: { width: 22, height: 22, borderRadius: 999, borderWidth: 1.5, borderColor: color['text/on-brand'], alignItems: 'center', justifyContent: 'center' },
+  checked: { backgroundColor: color['surface/default'] },
+  sheet: { alignItems: 'center', gap: 16, marginTop: -24 },
+  badge: { width: 64, height: 64, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
+  center: { alignItems: 'center', gap: 4 },
+  text: { textAlign: 'center' },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  next: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 999, backgroundColor: color['surface/subtle'] },
+  actions: { alignSelf: 'stretch', gap: 4, marginTop: 8 },
 });

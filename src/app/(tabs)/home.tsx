@@ -4,10 +4,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodOngoingPill, TodayRow, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodOngoingPill, TipCard, TodayRow, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { useTip } from '../../i18n/tips';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { latestPeriod, savePeriod, useLog } from '../../state/log';
@@ -81,6 +82,7 @@ export default function Home() {
   const today = new Date();
   const status = cycleStatus(settings, today);
   const todayLog = logs[toISODate(today)];
+  const tip = useTip(status.kind === 'cycle' ? status.phase : 'Empty', today);
   const openLog = () => router.push('/log/period');
   const latest = latestPeriod(log);
   const ongoing = status.kind === 'cycle' && latest && !latest.end && status.cycleDay <= profile.periodLength + ONGOING_GRACE ? latest : null;
@@ -157,8 +159,8 @@ export default function Home() {
             day={common.day(s.cycleDay)}
           />
         </View>
-        {ongoing ? <PeriodOngoingPill onEnd={endPeriod} /> : null}
-        <WeekStrip days={weekStrip(settings, today)} />
+        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
+        <WeekStrip days={weekStrip(settings, today, profile.weekStartsOn)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
       </>
@@ -168,10 +170,16 @@ export default function Home() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <TopBar kind="Root" title={profile.name ? c.hi(profile.name) : c.hiThere} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
-      <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom }]}>
+      <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom + (ongoing ? 64 : 0) }]}>
         {body}
         <AdBanner />
       </ScrollView>
+      {/* Floats above the tab bar on the right, where the thumb rests. */}
+      {ongoing ? (
+        <View style={[styles.float, { bottom: bottom - 4 }]}>
+          <PeriodOngoingPill onEnd={endPeriod} />
+        </View>
+      ) : null}
       <PeriodEndSheet
         period={endedStart ? log.periods.find((p) => p.start === endedStart) ?? null : null}
         days={logs}
@@ -190,6 +198,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
+  float: { position: 'absolute', right: layout.gutter },
   content: { paddingHorizontal: layout.gutter, gap: 10 },
   ring: { alignItems: 'center', marginTop: 4, marginBottom: 4 },
   date: { marginTop: 8, color: color['text/secondary'] },

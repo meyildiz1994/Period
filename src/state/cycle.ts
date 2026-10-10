@@ -107,15 +107,17 @@ export function phaseOf(cycleDay: number, inPeriod: boolean, cycleLength: number
 
 export type StripDay = { date: Date; state: 'Default' | 'Period' | 'Predicted' | 'Selected' };
 
-/** Week strip on Home: three days back, today, two ahead. */
-export function weekStrip(s: CycleSettings, today: Date): StripDay[] {
+/** Week strip on Home: the seven days of this week, starting on the user's first weekday. */
+export function weekStrip(s: CycleSettings, today: Date, weekStartsOn: 0 | 1 = 0): StripDay[] {
+  const first = -((today.getDay() - weekStartsOn + 7) % 7);
   const lastStart = s.lastPeriodStart ? fromISODate(s.lastPeriodStart) : null;
   const span = periodSpan(s);
   const inRange = (d: Date, start: Date, length: number) => {
     const i = diffDays(start, d);
     return i >= 0 && i < length;
   };
-  return [-3, -2, -1, 0, 1, 2].map((offset) => {
+  return [0, 1, 2, 3, 4, 5, 6].map((i) => {
+    const offset = first + i;
     const date = addDays(today, offset);
     if (offset === 0) return { date, state: 'Selected' };
     if (!lastStart) return { date, state: 'Default' };

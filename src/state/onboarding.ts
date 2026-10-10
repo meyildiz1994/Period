@@ -1,3 +1,4 @@
+import { getLocales } from 'expo-localization';
 import { useSyncExternalStore } from 'react';
 
 import type { ReminderLead } from '../components/ReminderTiming';
@@ -47,7 +48,8 @@ const initial: OnboardingState = {
   symptoms: [],
   reminder: { enabled: false, daysBefore: 1, time: '09:00' },
   showPredicted: true,
-  weekStartsOn: 0,
+  // Turkey (and most of Europe) starts the week on Monday.
+  weekStartsOn: getLocales()[0]?.languageCode === 'tr' ? 1 : 0,
   language: null,
   name: null,
   done: false,
