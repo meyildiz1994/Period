@@ -15,7 +15,7 @@ import { startStore } from './store';
 // Ad unit IDs come from the AdMob console. Development builds always use Google's test units.
 const UNITS = {
   ios: 'ca-app-pub-9059849179519229/9841572207',
-  android: 'ca-app-pub-3940256099942544/9214589741', // TODO(1.0.1): replace with the real Android banner unit
+  android: 'ca-app-pub-9059849179519229/6092979016',
 };
 
 export const BANNER_UNIT = __DEV__ ? TestIds.ADAPTIVE_BANNER : Platform.OS === 'ios' ? UNITS.ios : UNITS.android;
