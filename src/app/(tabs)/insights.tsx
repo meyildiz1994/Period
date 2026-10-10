@@ -3,12 +3,18 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AdBanner, Banner, IconBadge, PremiumInsights, SectionHeader, StatTile, TopBar, useTabBarSpace } from '../../components';
+import { AdBanner, Banner, Button, IconBadge, PremiumInsights, SectionHeader, StatTile, TopBar, useTabBarSpace } from '../../components';
+import { defineCopy, useCopy } from '../../i18n';
 import { pastCycles } from '../../state/history';
-import { insights, MIN_CYCLES, type Insights as Data } from '../../state/insights';
+import { insights, isTypical, MIN_CYCLES, type Insights as Data } from '../../state/insights';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, radius, type } from '../../theme';
+
+const COPY = defineCopy({
+  en: { normal: 'Normal', report: 'Report for your doctor (PDF)' },
+  tr: { normal: 'Normal', report: 'Doktor için rapor (PDF)' },
+});
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const BAR_MAX = 140;
@@ -35,7 +41,13 @@ export default function Insights() {
   );
 }
 
+function ReportButton() {
+  const c = useCopy(COPY);
+  return <Button label={c.report} iconLeft="file-text" type="Secondary" fullWidth onPress={() => router.push('/summary')} />;
+}
+
 function Filled({ data }: { data: Data }) {
+  const c = useCopy(COPY);
   const d = (n: number) => (n === 1 ? 'day' : 'days');
   const spread = data.recent.length ? Math.max(...data.recent.map((c) => c.length)) - Math.min(...data.recent.map((c) => c.length)) : 0;
   // Bars share a floor a few days under the shortest cycle so day-level differences stay visible;
@@ -51,8 +63,8 @@ function Filled({ data }: { data: Data }) {
         Based on {data.count} logged {data.count === 1 ? 'cycle' : 'cycles'}
       </Text>
       <View style={styles.tiles}>
-        <StatTile label="Average cycle" value={String(data.avgCycle)} unit={d(data.avgCycle)} icon="calendar" />
-        <StatTile label="Average period" value={String(data.avgPeriod)} unit={d(data.avgPeriod)} icon="drop" />
+        <StatTile label="Average cycle" value={String(data.avgCycle)} unit={d(data.avgCycle)} icon="calendar" badge={isTypical('cycle', data.avgCycle) ? c.normal : undefined} />
+        <StatTile label="Average period" value={String(data.avgPeriod)} unit={d(data.avgPeriod)} icon="drop" badge={isTypical('period', data.avgPeriod) ? c.normal : undefined} />
       </View>
       <View style={styles.tiles}>
         <StatTile label="Cycle range" value={data.min === data.max ? String(data.min) : `${data.min}–${data.max}`} unit="days" icon="arrows-lr" />
@@ -102,6 +114,8 @@ function Filled({ data }: { data: Data }) {
         </>
       ) : null}
 
+      {/* Visible to everyone once there is something to report; the summary screen itself asks for Premium. */}
+      <ReportButton />
       <Banner message="Insights are estimates from your own logs, not medical advice." />
     </>
   );

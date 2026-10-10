@@ -29,6 +29,9 @@ const PHASE_COLOR: Record<Phase, { arc: ColorToken; track: ColorToken; drop: Col
   Empty: { arc: 'surface/strong', track: 'surface/strong', drop: 'surface/neutral', day: 'text/accent' },
 };
 
+/** Arc and track colours of a phase's ring, for pieces that sit beside it. */
+export const phaseTone = (phase: Phase) => ({ ink: PHASE_COLOR[phase].arc, soft: PHASE_COLOR[phase].track });
+
 type CycleRingProps = {
   phase: Phase;
   /** 0–1 progress through the cycle. Ignored for Empty; Late draws a full ring. */
@@ -114,7 +117,7 @@ export function PhaseDrop({ size, fill }: { size: number; fill: string }) {
 // Figma: Day Cell (State). Period = logged bleeding, Predicted = dashed estimate, Logged = symptoms only.
 export type DayState = 'Default' | 'Muted' | 'Today' | 'Period' | 'Predicted' | 'Selected' | 'Logged';
 
-export function DayCell({ day, state = 'Default', onPress, accessibilityLabel }: { day: number; state?: DayState; onPress?: () => void; accessibilityLabel?: string }) {
+export function DayCell({ day, state = 'Default', fertile, onPress, accessibilityLabel }: { day: number; state?: DayState; fertile?: boolean; onPress?: () => void; accessibilityLabel?: string }) {
   const fg: ColorToken =
     state === 'Selected' ? 'text/on-brand' : state === 'Muted' ? 'text/disabled' : state === 'Period' || state === 'Today' || state === 'Predicted' ? 'text/brand' : 'text/primary';
   return (
@@ -134,6 +137,8 @@ export function DayCell({ day, state = 'Default', onPress, accessibilityLabel }:
     >
       <Text style={[type('Body/Default', state === 'Default' || state === 'Muted' ? 'Regular' : 'SemiBold'), { color: color[fg] }]}>{day}</Text>
       {state === 'Logged' ? <View style={styles.marker} /> : null}
+      {/* Estimated fertile day: a small violet dot, white on the filled "today" circle. */}
+      {fertile ? <View style={[styles.marker, { backgroundColor: color[state === 'Selected' ? 'text/on-brand' : 'phase/ovulation'] }]} /> : null}
     </Pressable>
   );
 }

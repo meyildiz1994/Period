@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodTodayCard, TodayRow, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, FertileBadge, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodTodayCard, TodayRow, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy, useWeekStart } from '../../i18n';
 import { useCommon } from '../../i18n/common';
@@ -147,6 +147,7 @@ export default function Home() {
             label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
             day={common.day(s.cycleDay)}
           />
+          {s.fertile ? <FertileBadge fertile={s.fertile} phase={s.phase} /> : null}
         </View>
         <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
