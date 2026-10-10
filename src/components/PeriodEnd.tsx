@@ -16,7 +16,7 @@ const COPY = defineCopy({
     ended: 'My period ended',
     today: 'Today',
     periodDay: (n: number) => `Day ${n} of your period`,
-    longerThanUsual: (n: number, usual: number) => `Day ${n} · usually ${usual} days. Has it ended?`,
+    longerThanUsual: (n: number, usual: number) => `Day ${n} · usually ${usual} days`,
     logToday: 'Log today',
     edit: 'Edit today',
     title: 'Period ended',
@@ -31,7 +31,7 @@ const COPY = defineCopy({
     ended: 'Adetim bitti',
     today: 'Bugün',
     periodDay: (n: number) => `Adetinin ${n}. günü`,
-    longerThanUsual: (n: number, usual: number) => `${n}. gün · genelde ${usual} gün sürüyor. Bitti mi?`,
+    longerThanUsual: (n: number, usual: number) => `${n}. gün · genelde ${usual} gün sürüyor`,
     logToday: 'Bugünü kaydet',
     edit: 'Bugünü düzenle',
     title: 'Adetin bitti',
@@ -45,12 +45,10 @@ const COPY = defineCopy({
 });
 
 /**
- * Home's "today" card while a period is open: what was logged today, and the two things a user
- * does on a period day, log today or mark the period as ended.
+ * Home's "today" card while a period is open: the day of the period, what was logged today and a
+ * button to log it. Ending the period lives in the + menu.
  */
-export function PeriodTodayCard({ day, usual, values, onLog, onEnd }: {
-  day: number; usual: number; values: string[]; onLog: () => void; onEnd: () => void;
-}) {
+export function PeriodTodayCard({ day, usual, values, onLog }: { day: number; usual: number; values: string[]; onLog: () => void }) {
   const c = useCopy(COPY);
   return (
     <View style={styles.card}>
@@ -62,8 +60,6 @@ export function PeriodTodayCard({ day, usual, values, onLog, onEnd }: {
           <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{c.today}</Text>
           <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{day > usual ? c.longerThanUsual(day, usual) : c.periodDay(day)}</Text>
         </View>
-        {/* Secondary on purpose: logging the day is what people come here for. */}
-        <Button label={c.ended} type="Outline" size="Small" onPress={onEnd} />
       </View>
       {values.length ? (
         <View style={styles.values}>

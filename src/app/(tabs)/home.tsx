@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,8 +9,7 @@ import { defineCopy, useCopy, useWeekStart } from '../../i18n';
 import { useCommon } from '../../i18n/common';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, ongoingPeriod, useCycleSettings, weekStrip } from '../../state/cycle';
-import { savePeriod, useLog } from '../../state/log';
-import { flush } from '../../state/persist';
+import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, type } from '../../theme';
 
@@ -82,21 +80,9 @@ export default function Home() {
   const todayLog = logs[toISODate(today)];
   const openLog = () => router.push('/log/period');
   const ongoing = status.kind === 'cycle' ? ongoingPeriod(log, settings, today) : null;
-  // The summary sheet opens after ending here, or when the "+" menu ended it (?ended=start).
-  const params = useLocalSearchParams<{ ended?: string }>();
-  const [endedHere, setEndedHere] = useState<string | null>(null);
-  const endedStart = endedHere ?? params.ended ?? null;
-  const setEndedStart = (start: string | null) => {
-    setEndedHere(start);
-    if (!start && params.ended) router.setParams({ ended: undefined });
-  };
-  const ongoingStart = ongoing?.start;
-  const endPeriod = () => {
-    if (!ongoingStart) return;
-    savePeriod({ start: ongoingStart, end: toISODate(new Date()) }, ongoingStart);
-    flush().catch((e) => console.warn('Nilemy: saving failed', e));
-    setEndedStart(ongoingStart);
-  };
+  // The "+" menu ends the period and opens Home with ?ended=start to show its summary.
+  const { ended: endedStart } = useLocalSearchParams<{ ended?: string }>();
+  const closeSummary = () => router.setParams({ ended: undefined });
 
   let body;
   if (!profile.hydrated) {
@@ -165,7 +151,7 @@ export default function Home() {
         <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         {ongoing ? (
-          <PeriodTodayCard day={s.cycleDay} usual={settings.periodLength} values={todayValues} onLog={() => router.push('/log/daily')} onEnd={endPeriod} />
+          <PeriodTodayCard day={s.cycleDay} usual={settings.periodLength} values={todayValues} onLog={() => router.push('/log/daily')} />
         ) : (
           <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
         )}
@@ -185,10 +171,10 @@ export default function Home() {
         days={logs}
         settings={settings}
         usualLength={profile.periodLength}
-        onClose={() => setEndedStart(null)}
+        onClose={closeSummary}
         onChangeEnd={() => {
           const start = endedStart;
-          setEndedStart(null);
+          closeSummary();
           if (start) router.push({ pathname: '/log/period', params: { start } });
         }}
       />
