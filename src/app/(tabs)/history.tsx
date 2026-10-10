@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Divider, EmptyState, Icon, IconBadge, MonthCalendar, SectionHeader, TopBar, useTabBarSpace } from '../../components';
+import { AdBanner, Divider, EmptyState, Icon, IconBadge, MonthCalendar, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { addMonths, formatLong, formatMonthDay, startOfMonth, toISODate } from '../../lib/dates';
 import { useCycleSettings } from '../../state/cycle';
@@ -129,6 +129,7 @@ export default function History() {
             )}
           </>
         )}
+        <AdBanner />
       </ScrollView>
     </View>
   );

@@ -5,11 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar, Button, Divider, Icon, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { defineCopy, LANGUAGES, useCopy, useLang } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { showAdChoices } from '../../lib/ads';
 import { APP_VERSION } from '../../lib/app';
 import { biometricName, useBiometricKind } from '../../lib/biometrics';
 import { resetLock, useLock } from '../../state/lock';
 import { resetLog } from '../../state/log';
 import { resetOnboarding, useOnboarding } from '../../state/onboarding';
+import { usePremium } from '../../state/premium';
 import { color, layout, radius, type } from '../../theme';
 
 const COPY = defineCopy({
@@ -31,6 +33,10 @@ const COPY = defineCopy({
     aboutApp: 'About Nilemy',
     privacy: 'Privacy policy',
     terms: 'Terms of service',
+    premium: 'Nilemy Premium',
+    premiumOn: 'Active',
+    premiumOff: 'Remove ads',
+    adChoices: 'Ad privacy choices',
   },
   tr: {
     title: 'Ben',
@@ -50,6 +56,10 @@ const COPY = defineCopy({
     aboutApp: 'Nilemy hakkında',
     privacy: 'Gizlilik politikası',
     terms: 'Kullanım koşulları',
+    premium: 'Nilemy Premium',
+    premiumOn: 'Etkin',
+    premiumOff: 'Reklamları kaldır',
+    adChoices: 'Reklam gizlilik seçenekleri',
   },
 });
 
@@ -59,6 +69,7 @@ export default function Me() {
   const bottom = useTabBarSpace();
   const { name, reminder } = useOnboarding();
   const lock = useLock();
+  const { premium, adChoicesRequired } = usePremium();
   const kind = useBiometricKind();
   const c = useCopy(COPY);
   const common = useCommon();
@@ -79,6 +90,16 @@ export default function Me() {
             <View style={styles.dot} />
             <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{c.saved}</Text>
           </View>
+        </View>
+
+        <View style={styles.list}>
+          <ListRow title={c.premium} icon="sparkles" trailing="Value" value={premium ? c.premiumOn : c.premiumOff} onPress={() => router.push('/premium')} />
+          {!premium && adChoicesRequired ? (
+            <>
+              <Divider inset={0} />
+              <ListRow title={c.adChoices} icon="sliders" onPress={() => showAdChoices().catch(() => {})} />
+            </>
+          ) : null}
         </View>
 
         <SectionHeader title={c.settings} />

@@ -15,7 +15,7 @@ const COPY = defineCopy({
     points: [
       { title: 'Saved on this phone', body: 'Your logs never leave this phone unless you export them.' },
       { title: 'Export anytime', body: 'Download a copy of your logs from Your data.' },
-      { title: 'Never sold or shared', body: 'No ads and no selling of your data.' },
+      { title: 'Never sold or shared', body: 'Your logs are never sold, shared or used for ads.' },
     ],
   },
   tr: {
@@ -25,7 +25,7 @@ const COPY = defineCopy({
     points: [
       { title: 'Bu telefonda saklanır', body: 'Sen dışa aktarmadıkça kayıtların bu telefondan çıkmaz.' },
       { title: 'İstediğin zaman dışa aktar', body: 'Kayıtlarının bir kopyasını Verilerin bölümünden indir.' },
-      { title: 'Asla satılmaz ya da paylaşılmaz', body: 'Reklam yok, verilerin satılmaz.' },
+      { title: 'Asla satılmaz ya da paylaşılmaz', body: 'Kayıtların satılmaz, paylaşılmaz ve reklam için kullanılmaz.' },
     ],
   },
 });

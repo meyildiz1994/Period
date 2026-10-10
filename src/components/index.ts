@@ -19,3 +19,4 @@ export * from './Passcode';
 export * from './ReminderTiming';
 export * from './Sheet';
 export * from './ScrollLock';
+export * from './AdBanner';

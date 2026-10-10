@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
@@ -159,6 +159,7 @@ export default function Home() {
       <TopBar kind="Root" title={profile.name ? c.hi(profile.name) : c.hiThere} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom }]}>
         {body}
+        <AdBanner />
       </ScrollView>
     </View>
   );

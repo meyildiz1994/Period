@@ -9,11 +9,12 @@ const COPY = defineCopy({
   en: {
     title: 'Privacy policy',
     toData: 'Go to Your data',
-    updated: 'Last updated October 9, 2026',
+    updated: 'Last updated October 10, 2026',
     sections: [
       ['What we collect', 'Nothing. The app keeps only what you enter (period dates, flow, pain, mood, symptoms, notes and your name) and never sends it to us.'],
       ['Where it lives', 'On this phone only, encrypted. There’s no account or server, so nothing is sent anywhere unless you export it. If your phone’s iCloud or Google backup is on, the encrypted file can be included, but it only opens on this phone.'],
-      ['What we never do', 'We don’t sell your data, show ads or share logs with anyone.'],
+      ['Ads in the free version', 'The free version shows non-personalised Google AdMob banners. Your logs are never given to the ad provider and no advertising ID is used. To show ads, Google handles technical details such as your IP address and device model. Where the law asks, you’re asked for consent first. Premium removes ads.'],
+      ['What we never do', 'We don’t sell your data, track you or share your logs with anyone.'],
       ['Your control', 'Export or delete everything at any time in Your data.'],
       ['Full policy', 'Read the full policy at nilemy.com/privacy. Questions: info@nilemy.com'],
     ] as [string, string][],
@@ -21,11 +22,12 @@ const COPY = defineCopy({
   tr: {
     title: 'Gizlilik politikası',
     toData: 'Verilerin sayfasına git',
-    updated: 'Son güncelleme: 9 Ekim 2026',
+    updated: 'Son güncelleme: 10 Ekim 2026',
     sections: [
       ['Ne topluyoruz', 'Hiçbir şey. Uygulama yalnızca senin girdiklerini (adet tarihleri, akış, ağrı, ruh hali, belirtiler, notlar ve adın) saklar ve bunları asla bize göndermez.'],
       ['Nerede duruyor', 'Yalnızca bu telefonda, şifreli olarak. Hesap ya da sunucu yok; sen dışa aktarmadıkça hiçbir şey bir yere gönderilmez. Telefonunun iCloud ya da Google yedeği açıksa şifreli dosya yedeğe dahil olabilir, ama yalnızca bu telefonda açılır.'],
-      ['Asla yapmadıklarımız', 'Verilerini satmayız, reklam göstermeyiz ve kayıtlarını kimseyle paylaşmayız.'],
+      ['Ücretsiz sürümde reklamlar', 'Ücretsiz sürüm, kişiselleştirilmemiş Google AdMob banner reklamları gösterir. Kayıtların reklam sağlayıcısına asla verilmez ve reklam kimliği kullanılmaz. Reklamı göstermek için Google, IP adresi ve cihaz modeli gibi teknik bilgileri işler. Yasanın gerektirdiği yerlerde önce iznin istenir. Premium reklamları kaldırır.'],
+      ['Asla yapmadıklarımız', 'Verilerini satmayız, seni takip etmeyiz ve kayıtlarını kimseyle paylaşmayız.'],
       ['Kontrol sende', 'Verilerin bölümünden istediğin zaman her şeyi dışa aktarabilir ya da silebilirsin.'],
       ['Politikanın tamamı', 'Politikanın tamamını nilemy.com/privacy adresinde okuyabilirsin. Soruların için: info@nilemy.com'],
     ],

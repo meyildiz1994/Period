@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Banner, IconBadge, SectionHeader, StatTile, TopBar, useTabBarSpace } from '../../components';
+import { AdBanner, Banner, Button, IconBadge, SectionHeader, StatTile, TopBar, useTabBarSpace } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
 import { pastCycles } from '../../state/history';
 import { insights, MIN_CYCLES, type Insights as Data } from '../../state/insights';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
+import { usePremium } from '../../state/premium';
 import { color, layout, radius, type } from '../../theme';
 
 const BAR_MAX = 140;
@@ -41,6 +42,9 @@ const COPY = defineCopy({
     progressLabel: (n: number, of: number) => `Cycles logged: ${n} of ${of}`,
     cyclesLogged: 'Cycles logged',
     progress: (n: number, of: number) => `${n} of ${of}`,
+    moreTitle: 'See the full picture',
+    moreBody: 'Premium adds your cycle range, a chart of recent cycle lengths and your most common symptoms, and removes ads.',
+    moreAction: 'See Premium',
   },
   tr: {
     title: 'Analiz',
@@ -67,6 +71,9 @@ const COPY = defineCopy({
     progressLabel: (n: number, of: number) => `Kaydedilen döngü: ${n}/${of}`,
     cyclesLogged: 'Kaydedilen döngü',
     progress: (n: number, of: number) => `${n}/${of}`,
+    moreTitle: 'Resmin tamamını gör',
+    moreBody: 'Premium; döngü aralığını, son döngü sürelerinin grafiğini ve en sık belirtilerini açar, reklamları kaldırır.',
+    moreAction: 'Premium’a göz at',
   },
 });
 
@@ -86,6 +93,7 @@ export default function Insights() {
       <TopBar kind="Root" title={c.title} userName={name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         {data ? <Filled data={data} /> : <Waiting logged={cycles.length} />}
+        <AdBanner />
       </ScrollView>
     </View>
   );
@@ -102,6 +110,29 @@ function Filled({ data }: { data: Data }) {
   const floor = Math.min(...lengths) - 5;
   const top = Math.max(...lengths);
   const maxSymptom = data.symptoms[0]?.days ?? 0;
+  const { premium } = usePremium();
+
+  // Free version: the two averages; the rest is Premium.
+  if (!premium) {
+    return (
+      <>
+        <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>
+          {c.basedOn(data.count)}
+        </Text>
+        <View style={styles.tiles}>
+          <StatTile label={c.avgCycle} value={String(data.avgCycle)} unit={d(data.avgCycle)} icon="calendar" />
+          <StatTile label={c.avgPeriod} value={String(data.avgPeriod)} unit={d(data.avgPeriod)} icon="drop" />
+        </View>
+        <View style={[styles.card, styles.waiting]}>
+          <IconBadge icon="sparkles" size={48} />
+          <Text style={[type('Body/Large', 'SemiBold'), styles.center, { color: color['text/primary'] }]}>{c.moreTitle}</Text>
+          <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>{c.moreBody}</Text>
+          <Button label={c.moreAction} type="Secondary" size="Small" onPress={() => router.push('/premium')} />
+        </View>
+        <Banner message={c.banner} />
+      </>
+    );
+  }
 
   return (
     <>
