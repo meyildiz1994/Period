@@ -64,15 +64,21 @@ export default function LogPeriod() {
   const [ended, setEnded] = useState(() => !!editing?.end);
   const [end, setEnd] = useState(() => (editing?.end ? fromISODate(editing.end) : today));
   const [pickingEnd, setPickingEnd] = useState(false);
-  const [flow, setFlow] = useState<FlowLevelName | null>(() => getLog().days[todayKey]?.flow ?? null);
+  // A period always has some flow, so one level is picked (Medium until the user changes it).
+  const [flow, setFlow] = useState<FlowLevelName>(() => {
+    const saved = getLog().days[todayKey]?.flow;
+    return saved && saved !== 'None' ? saved : 'Medium';
+  });
   const [failed, setFailed] = useState(false);
 
   const endError = ended && diffDays(start, end) < 0;
+  // Today's flow only belongs to a period that covers today.
+  const coversToday = diffDays(start, today) >= 0 && (!ended || diffDays(today, end) >= 0);
 
   const save = async () => {
     try {
       savePeriod({ start: toISODate(start), end: ended ? toISODate(end) : null }, editing?.start);
-      if (flow) updateDay(todayKey, { flow });
+      if (coversToday) updateDay(todayKey, { flow });
       await flush();
       router.back();
     } catch {
@@ -136,12 +142,16 @@ export default function LogPeriod() {
         )}
       </View>
 
-      <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{c.flowToday}</Text>
-      <View style={styles.flows} accessibilityRole="radiogroup">
-        {FLOW_LEVELS.map((f) => (
-          <FlowLevel key={f.level} level={f.level} selected={flow === f.level} onPress={() => setFlow(flow === f.level ? null : f.level)} />
-        ))}
-      </View>
+      {coversToday ? (
+        <>
+          <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{c.flowToday}</Text>
+          <View style={styles.flows} accessibilityRole="radiogroup">
+            {FLOW_LEVELS.map((f) => (
+              <FlowLevel key={f.level} level={f.level} selected={flow === f.level} onPress={() => setFlow(f.level)} />
+            ))}
+          </View>
+        </>
+      ) : null}
     </Page>
   );
 }
@@ -160,5 +170,5 @@ const styles = StyleSheet.create({
   fieldError: { borderWidth: 2, borderColor: color['feedback/danger'] },
   error: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   section: { marginTop: 8, color: color['text/primary'] },
-  flows: { flexDirection: 'row', justifyContent: 'space-between', gap: 6 },
+  flows: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
 });

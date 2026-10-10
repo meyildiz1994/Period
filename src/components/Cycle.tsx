@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, G, Path } from 'react-native-svg';
 
 import { defineCopy, useCopy } from '../i18n';
 import { useCommon } from '../i18n/common';
@@ -138,18 +138,36 @@ export function DayCell({ day, state = 'Default', onPress, accessibilityLabel }:
   );
 }
 
-// Figma: Flow Level (Level × Selected). Distinct icon per level, not colour alone.
+// Figma: Flow Level (Level × Selected). The icon shows the amount: spotting is a few specks,
+// light, medium and heavy fill one, two and three drops, so the levels read as a scale.
+// 'None' is kept in the type for logs saved before 1.1 but is no longer offered.
 export type FlowLevelName = 'None' | 'Spotting' | 'Light' | 'Medium' | 'Heavy';
-export const FLOW_LEVELS: { level: FlowLevelName; icon: IconName }[] = [
-  { level: 'None', icon: 'ban' },
-  { level: 'Spotting', icon: 'dots-fill' },
-  { level: 'Light', icon: 'drop' },
-  { level: 'Medium', icon: 'drop-fill' },
-  { level: 'Heavy', icon: 'drops' },
+export const FLOW_LEVELS: { level: Exclude<FlowLevelName, 'None'>; drops: number }[] = [
+  { level: 'Spotting', drops: 0 },
+  { level: 'Light', drops: 1 },
+  { level: 'Medium', drops: 2 },
+  { level: 'Heavy', drops: 3 },
 ];
 
-export function FlowLevel({ level, selected, onPress }: { level: FlowLevelName; selected?: boolean; onPress?: () => void }) {
-  const icon = FLOW_LEVELS.find((l) => l.level === level)!.icon;
+const DROP = 'M6 15a5 5 0 0 0 5-5c0-1.4-.7-2.8-2.1-3.9S6.4 3.4 6 1.6c-.4 1.8-1.5 3.4-2.9 4.5S1 8.6 1 10a5 5 0 0 0 5 5z';
+
+/** Three drop slots, `drops` of them filled; 0 draws spotting specks instead. */
+function FlowGauge({ drops, on, off }: { drops: number; on: string; off: string }) {
+  return (
+    <Svg width={42} height={18} viewBox="0 0 42 18">
+      {drops === 0
+        ? [[8, 11, 2.2], [15, 6, 1.8], [21, 13, 2.6], [27, 7, 2], [34, 12, 1.8]].map(([cx, cy, r]) => <Circle key={cx} cx={cx} cy={cy} r={r} fill={on} />)
+        : [0, 1, 2].map((i) => (
+            <G key={i} transform={`translate(${i * 14}, 1)`}>
+              <Path d={DROP} fill={i < drops ? on : 'none'} stroke={i < drops ? on : off} strokeWidth={1.4} />
+            </G>
+          ))}
+    </Svg>
+  );
+}
+
+export function FlowLevel({ level, selected, onPress }: { level: Exclude<FlowLevelName, 'None'>; selected?: boolean; onPress?: () => void }) {
+  const drops = FLOW_LEVELS.find((l) => l.level === level)!.drops;
   const c = useCopy(COPY);
   const name = useCommon().flow[level];
   return (
@@ -160,8 +178,8 @@ export function FlowLevel({ level, selected, onPress }: { level: FlowLevelName; 
       onPress={withTick(onPress)}
       style={[styles.flow, selected ? { backgroundColor: color['surface/brand'] } : { backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'] }]}
     >
-      <Icon name={icon} size={20} color={selected ? 'text/on-brand' : level === 'None' ? 'text/tertiary' : 'text/brand'} />
-      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>
+      <FlowGauge drops={drops} on={color[selected ? 'text/on-brand' : 'text/brand']} off={color[selected ? 'text/softest' : 'border/default']} />
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>
         {name}
       </Text>
     </Pressable>
@@ -203,8 +221,8 @@ const styles = StyleSheet.create({
   ringCenter: { alignItems: 'center', justifyContent: 'center' },
   day: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', gap: 2 },
   marker: { position: 'absolute', bottom: 6, width: 4, height: 4, borderRadius: 999, backgroundColor: color['surface/brand'] },
-  // Shares the row with the other four levels; long labels (Lekelenme) shrink to fit instead of spilling out.
-  flow: { flex: 1, minWidth: 0, maxWidth: 72, height: 72, gap: 4, paddingHorizontal: 4, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  // Four levels share the row; a long label (Lekelenme) still shrinks a little on small phones.
+  flow: { flex: 1, minWidth: 0, height: 80, gap: 8, paddingHorizontal: 2, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   pin: { width: 16, height: 16, borderRadius: 999 },
   key: { width: 72, height: 72, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   keyDigit: { backgroundColor: color['surface/default'] },
