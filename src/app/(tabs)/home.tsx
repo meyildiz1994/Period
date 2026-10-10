@@ -4,11 +4,10 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodOngoingRow, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodLine, PeriodEndSheet, PeriodOngoingPill, TodayRow, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
-import { useTip } from '../../i18n/tips';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
 import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
 import { latestPeriod, savePeriod, useLog } from '../../state/log';
@@ -39,6 +38,7 @@ const COPY = defineCopy({
     mood: 'Mood',
     hi: (name: string) => `Hi, ${name}`,
     hiThere: 'Hi there',
+    nextLine: (when: string, date: string) => `Next period ${when.toLowerCase()} · ${date}`,
   },
   tr: {
     emptyTitle: 'Son adetini kaydet',
@@ -60,13 +60,14 @@ const COPY = defineCopy({
     mood: 'Ruh hali',
     hi: (name: string) => `Merhaba ${name}`,
     hiThere: 'Merhaba',
+    nextLine: (when: string, date: string) => `Sonraki adet ${when.toLocaleLowerCase('tr')} · ${date}`,
   },
 });
 
 // B1 Home (in cycle), B2 empty, B3 loading, B4 late. Fits an 844 pt phone (with the status bar
-// and home indicator) without scrolling: the ring is 184 and the tip card has a fixed height.
+// and home indicator) without scrolling. The ring is the focus; everything else is one line or one row.
 // The ScrollView only matters on shorter phones or with large text.
-const RING = 184;
+const RING = 232;
 /** Days past the usual length that an unfinished period still offers "My period ended". */
 const ONGOING_GRACE = 5;
 export default function Home() {
@@ -82,7 +83,6 @@ export default function Home() {
   const today = new Date();
   const status = cycleStatus(settings, today);
   const todayLog = logs[toISODate(today)];
-  const tip = useTip(status.kind === 'cycle' ? status.phase : 'Empty', today);
   const openLog = () => router.push('/log/period');
   const latest = latestPeriod(log);
   const ongoing = status.kind === 'cycle' && latest && !latest.end && status.cycleDay <= profile.periodLength + ONGOING_GRACE ? latest : null;
@@ -142,6 +142,14 @@ export default function Home() {
       : s.daysUntilNext <= 0
         ? { title: c.anyDay, subtitle: c.expectedBy(formatShort(s.latestStart)) }
         : { title: c.inRange(s.daysUntilNext, days(untilLatest)), subtitle: c.range(formatMonthDay(s.nextStart), formatMonthDay(s.latestStart)) };
+    // One line instead of the old card: "In 25 days · Around Nov 4".
+    const nextLine = s.irregular ? `${next.title} · ${next.subtitle}` : c.nextLine(next.title, formatMonthDay(s.nextStart));
+    const todayValues = [
+      todayLog?.flow && todayLog.flow !== 'None' ? common.flow[todayLog.flow] : null,
+      todayLog?.pain && todayLog.pain !== 'None' ? common.pain[todayLog.pain] : null,
+      todayLog?.mood ? common.mood[todayLog.mood] : null,
+      ...(todayLog?.symptoms ?? []).map((x) => common.symptom[x] ?? x),
+    ].filter((v): v is string => !!v);
     body = (
       <>
         <View style={styles.ring}>
@@ -153,19 +161,9 @@ export default function Home() {
             day={common.day(s.cycleDay)}
           />
         </View>
-        {ongoing && status.kind === 'cycle' ? <PeriodOngoingRow day={status.cycleDay} onEnd={endPeriod} /> : null}
-        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
+        {ongoing ? <PeriodOngoingPill onEnd={endPeriod} /> : <NextPeriodLine text={nextLine} onPress={() => router.navigate('/history')} />}
         <WeekStrip days={weekStrip(settings, today)} />
-        <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
-        <TodayLogCard
-          onEdit={() => router.push('/log/daily')}
-          items={[
-            // Logged values are stored in English; show them in the app language.
-            { label: c.flow, value: todayLog?.flow ? common.flow[todayLog.flow] : null, icon: 'drop-fill' },
-            { label: c.pain, value: todayLog?.pain ? common.pain[todayLog.pain] : null, icon: 'bandage' },
-            { label: c.mood, value: todayLog?.mood ? common.mood[todayLog.mood] : null, icon: 'meh' },
-          ]}
-        />
+        <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
       </>
     );
   }

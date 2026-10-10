@@ -15,10 +15,9 @@ import { BottomSheet } from './Sheet';
 
 const COPY = defineCopy({
   en: {
-    ongoing: 'Period in progress',
+    ended: 'My period ended',
     day: (n: number) => `Day ${n}`,
-    ended: 'Ended?',
-    endedLabel: 'My period ended',
+    endedLabel: 'Mark my period as ended',
     title: 'Period ended',
     lasted: (range: string, days: string) => `${range} · ${days}`,
     usual: 'About as long as usual.',
@@ -37,10 +36,9 @@ const COPY = defineCopy({
     changeEnd: 'Change end date',
   },
   tr: {
-    ongoing: 'Adetin sürüyor',
+    ended: 'Adetim bitti',
     day: (n: number) => `${n}. gün`,
-    ended: 'Bitti mi?',
-    endedLabel: 'Adetim bitti',
+    endedLabel: 'Adetimi bitti olarak işaretle',
     title: 'Adetin bitti',
     lasted: (range: string, days: string) => `${range} · ${days}`,
     usual: 'Genelde sürdüğü kadar.',
@@ -61,10 +59,10 @@ const COPY = defineCopy({
 });
 
 /**
- * While a logged period has no end yet (Home): a slim row the user checks off like a to-do.
- * The circle fills, then `onEnd` runs.
+ * While a logged period has no end yet (Home, under the ring): a small pill the user checks off
+ * like a to-do. The circle fills, then `onEnd` runs.
  */
-export function PeriodOngoingRow({ day, onEnd }: { day: number; onEnd: () => void }) {
+export function PeriodOngoingPill({ onEnd }: { onEnd: () => void }) {
   const c = useCopy(COPY);
   const [checked, setChecked] = useState(false);
   const check = () => {
@@ -81,19 +79,13 @@ export function PeriodOngoingRow({ day, onEnd }: { day: number; onEnd: () => voi
       accessibilityState={{ checked }}
       disabled={checked}
       onPress={withTick(check)}
-      style={({ pressed }) => [styles.row, pressed && { backgroundColor: color['surface/subtle'] }]}
+      hitSlop={8}
+      style={({ pressed }) => [styles.pill, pressed && { backgroundColor: color['surface/strong'] }]}
     >
-      <View style={styles.badge}>
-        <Icon name="drop-fill" size={16} color="text/brand" />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text numberOfLines={1} style={[type('Body/Default', 'SemiBold'), { color: color['text/primary'] }]}>{c.ongoing}</Text>
-        <Text numberOfLines={1} style={[type('Caption'), { color: color['text/secondary'] }]}>{c.day(day)}</Text>
-      </View>
-      <Text style={[type('Body/Small', 'Medium'), { color: color['text/brand'] }]}>{c.ended}</Text>
       <View style={[styles.check, checked && styles.checked]}>
-        {checked ? <Icon name="check" size={16} color="text/on-brand" /> : null}
+        {checked ? <Icon name="check" size={14} color="text/on-brand" /> : null}
       </View>
+      <Text style={[type('Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>{c.ended}</Text>
     </Pressable>
   );
 }
@@ -189,13 +181,12 @@ export function PeriodEndSheet({ period, days, settings, usualLength, onClose, o
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingLeft: 12, paddingRight: 10,
-    borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'],
+  pill: {
+    alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingLeft: 10, paddingRight: 14,
+    borderRadius: 999, backgroundColor: color['surface/muted'],
   },
-  check: { width: 26, height: 26, borderRadius: 999, borderWidth: 1.5, borderColor: color['border/default'], alignItems: 'center', justifyContent: 'center' },
+  check: { width: 20, height: 20, borderRadius: 999, borderWidth: 1.5, borderColor: color['text/brand'], alignItems: 'center', justifyContent: 'center' },
   checked: { borderWidth: 0, backgroundColor: color['surface/brand'] },
-  badge: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   sheet: { gap: 20 },
   block: { gap: 8 },
   label: { color: color['text/secondary'] },

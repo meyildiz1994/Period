@@ -21,6 +21,9 @@ const COPY = defineCopy({
     edit: 'Edit',
     itemLabel: (label: string, value: string | null) => `${label}: ${value ?? 'not logged'}`,
     loading: 'Loading',
+    today: 'Today',
+    nothingYet: 'Nothing logged yet',
+    log: 'Log today',
   },
   tr: {
     period: ', adet',
@@ -33,6 +36,9 @@ const COPY = defineCopy({
     edit: 'Düzenle',
     itemLabel: (label: string, value: string | null) => `${label}: ${value ?? 'kaydedilmedi'}`,
     loading: 'Yükleniyor',
+    today: 'Bugün',
+    nothingYet: 'Henüz kayıt yok',
+    log: 'Bugünü kaydet',
   },
 });
 
@@ -103,6 +109,46 @@ export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () 
   );
 }
 
+/** One line under the Home ring: when the next period is due. Opens the calendar. */
+export function NextPeriodLine({ text, onPress }: { text: string; onPress?: () => void }) {
+  const c = useCopy(COPY);
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${text}. ${c.openCalendar}`} onPress={onPress} hitSlop={8} style={styles.nextLine}>
+      <Icon name="calendar" size={16} color="text/brand" />
+      <Text style={[type('Body/Default', 'Medium'), { color: color['text/primary'] }]}>{text}</Text>
+    </Pressable>
+  );
+}
+
+/** Today's log in one row: what was logged as small pills, or a prompt to log. */
+export function TodayRow({ values, onPress }: { values: string[]; onPress: () => void }) {
+  const c = useCopy(COPY);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={values.length ? `${c.today}: ${values.join(', ')}. ${c.edit}` : c.log}
+      onPress={onPress}
+      style={({ pressed }) => [styles.card, styles.today, pressed && { backgroundColor: color['surface/subtle'] }]}
+    >
+      <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{c.today}</Text>
+      <View style={styles.todayValues}>
+        {values.length ? (
+          values.slice(0, 3).map((v) => (
+            <View key={v} style={styles.todayPill}>
+              <Text numberOfLines={1} style={[type('Caption', 'Medium'), { color: color['text/brand'] }]}>{v}</Text>
+            </View>
+          ))
+        ) : (
+          <Text numberOfLines={1} style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{c.nothingYet}</Text>
+        )}
+      </View>
+      <View style={styles.todayAdd}>
+        <Icon name={values.length ? 'pencil' : 'plus'} size={18} color="text/on-brand" />
+      </View>
+    </Pressable>
+  );
+}
+
 /** Daily tip under the Home ring: phase name and a short wellbeing idea. */
 export function TipCard({ heading, text }: { heading: string; text: string }) {
   return (
@@ -143,6 +189,11 @@ const styles = StyleSheet.create({
   },
   calendar: { width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/default'] },
   log: { paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
+  nextLine: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
+  today: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingLeft: 18, paddingRight: 12 },
+  todayValues: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end', gap: 6, overflow: 'hidden' },
+  todayPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: color['surface/muted'], flexShrink: 1 },
+  todayAdd: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/brand'] },
   logHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // Compact rows (badge beside label and value) so Home fits without scrolling.
   logItems: { flexDirection: 'row', gap: 8 },
