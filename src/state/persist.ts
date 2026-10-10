@@ -9,11 +9,13 @@ import { toISODate } from '../lib/dates';
 import { getLock, setLock, subscribeLock } from './lock';
 import { getLog, replaceLog, subscribeLog } from './log';
 import { getOnboarding, setOnboarding, subscribeOnboarding } from './onboarding';
+import { setPhoto } from './photo';
 
 // Everything the app knows lives in one encrypted file on the phone. The 256-bit key is kept
 // in the iOS Keychain / Android Keystore (expo-secure-store, this device only); the file holds
 // a 12-byte nonce followed by the AES-GCM ciphertext of the JSON below.
-// The web build (a preview only) keeps the JSON unencrypted in localStorage.
+// The profile photo is kept the same way in its own file. The web build (a preview only) keeps
+// the JSON unencrypted in localStorage.
 const VERSION = 1;
 const KEY_NAME = 'period.key.v1';
 const FILE_NAME = 'period.dat';
@@ -21,6 +23,9 @@ const TEMP_NAME = 'period.dat.tmp';
 /** Exports are written to the cache with this prefix (lib/export.ts) and removed on Delete all. */
 export const EXPORT_PREFIX = 'nilemy-export-';
 const WEB_KEY = 'period.state.v1';
+/** The profile photo (JPEG), encrypted with the same key in its own file. */
+const PHOTO_NAME = 'profile.dat';
+const WEB_PHOTO_KEY = 'period.photo.v1';
 
 type Saved = {
   v: number;
@@ -67,6 +72,43 @@ async function write(data: Saved) {
   tmp.create();
   tmp.write(sealed);
   await tmp.move(file(), { overwrite: true });
+}
+
+const photoFile = () => new File(Paths.document, PHOTO_NAME);
+
+function toBase64(bytes: Uint8Array) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+const fromBase64 = (b64: string) => Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
+
+async function readPhoto(): Promise<string | null> {
+  if (web) return globalThis.localStorage?.getItem(WEB_PHOTO_KEY) ?? null;
+  const f = photoFile();
+  if (!f.exists) return null;
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  return toBase64(gcm(await key(), bytes.slice(0, 12)).decrypt(bytes.slice(12)));
+}
+
+/** Saves (or with null removes) the profile photo, given as base64 JPEG, and shows it. */
+export async function savePhoto(base64: string | null) {
+  if (web) {
+    if (base64) globalThis.localStorage?.setItem(WEB_PHOTO_KEY, base64);
+    else globalThis.localStorage?.removeItem(WEB_PHOTO_KEY);
+  } else if (base64) {
+    const nonce = getRandomBytes(12);
+    const sealed = concatBytes(nonce, gcm(await key(), nonce).encrypt(fromBase64(base64)));
+    const tmp = new File(Paths.document, `${PHOTO_NAME}.tmp`);
+    if (tmp.exists) tmp.delete();
+    tmp.create();
+    tmp.write(sealed);
+    await tmp.move(photoFile(), { overwrite: true });
+  } else if (photoFile().exists) {
+    photoFile().delete();
+  }
+  setPhoto(base64 ? `data:image/jpeg;base64,${base64}` : null);
 }
 
 function snapshot(): Saved {
@@ -120,6 +162,12 @@ export async function hydrate() {
     setOnboarding({ hydrated: true });
   }
   try {
+    const b64 = await readPhoto();
+    if (b64) setPhoto(`data:image/jpeg;base64,${b64}`);
+  } catch (e) {
+    console.warn('Nilemy: the profile photo could not be read', e);
+  }
+  try {
     clearExports();
   } catch {}
   subscribeOnboarding(schedule);
@@ -136,11 +184,13 @@ export async function wipe() {
   if (timer) clearTimeout(timer);
   timer = null;
   await pending.catch(() => {});
+  setPhoto(null);
   if (web) {
     globalThis.localStorage?.removeItem(WEB_KEY);
+    globalThis.localStorage?.removeItem(WEB_PHOTO_KEY);
     return;
   }
-  for (const name of [FILE_NAME, TEMP_NAME]) {
+  for (const name of [FILE_NAME, TEMP_NAME, PHOTO_NAME, `${PHOTO_NAME}.tmp`]) {
     const f = new File(Paths.document, name);
     if (f.exists) f.delete();
   }

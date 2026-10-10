@@ -106,7 +106,15 @@
           "iosUrlScheme": "com.googleusercontent.apps.745565714522-lsre4asflclkglu912qbp1875psrj36i"
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Nilemy uses a photo only when you choose one as your profile picture. It stays on this phone.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "scheme": "nilemy",
     "backgroundColor": "#FCF5F6",

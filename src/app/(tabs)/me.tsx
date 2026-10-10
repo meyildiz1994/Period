@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,11 +9,13 @@ import { useCommon } from '../../i18n/common';
 import { accountsAvailable } from '../../lib/account';
 import { showAdChoices } from '../../lib/ads';
 import { APP_VERSION } from '../../lib/app';
+import { pickPhoto, removePhoto } from '../../lib/photo';
 import { biometricName, useBiometricKind } from '../../lib/biometrics';
 import { useAccount } from '../../state/account';
 import { resetLock, useLock } from '../../state/lock';
 import { resetLog } from '../../state/log';
 import { resetOnboarding, useOnboarding } from '../../state/onboarding';
+import { usePhoto } from '../../state/photo';
 import { usePremium } from '../../state/premium';
 import { color, layout, radius, type } from '../../theme';
 
@@ -27,6 +30,10 @@ const COPY = defineCopy({
     accountNeeds: 'Needs password',
     editName: 'Change your name',
     addName: 'Add your name',
+    addPhoto: 'Add a profile photo',
+    changePhoto: 'Change your profile photo',
+    removePhoto: 'Remove photo',
+    photoFailed: 'That photo couldn’t be added. Try another one.',
     settings: 'Settings',
     cycle: 'Cycle settings',
     cycleSub: 'Cycle and period length',
@@ -56,6 +63,10 @@ const COPY = defineCopy({
     accountNeeds: 'Parola gerekli',
     editName: 'Adını değiştir',
     addName: 'Adını ekle',
+    addPhoto: 'Profil fotoğrafı ekle',
+    changePhoto: 'Profil fotoğrafını değiştir',
+    removePhoto: 'Fotoğrafı kaldır',
+    photoFailed: 'Bu fotoğraf eklenemedi. Başka bir tane dene.',
     settings: 'Ayarlar',
     cycle: 'Döngü ayarları',
     cycleSub: 'Döngü ve adet süresi',
@@ -91,13 +102,34 @@ export default function Me() {
   const common = useCommon();
   const lang = useLang();
   const biometric = kind ? biometricName(kind) : null;
+  const photo = usePhoto();
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  const choosePhoto = () => {
+    setPhotoFailed(false);
+    pickPhoto().catch((e) => {
+      console.warn('Nilemy: profile photo failed', e);
+      setPhotoFailed(true);
+    });
+  };
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <TopBar kind="Root" title={c.title} userName={name ?? undefined} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         <View style={styles.profile}>
-          <Avatar name={name ?? undefined} size="Large" />
+          <Pressable accessibilityRole="button" accessibilityLabel={photo ? c.changePhoto : c.addPhoto} onPress={choosePhoto} hitSlop={4}>
+            <Avatar name={name ?? undefined} size="Large" />
+            <View style={styles.camera}>
+              <Icon name="camera" size={16} color="text/brand" />
+            </View>
+          </Pressable>
+          {photo ? (
+            <Text accessibilityRole="button" onPress={() => removePhoto().catch(() => {})} style={[type('Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>
+              {c.removePhoto}
+            </Text>
+          ) : null}
+          {photoFailed ? <Text style={[type('Body/Small'), { color: color['feedback/danger'], textAlign: 'center' }]}>{c.photoFailed}</Text> : null}
           <Pressable accessibilityRole="button" accessibilityLabel={c.editName} onPress={() => router.push('/settings/name')} hitSlop={8} style={styles.name}>
             <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{name || c.addName}</Text>
             <Icon name="pencil" size={16} color="text/brand" />
@@ -190,6 +222,10 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
   content: { paddingHorizontal: layout.gutter, gap: 12 },
   name: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  camera: {
+    position: 'absolute', right: -2, bottom: -2, width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'],
+  },
   profile: { alignItems: 'center', gap: 12, paddingVertical: 24, paddingHorizontal: 20, borderRadius: radius.xl, backgroundColor: color['surface/muted'] },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: color['surface/default'] },
   dot: { width: 6, height: 6, borderRadius: 999, backgroundColor: color['text/primary'] },

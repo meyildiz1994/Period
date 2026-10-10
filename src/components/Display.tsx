@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Image, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { usePhoto } from '../state/photo';
 import { color, elevation, radius, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Toggle } from './Controls';
@@ -57,10 +58,13 @@ export function IconBadge({ icon, tone = 'Subtle', size = 40 }: { icon: IconName
 }
 
 // Figma: Avatar (Size × Type). Initial when a name exists, Icon before onboarding.
+/** The user's avatar: their profile photo if they added one, else the initial of their name. */
 export function Avatar({ name, size = 'Medium' }: { name?: string; size?: 'Small' | 'Medium' | 'Large' }) {
+  const photo = usePhoto();
   const s = { Small: 32, Medium: 40, Large: 96 }[size];
   const initial = name?.trim()[0]?.toUpperCase();
   const fs = s >= 96 ? 40 : s >= 40 ? 16 : 14;
+  if (photo) return <Image source={{ uri: photo }} accessibilityIgnoresInvertColors style={{ width: s, height: s, borderRadius: 999, backgroundColor: color['surface/strong'] }} />;
   return (
     <View style={[styles.center, { width: s, height: s, borderRadius: 999, backgroundColor: color[initial ? 'surface/brand' : 'surface/strong'] }]}>
       {initial ? (
