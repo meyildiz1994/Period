@@ -6,6 +6,7 @@ import { defineCopy, useCopy } from '../i18n';
 import { useCommon } from '../i18n/common';
 import type { PastCycle } from '../state/history';
 import type { DayLog } from '../state/log';
+import { isTypical } from '../state/insights';
 import { allTime, heatmap, patterns, type Level, type Metric, type Pattern } from '../state/patterns';
 import { usePremium } from '../state/premium';
 import { color, radius, type, type ColorToken } from '../theme';
@@ -21,7 +22,7 @@ const COPY = defineCopy({
       'All-time trends across every cycle you log',
       'When your symptoms usually show up',
       'A day-by-day map of mood, energy and pain',
-      'A cycle summary PDF and your year in review',
+      'A PDF report for your doctor and your year in review',
     ],
     lockedAction: 'See Premium',
     allTime: 'All time',
@@ -31,6 +32,7 @@ const COPY = defineCopy({
     range: 'Shortest – longest',
     variation: 'Typical difference',
     days: 'days',
+    normal: 'Normal',
     variationValue: (n: number) => `± ${n}`,
     year: (y: number, n: number, cycle: number, period: number) => `${y} · ${n} ${n === 1 ? 'cycle' : 'cycles'} · cycle ${cycle} d · period ${period} d`,
     patterns: 'Your patterns',
@@ -45,7 +47,6 @@ const COPY = defineCopy({
     legendNone: 'Not logged',
     legendEasy: 'Easier',
     legendHard: 'Harder',
-    summary: 'Cycle summary (PDF)',
     yearCard: 'Your year in review',
     notMedical: 'These are counts from your own logs, not a medical assessment.',
   },
@@ -55,7 +56,7 @@ const COPY = defineCopy({
       'Kaydettiğin tüm döngülerin uzun dönem eğilimleri',
       'Belirtilerinin genelde ne zaman başladığı',
       'Ruh hali, enerji ve ağrının gün gün haritası',
-      'Döngü özeti PDF’i ve yıllık özetin',
+      'Doktor için PDF rapor ve yıllık özetin',
     ],
     lockedAction: 'Premium’a göz at',
     allTime: 'Tüm zamanlar',
@@ -65,6 +66,7 @@ const COPY = defineCopy({
     range: 'En kısa – en uzun',
     variation: 'Olağan fark',
     days: 'gün',
+    normal: 'Normal',
     variationValue: (n: number) => `± ${n}`,
     year: (y: number, n: number, cycle: number, period: number) => `${y} · ${n} döngü · döngü ${cycle} gün · adet ${period} gün`,
     patterns: 'Örüntülerin',
@@ -79,7 +81,6 @@ const COPY = defineCopy({
     legendNone: 'Kayıt yok',
     legendEasy: 'Daha kolay',
     legendHard: 'Daha zor',
-    summary: 'Döngü özeti (PDF)',
     yearCard: 'Yıllık özetin',
     notMedical: 'Bunlar kendi kayıtlarından yapılan sayımlardır, tıbbi bir değerlendirme değildir.',
   },
@@ -117,7 +118,6 @@ export function PremiumInsights({ cycles, days }: { cycles: PastCycle[]; days: R
       <PatternsSection cycles={cycles} days={days} />
       <MapSection cycles={cycles} days={days} />
       <View style={{ gap: 8 }}>
-        <Button label={c.summary} iconLeft="file-text" type="Secondary" fullWidth onPress={() => router.push('/summary')} />
         <Button label={c.yearCard} iconLeft="sparkles" type="Secondary" fullWidth onPress={() => router.push('/year')} />
       </View>
       <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{c.notMedical}</Text>
@@ -133,8 +133,8 @@ function AllTimeSection({ cycles }: { cycles: PastCycle[] }) {
     <>
       <SectionHeader title={c.allTime} action={c.cycles(data.count)} />
       <View style={styles.tiles}>
-        <StatTile label={c.avgCycle} value={String(data.avgCycle)} unit={c.days} icon="calendar" />
-        <StatTile label={c.avgPeriod} value={String(data.avgPeriod)} unit={c.days} icon="drop" />
+        <StatTile label={c.avgCycle} value={String(data.avgCycle)} unit={c.days} icon="calendar" badge={isTypical('cycle', data.avgCycle) ? c.normal : undefined} />
+        <StatTile label={c.avgPeriod} value={String(data.avgPeriod)} unit={c.days} icon="drop" badge={isTypical('period', data.avgPeriod) ? c.normal : undefined} />
       </View>
       <View style={styles.tiles}>
         <StatTile label={c.range} value={data.shortest === data.longest ? String(data.shortest) : `${data.shortest}–${data.longest}`} unit={c.days} icon="arrows-lr" />

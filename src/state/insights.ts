@@ -4,6 +4,11 @@ import type { DayLog } from './log';
 
 // E1 Insights from the user's own logs. Averages are over completed cycles only.
 export const MIN_CYCLES = 2;
+
+/** Commonly cited typical ranges for adults, in days. Inside them Insights shows a small "Normal" tag; outside, nothing. */
+export const TYPICAL = { cycle: { min: 21, max: 35 }, period: { min: 2, max: 7 } };
+export const isTypical = (kind: keyof typeof TYPICAL, days: number) => days >= TYPICAL[kind].min && days <= TYPICAL[kind].max;
+
 const WINDOW = 6;
 
 export type Insights = {
