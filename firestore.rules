@@ -1,0 +1,80 @@
+rules_version = '2';
+
+// Cloud Firestore rules for the "nilemy-app" project. Publish them from the Firebase console
+// (Firestore Database › Rules) or with `firebase deploy --only firestore:rules`.
+//
+// Each person can only reach their own documents under users/{uid}/data, and only the three kinds
+// the app writes (src/lib/account.ts, src/lib/sync.ts):
+//   keys      the data key sealed with the Nilemy password and the recovery code
+//   state     the encrypted backup (first part) and its revision
+//   part-N    further parts of a large backup (N = 1…19)
+// Everything stored is ciphertext; the rules check shape and size so an account can't be used to
+// store anything else or to fill the project's storage.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function onlyFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isBytes(value, max) {
+      return value is bytes && value.size() > 0 && value.size() <= max;
+    }
+
+    function validKeys() {
+      let d = request.resource.data;
+      return onlyFields(['v', 'kdf', 'password', 'recovery', 'consentAt', 'createdAt'])
+        && d.v == 1
+        && d.kdf is map && d.kdf.keys().hasOnly(['N', 'r', 'p', 'salt'])
+        && d.kdf.N is int && d.kdf.r is int && d.kdf.p is int
+        && isBytes(d.kdf.salt, 64)
+        && isBytes(d.password, 256)
+        && d.recovery is map && d.recovery.keys().hasOnly(['salt', 'key'])
+        && isBytes(d.recovery.salt, 64)
+        && isBytes(d.recovery.key, 256)
+        && d.consentAt is timestamp
+        && d.createdAt is timestamp;
+    }
+
+    function validState() {
+      let d = request.resource.data;
+      return onlyFields(['rev', 'parts', 'data', 'updatedAt'])
+        && d.rev is int && d.rev > 0
+        && d.parts is int && d.parts >= 1 && d.parts <= 20
+        && isBytes(d.data, 1000000)
+        && d.updatedAt == request.time;
+    }
+
+    function validPart() {
+      let d = request.resource.data;
+      return onlyFields(['rev', 'data'])
+        && d.rev is int && d.rev > 0
+        && isBytes(d.data, 1000000);
+    }
+
+    match /users/{uid}/data/{docId} {
+      allow read, delete: if signedIn(uid);
+      allow create: if signedIn(uid) && (
+        (docId == 'keys' && validKeys())
+        || (docId == 'state' && validState())
+        || (docId.matches('part-[1-9][0-9]?') && int(docId.split('-')[1]) < 20 && validPart())
+      );
+      // The data key and the consent time are set once; later updates only re-wrap the key.
+      allow update: if signedIn(uid) && (
+        (docId == 'keys' && validKeys()
+          && request.resource.data.consentAt == resource.data.consentAt
+          && request.resource.data.createdAt == resource.data.createdAt)
+        || (docId == 'state' && validState() && request.resource.data.rev == resource.data.rev + 1)
+        || (docId.matches('part-[1-9][0-9]?') && int(docId.split('-')[1]) < 20 && validPart())
+      );
+    }
+
+    // Nothing else in the database can be read or written from the app.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

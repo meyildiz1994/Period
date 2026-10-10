@@ -1,0 +1,9 @@
+# Keeps the GitHub Actions used by the workflows up to date. App packages are updated with
+# `npx expo install --fix` so they stay compatible with the Expo SDK; security alerts for them
+# come from Dependabot alerts (Settings › Code security).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
