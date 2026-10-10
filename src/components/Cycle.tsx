@@ -161,7 +161,7 @@ export function FlowLevel({ level, selected, onPress }: { level: FlowLevelName; 
       style={[styles.flow, selected ? { backgroundColor: color['surface/brand'] } : { backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'] }]}
     >
       <Icon name={icon} size={20} color={selected ? 'text/on-brand' : level === 'None' ? 'text/tertiary' : 'text/brand'} />
-      <Text style={[type('Footnote', 'Medium'), { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>{name}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[type('Footnote', 'Medium'), styles.flowLabel, { color: color[selected ? 'text/on-brand' : 'text/primary'] }]}>{name}</Text>
     </Pressable>
   );
 }
@@ -201,7 +201,9 @@ const styles = StyleSheet.create({
   ringCenter: { alignItems: 'center', justifyContent: 'center' },
   day: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', gap: 2 },
   marker: { position: 'absolute', bottom: 6, width: 4, height: 4, borderRadius: 999, backgroundColor: color['surface/brand'] },
-  flow: { width: 62, height: 72, gap: 4, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  // Shares the row width (min 62pt) so long labels like TR "Lekelenme" stay on one centred line.
+  flow: { flex: 1, minWidth: 62, maxWidth: 80, height: 72, gap: 4, paddingHorizontal: 4, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  flowLabel: { textAlign: 'center' },
   pin: { width: 16, height: 16, borderRadius: 999 },
   key: { width: 72, height: 72, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   keyDigit: { backgroundColor: color['surface/default'] },

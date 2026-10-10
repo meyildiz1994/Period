@@ -160,5 +160,5 @@ const styles = StyleSheet.create({
   fieldError: { borderWidth: 2, borderColor: color['feedback/danger'] },
   error: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   section: { marginTop: 8, color: color['text/primary'] },
-  flows: { flexDirection: 'row', justifyContent: 'space-between' },
+  flows: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
 });

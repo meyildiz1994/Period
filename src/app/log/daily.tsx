@@ -147,6 +147,6 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
   title: { flex: 1, color: color['text/primary'] },
   section: { gap: 12, marginTop: 8 },
-  flows: { flexDirection: 'row', justifyContent: 'space-between' },
+  flows: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });
