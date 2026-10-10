@@ -7,7 +7,6 @@ import { color, overline, radius, type } from '../theme';
 import type { IconName } from '../theme/icons';
 import { DayCell } from './Cycle';
 import { Skeleton } from './Display';
-import { Button } from './Button';
 import { Icon } from './Icon';
 
 const COPY = defineCopy({
@@ -22,7 +21,6 @@ const COPY = defineCopy({
     edit: 'Edit',
     itemLabel: (label: string, value: string | null) => `${label}: ${value ?? 'not logged'}`,
     loading: 'Loading',
-    ended: 'My period ended',
   },
   tr: {
     period: ', adet',
@@ -35,17 +33,11 @@ const COPY = defineCopy({
     edit: 'Düzenle',
     itemLabel: (label: string, value: string | null) => `${label}: ${value ?? 'kaydedilmedi'}`,
     loading: 'Yükleniyor',
-    ended: 'Adetim bitti',
   },
 });
 
 // Pieces of B1–B4 Home. Cards share radius 24 and a hairline border.
 
-/** While a logged period has no end yet: one tap marks it as ended today. */
-export function PeriodEndButton({ onEnd }: { onEnd: () => void }) {
-  const c = useCopy(COPY);
-  return <Button label={c.ended} iconLeft="check" fullWidth onPress={onEnd} />;
-}
 
 export function WeekStrip({ days, onDay }: { days: StripDay[]; onDay?: (d: Date) => void }) {
   const c = useCopy(COPY);

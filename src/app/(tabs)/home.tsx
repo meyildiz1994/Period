@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndButton, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodOngoingRow, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
@@ -85,11 +86,13 @@ export default function Home() {
   const openLog = () => router.push('/log/period');
   const latest = latestPeriod(log);
   const ongoing = status.kind === 'cycle' && latest && !latest.end && status.cycleDay <= profile.periodLength + ONGOING_GRACE ? latest : null;
+  const [endedStart, setEndedStart] = useState<string | null>(null);
+  const ongoingStart = ongoing?.start;
   const endPeriod = () => {
-    if (!ongoing) return;
-    savePeriod({ start: ongoing.start, end: toISODate(today) }, ongoing.start);
+    if (!ongoingStart) return;
+    savePeriod({ start: ongoingStart, end: toISODate(new Date()) }, ongoingStart);
     flush().catch((e) => console.warn('Nilemy: saving failed', e));
-    router.push({ pathname: '/log/ended', params: { start: ongoing.start } });
+    setEndedStart(ongoingStart);
   };
 
   let body;
@@ -150,7 +153,7 @@ export default function Home() {
             day={common.day(s.cycleDay)}
           />
         </View>
-        {ongoing ? <PeriodEndButton onEnd={endPeriod} /> : null}
+        {ongoing && status.kind === 'cycle' ? <PeriodOngoingRow day={status.cycleDay} onEnd={endPeriod} /> : null}
         {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
         <WeekStrip days={weekStrip(settings, today)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
@@ -174,6 +177,18 @@ export default function Home() {
         {body}
         <AdBanner />
       </ScrollView>
+      <PeriodEndSheet
+        period={endedStart ? log.periods.find((p) => p.start === endedStart) ?? null : null}
+        days={logs}
+        settings={settings}
+        usualLength={profile.periodLength}
+        onClose={() => setEndedStart(null)}
+        onChangeEnd={() => {
+          const start = endedStart;
+          setEndedStart(null);
+          if (start) router.push({ pathname: '/log/period', params: { start } });
+        }}
+      />
     </View>
   );
 }
