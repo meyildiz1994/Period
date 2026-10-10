@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, IconBadge, OnboardingStep } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
+import { toISODate } from '../../lib/dates';
 import { savePeriod } from '../../state/log';
 import { getOnboarding, setOnboarding } from '../../state/onboarding';
 import { color, type, type IconName } from '../../theme';
@@ -50,7 +51,7 @@ export default function Done() {
           onPress={() => {
             const { lastPeriodStart } = getOnboarding();
             if (lastPeriodStart) savePeriod({ start: lastPeriodStart, end: null });
-            setOnboarding({ done: true });
+            setOnboarding({ done: true, startedAt: toISODate(new Date()) });
             router.replace('/home');
           }}
         />

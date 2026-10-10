@@ -10,6 +10,7 @@ const COPY = defineCopy({
     pain: (level: string) => `${level} pain`,
     nothing: 'Nothing logged',
     note: 'Note',
+    energy: 'Energy',
     flowDays: (level: string, n: number) => `${level} ${n}d`,
   },
   tr: {
@@ -17,6 +18,7 @@ const COPY = defineCopy({
     pain: (level: string) => `Ağrı: ${level}`,
     nothing: 'Kayıt yok',
     note: 'Not',
+    energy: 'Enerji',
     flowDays: (level: string, n: number) => `${level} ${n} gün`,
   },
 });
@@ -94,6 +96,7 @@ export function daySummary(log: DayLog | undefined) {
     log.flow && log.flow !== 'None' ? c.flow(common.flow[log.flow]) : null,
     log.pain && log.pain !== 'None' ? c.pain(common.pain[log.pain]) : null,
     log.mood ? common.mood[log.mood] : null,
+    log.energy ? `${c.energy}: ${common.energy[log.energy]}` : null,
     ...log.symptoms.map((s) => common.symptom[s] ?? s),
   ].filter(Boolean);
   return parts.length ? parts.join(' · ') : log.note ? c.note : c.nothing;

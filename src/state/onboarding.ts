@@ -6,6 +6,7 @@ import type { ReminderLead } from '../components/ReminderTiming';
 export type Goal = 'track' | 'predict' | 'symptoms' | 'irregular';
 export type Regularity = 'regular' | 'irregular' | 'unsure';
 export type { ReminderLead };
+export type CustomReminder = { id: string; title: string; /** 24 h "HH:MM" */ time: string; enabled: boolean };
 
 export type OnboardingState = {
   goal: Goal | null;
@@ -25,6 +26,14 @@ export type OnboardingState = {
   /** Shown in the Home greeting and avatar. Not asked in onboarding; set from Me later. */
   name: string | null;
   done: boolean;
+  /** Day onboarding was finished (YYYY-MM-DD); the first week has no ads. */
+  startedAt: string | null;
+  /** Premium: symptoms the user added, shown after the built-in ones. */
+  customSymptoms: string[];
+  /** Premium: daily reminders the user set (vitamins, medication, water…). */
+  customReminders: CustomReminder[];
+  /** Premium: a heads-up before the period that names the symptoms the user usually has then. */
+  patternReminder: boolean;
   /** False while saved data is being read at launch (Splash waits, Home shows B3). */
   hydrated: boolean;
 };
@@ -42,6 +51,10 @@ const initial: OnboardingState = {
   language: null,
   name: null,
   done: false,
+  startedAt: null,
+  customSymptoms: [],
+  customReminders: [],
+  patternReminder: false,
   hydrated: false,
 };
 

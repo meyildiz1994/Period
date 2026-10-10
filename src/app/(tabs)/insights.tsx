@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AdBanner, Banner, IconBadge, SectionHeader, StatTile, TopBar, useTabBarSpace } from '../../components';
+import { AdBanner, Banner, IconBadge, PremiumInsights, SectionHeader, StatTile, TopBar, useTabBarSpace } from '../../components';
 import { pastCycles } from '../../state/history';
 import { insights, MIN_CYCLES, type Insights as Data } from '../../state/insights';
 import { useLog } from '../../state/log';
@@ -28,6 +28,7 @@ export default function Insights() {
       <TopBar kind="Root" title="Insights" userName={name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         {data ? <Filled data={data} /> : <Waiting logged={cycles.length} />}
+        {data ? <PremiumInsights cycles={cycles} days={days} /> : null}
         <AdBanner />
       </ScrollView>
     </View>

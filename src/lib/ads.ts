@@ -1,13 +1,16 @@
 import { Platform } from 'react-native';
 import mobileAds, { AdsConsent, MaxAdContentRating, TestIds } from 'react-native-google-mobile-ads';
 
+import { getOnboarding } from '../state/onboarding';
 import { getPremium, setPremium } from '../state/premium';
+import { diffDays, fromISODate } from './dates';
 import { startStore } from './store';
 
 // Banner ads for the free version (Google AdMob). Only non-personalised ads are requested, so
 // no advertising ID is used and there is no App Tracking Transparency prompt. Google's consent
 // form (UMP) is shown first where the law asks for it (EEA, UK, Switzerland, some US states).
-// Nothing the user logs is ever passed to the ads SDK.
+// Nothing the user logs is ever passed to the ads SDK. The first week after onboarding has no
+// ads at all (the SDK isn't even started), so people get to know the app first.
 //
 // Ad unit IDs come from the AdMob console. Development builds always use Google's test units.
 const UNITS = {
@@ -16,6 +19,9 @@ const UNITS = {
 };
 
 export const BANNER_UNIT = __DEV__ ? TestIds.ADAPTIVE_BANNER : Platform.OS === 'ios' ? UNITS.ios : UNITS.android;
+
+/** Days after onboarding before any ad (or the consent form) is shown. */
+export const AD_FREE_DAYS = 7;
 
 /** Shared by every banner: never personalised. */
 export const AD_REQUEST = { requestNonPersonalizedAdsOnly: true } as const;
@@ -31,6 +37,8 @@ export function startAds() {
   started ??= (async () => {
     await startStore();
     if (getPremium().premium) return;
+    const { startedAt } = getOnboarding();
+    if (!startedAt || diffDays(fromISODate(startedAt), new Date()) < AD_FREE_DAYS) return;
     try {
       const info = await AdsConsent.gatherConsent();
       setPremium({ adChoicesRequired: info.privacyOptionsRequirementStatus === 'REQUIRED' });

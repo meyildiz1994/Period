@@ -1,5 +1,5 @@
 import type { FlowLevelName, Phase } from '../components/Cycle';
-import type { Mood, Pain } from '../state/log';
+import type { Energy, Mood, Pain } from '../state/log';
 import { defineCopy, getCopy, useCopy } from '.';
 
 // Words used on many screens. Logged values are stored in English (`Heavy`, `Cramps`…) and
@@ -12,6 +12,7 @@ export const COMMON = defineCopy({
     flow: { None: 'None', Spotting: 'Spotting', Light: 'Light', Medium: 'Medium', Heavy: 'Heavy' } as Record<FlowLevelName, string>,
     pain: { None: 'None', Mild: 'Mild', Moderate: 'Moderate', Severe: 'Severe' } as Record<Pain, string>,
     mood: { Good: 'Good', Okay: 'Okay', Low: 'Low', Irritable: 'Irritable', Anxious: 'Anxious' } as Record<Mood, string>,
+    energy: { High: 'High', Medium: 'Medium', Low: 'Low' } as Record<Energy, string>,
     symptom: {
       Cramps: 'Cramps', Headache: 'Headache', 'Tender breasts': 'Tender breasts', Fatigue: 'Fatigue', 'Mood swings': 'Mood swings',
       Bloating: 'Bloating', Acne: 'Acne', Cravings: 'Cravings', 'Back pain': 'Back pain', 'Trouble sleeping': 'Trouble sleeping',
@@ -39,6 +40,7 @@ export const COMMON = defineCopy({
     flow: { None: 'Yok', Spotting: 'Lekelenme', Light: 'Hafif', Medium: 'Orta', Heavy: 'Yoğun' },
     pain: { None: 'Yok', Mild: 'Hafif', Moderate: 'Orta', Severe: 'Şiddetli' },
     mood: { Good: 'İyi', Okay: 'İdare eder', Low: 'Düşük', Irritable: 'Gergin', Anxious: 'Kaygılı' },
+    energy: { High: 'Yüksek', Medium: 'Orta', Low: 'Düşük' },
     symptom: {
       Cramps: 'Kramp', Headache: 'Baş ağrısı', 'Tender breasts': 'Göğüs hassasiyeti', Fatigue: 'Yorgunluk', 'Mood swings': 'Duygu dalgalanması',
       Bloating: 'Şişkinlik', Acne: 'Sivilce', Cravings: 'Aşerme', 'Back pain': 'Bel ağrısı', 'Trouble sleeping': 'Uyku sorunu',

@@ -5,6 +5,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
+import { toISODate } from '../lib/dates';
 import { getLock, setLock, subscribeLock } from './lock';
 import { getLog, replaceLog, subscribeLog } from './log';
 import { getOnboarding, setOnboarding, subscribeOnboarding } from './onboarding';
@@ -113,7 +114,8 @@ export async function hydrate() {
   if (saved?.v === VERSION) {
     replaceLog(saved.log);
     setLock({ ...saved.lock, locked: saved.lock.enabled });
-    setOnboarding({ ...saved.onboarding, hydrated: true });
+    // 1.0.0 had no start day: count the first week from the first launch of this version.
+    setOnboarding({ ...saved.onboarding, startedAt: saved.onboarding.startedAt ?? (saved.onboarding.done ? toISODate(new Date()) : null), hydrated: true });
   } else {
     setOnboarding({ hydrated: true });
   }
