@@ -51,6 +51,7 @@ export async function readRecord(): Promise<Record | null> {
 }
 
 async function saveRecord() {
+  // Only the current link is written; a sync finishing after sign-out must not bring it back.
   if (!rec) return;
   await SecureStore.setItemAsync(RECORD, JSON.stringify({ uid: rec.uid, key: bytesToHex(rec.key), rev: rec.rev, dirty: rec.dirty }), STORE);
 }
@@ -104,17 +105,20 @@ export function merge(local: Payload, remote: Payload): Payload {
 }
 
 async function pull() {
-  if (!rec) return;
-  const { uid, key } = rec;
+  const r = rec;
+  if (!r) return;
+  const { uid, key } = r;
   for (let attempt = 0; attempt < 3; attempt++) {
     const snap = await getDoc(stateRef(uid));
+    // Signed out meanwhile: leave the phone as it is.
+    if (rec !== r) return;
     if (!snap.exists()) {
       // Nothing uploaded yet (or the backup was reset): everything here is new to it.
-      if (rec.rev !== 0) Object.assign(rec, { rev: 0, dirty: getOnboarding().done });
+      if (r.rev !== 0) Object.assign(r, { rev: 0, dirty: getOnboarding().done });
       return;
     }
     const { rev, parts, data } = snap.data() as { rev: number; parts: number; data: Bytes };
-    if (rev === rec.rev) return;
+    if (rev === r.rev) return;
     const chunks = [data.toUint8Array()];
     let stale = false;
     for (let i = 1; i < parts; i++) {
@@ -124,11 +128,12 @@ async function pull() {
       else chunks.push((part.get('data') as Bytes).toUint8Array());
     }
     if (stale) continue;
+    if (rec !== r) return;
     const sealed = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
     chunks.reduce((at, c) => (sealed.set(c, at), at + c.length), 0);
     const remote = JSON.parse(openText(key, sealed, aad(uid))) as Payload;
-    apply(rec.dirty ? merge(snapshot(), remote) : remote);
-    rec.rev = rev;
+    apply(r.dirty ? merge(snapshot(), remote) : remote);
+    r.rev = rev;
     await saveRecord();
     return;
   }
@@ -150,6 +155,7 @@ async function push() {
       parts.slice(1).forEach((p, i) => tx.set(partRef(r.uid, i + 1), { rev: next, data: Bytes.fromUint8Array(p) }));
       return next;
     });
+    if (rec !== r) return;
     if (saved !== null) {
       r.rev = saved;
       r.dirty = false;
