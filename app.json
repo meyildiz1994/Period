@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.meyildiz.nilemy"
+      "bundleIdentifier": "com.meyildiz.nilemy",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -91,7 +92,14 @@
             }
           }
         ]
-      ]
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.745565714522-lsre4asflclkglu912qbp1875psrj36i"
+        }
+      ],
+      "expo-apple-authentication"
     ],
     "scheme": "nilemy",
     "backgroundColor": "#FCF5F6",
