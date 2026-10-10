@@ -25,7 +25,7 @@ import { getPremium, setPremium, type Plan } from '../state/premium';
 // with the same ids, each with one base plan.
 export const PLANS: Record<Plan, string> = {
   yearly: 'com.meyildiz.nilemy.premium.yearly',
-  monthly: 'com.meyildiz.nilemy.premium.monthly',
+  monthly: 'com.meyildiz.nilemy.premium.monthly1',
 };
 const SKUS = Object.values(PLANS);
 const PACKAGE = 'com.meyildiz.nilemy';
