@@ -109,17 +109,6 @@ export function TodayLogCard({ items, onEdit }: { items: LogItem[]; onEdit?: () 
   );
 }
 
-/** One line under the Home ring: when the next period is due. Opens the calendar. */
-export function NextPeriodLine({ text, onPress }: { text: string; onPress?: () => void }) {
-  const c = useCopy(COPY);
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`${text}. ${c.openCalendar}`} onPress={onPress} hitSlop={8} style={styles.nextLine}>
-      <Icon name="calendar" size={16} color="text/brand" />
-      <Text style={[type('Body/Default', 'Medium'), { color: color['text/primary'] }]}>{text}</Text>
-    </Pressable>
-  );
-}
-
 /** Today's log in one row: what was logged as small pills, or a prompt to log. */
 export function TodayRow({ values, onPress }: { values: string[]; onPress: () => void }) {
   const c = useCopy(COPY);
@@ -189,7 +178,6 @@ const styles = StyleSheet.create({
   },
   calendar: { width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/default'] },
   log: { paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
-  nextLine: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
   today: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingLeft: 18, paddingRight: 12 },
   todayValues: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end', gap: 6, overflow: 'hidden' },
   todayPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: color['surface/muted'], flexShrink: 1 },

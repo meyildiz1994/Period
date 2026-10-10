@@ -85,7 +85,7 @@ export function PeriodOngoingPill({ onEnd }: { onEnd: () => void }) {
       <View style={[styles.check, checked && styles.checked]}>
         {checked ? <Icon name="check" size={14} color="text/on-brand" /> : null}
       </View>
-      <Text style={[type('Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>{c.ended}</Text>
+      <Text style={[type('Body/Default', 'SemiBold'), { color: color['text/brand'] }]}>{c.ended}</Text>
     </Pressable>
   );
 }
@@ -182,10 +182,10 @@ export function PeriodEndSheet({ period, days, settings, usualLength, onClose, o
 
 const styles = StyleSheet.create({
   pill: {
-    alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingLeft: 10, paddingRight: 14,
+    alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingLeft: 14, paddingRight: 20,
     borderRadius: 999, backgroundColor: color['surface/muted'],
   },
-  check: { width: 20, height: 20, borderRadius: 999, borderWidth: 1.5, borderColor: color['text/brand'], alignItems: 'center', justifyContent: 'center' },
+  check: { width: 22, height: 22, borderRadius: 999, borderWidth: 1.5, borderColor: color['text/brand'], alignItems: 'center', justifyContent: 'center' },
   checked: { borderWidth: 0, backgroundColor: color['surface/brand'] },
   sheet: { gap: 20 },
   block: { gap: 8 },
