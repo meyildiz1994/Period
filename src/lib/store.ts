@@ -1,30 +1,42 @@
 import {
+  deepLinkToSubscriptions,
   fetchProducts,
   finishTransaction,
-  getAvailablePurchases,
+  getActiveSubscriptions,
   initConnection,
   isUserCancelledError,
   purchaseErrorListener,
   purchaseUpdatedListener,
   requestPurchase,
   restorePurchases,
+  type ProductSubscription,
   type Purchase,
 } from 'expo-iap';
+import { AppState } from 'react-native';
 
-import { getPremium, setPremium } from '../state/premium';
+import { getPremium, setPremium, type Plan } from '../state/premium';
 
-// Nilemy Premium: one non-consumable in-app purchase through the App Store / Google Play
-// (StoreKit / Play Billing, no third-party service). It removes ads and opens the Premium
-// features (wrapped in <PremiumOnly> or checked with usePremium). The store remembers it, so it is read back at every launch and with Restore.
-export const PREMIUM_SKU = 'com.meyildiz.nilemy.premium';
+// Nilemy Premium: an auto-renewing subscription through the App Store / Google Play (StoreKit /
+// Play Billing, no third-party service), monthly or yearly. It removes ads and opens the Premium
+// features (wrapped in <PremiumOnly> or checked with usePremium). The store is asked at every
+// launch and whenever the app comes back to the front, so a lapsed subscription turns ads back on.
+//
+// App Store: one subscription group with both products. Google Play: two subscription products
+// with the same ids, each with one base plan.
+export const PLANS: Record<Plan, string> = {
+  yearly: 'com.meyildiz.nilemy.premium.yearly',
+  monthly: 'com.meyildiz.nilemy.premium.monthly',
+};
+const SKUS = Object.values(PLANS);
+const PACKAGE = 'com.meyildiz.nilemy';
 
-const owns = (purchases: Purchase[]) => purchases.some((p) => p.productId === PREMIUM_SKU && p.purchaseState !== 'pending');
-
+/** Google Play needs the offer token of the base plan to buy it. */
+const offerTokens: Partial<Record<string, string>> = {};
 let started: Promise<void> | null = null;
 let waiting: { resolve: (ok: boolean) => void; reject: (e: unknown) => void } | null = null;
 
 async function unlock(purchase: Purchase) {
-  if (purchase.productId !== PREMIUM_SKU || purchase.purchaseState === 'pending') return;
+  if (!SKUS.includes(purchase.productId) || purchase.purchaseState === 'pending') return;
   setPremium({ premium: true, adsReady: false });
   try {
     await finishTransaction({ purchase, isConsumable: false });
@@ -35,7 +47,28 @@ async function unlock(purchase: Purchase) {
   waiting = null;
 }
 
-/** Connects to the store and reads back an earlier purchase. Safe to call more than once. */
+/** Asks the store whether a subscription is active now. Leaves things as they are if it can't tell. */
+async function check() {
+  try {
+    const active = (await getActiveSubscriptions(SKUS)).filter((s) => s.isActive && SKUS.includes(s.productId));
+    const plan = (Object.keys(PLANS) as Plan[]).find((p) => active.some((s) => s.productId === PLANS[p])) ?? null;
+    setPremium({ premium: !!plan, plan, ...(plan ? { adsReady: false } : null) });
+    return !!plan;
+  } catch (e) {
+    console.warn('Nilemy: subscription check failed', e);
+    return getPremium().premium;
+  }
+}
+
+function priceOf(product: ProductSubscription) {
+  const offer = product.subscriptionOffers?.find((o) => o.offerTokenAndroid && !o.pricingPhasesAndroid?.pricingPhaseList.some((ph) => ph.priceAmountMicros === '0'));
+  const any = product.subscriptionOffers?.find((o) => o.offerTokenAndroid);
+  const token = (offer ?? any)?.offerTokenAndroid;
+  if (token) offerTokens[product.id] = token;
+  return product.displayPrice;
+}
+
+/** Connects to the store, reads the subscription and the prices. Safe to call more than once. */
 export function startStore() {
   started ??= (async () => {
     try {
@@ -46,9 +79,17 @@ export function startStore() {
         else waiting?.reject(e);
         waiting = null;
       });
-      if (owns(await getAvailablePurchases())) setPremium({ premium: true });
-      const [product] = (await fetchProducts({ skus: [PREMIUM_SKU], type: 'in-app' })) ?? [];
-      if (product) setPremium({ price: product.displayPrice });
+      await check();
+      AppState.addEventListener('change', (s) => {
+        if (s === 'active') check();
+      });
+      const products = ((await fetchProducts({ skus: SKUS, type: 'subs' })) ?? []) as ProductSubscription[];
+      const prices = { ...getPremium().prices };
+      for (const plan of Object.keys(PLANS) as Plan[]) {
+        const product = products.find((p) => p.id === PLANS[plan]);
+        if (product) prices[plan] = priceOf(product);
+      }
+      setPremium({ prices });
     } catch (e) {
       // No store (simulator, no account, offline): the app stays free and keeps working.
       console.warn('Nilemy: store unavailable', e);
@@ -57,15 +98,20 @@ export function startStore() {
   return started;
 }
 
-/** Opens the store's purchase sheet. Resolves true once bought, false if cancelled. */
-export async function buyPremium() {
+/** Opens the store's subscription sheet. Resolves true once subscribed, false if cancelled. */
+export async function buyPremium(plan: Plan) {
   await startStore();
   if (getPremium().premium) return true;
+  const sku = PLANS[plan];
   const done = new Promise<boolean>((resolve, reject) => {
     waiting = { resolve, reject };
   });
+  const token = offerTokens[sku];
   try {
-    await requestPurchase({ request: { apple: { sku: PREMIUM_SKU }, google: { skus: [PREMIUM_SKU] } }, type: 'in-app' });
+    await requestPurchase({
+      request: { apple: { sku }, google: { skus: [sku], subscriptionOffers: token ? [{ sku, offerToken: token }] : null } },
+      type: 'subs',
+    });
   } catch (e) {
     waiting = null;
     if (isUserCancelledError(e)) return false;
@@ -74,11 +120,14 @@ export async function buyPremium() {
   return done;
 }
 
-/** Restore purchases (App Review requires the button). Resolves true if Premium was found. */
+/** Restore purchases (App Review requires the button). Resolves true if a subscription is active. */
 export async function restorePremium() {
   await startStore();
   await restorePurchases();
-  const found = owns(await getAvailablePurchases());
-  if (found) setPremium({ premium: true, adsReady: false });
-  return found;
+  return check();
+}
+
+/** The store's own page to change plan or cancel. */
+export async function manageSubscription() {
+  await deepLinkToSubscriptions({ skuAndroid: PLANS[getPremium().plan ?? 'yearly'], packageNameAndroid: PACKAGE });
 }

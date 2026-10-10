@@ -14,7 +14,7 @@ Copy these into App Store Connect. Character limits are Apple's; counts are in b
 | Privacy Policy URL | https://nilemy.com/privacy |
 | Support URL | https://nilemy.com/support |
 | Marketing URL | https://nilemy.com |
-| Copyright | 2026 Nilufer Akten |
+| Copyright | 2026 Nilemy |
 | App Privacy | 1.0.1'den itibaren değişti: bkz. reklam-ve-premium-1.1.md |
 
 ## Türkçe
@@ -24,7 +24,7 @@ Copy these into App Store Connect. Character limits are Apple's; counts are in b
 **Subtitle** [30]: Adet takvimi, gizli ve sade
 
 **Promotional text** [170]:
-Adetini saniyeler içinde kaydet, döngünü anla, önünü planla. Hesap yok; kayıtların yalnızca telefonunda, şifreli kalır ve reklam için asla kullanılmaz.
+Adetini saniyeler içinde kaydet, döngünü anla, önünü planla. Hesap isteğe bağlı; kayıtların telefonunda şifreli kalır, yedeklersen uçtan uca şifrelenir ve reklam için asla kullanılmaz.
 
 **Keywords** [100, comma-separated, no spaces after commas]:
 adet,regl,döngü,takvim,period,yumurtlama,belirti,kadın,sağlık,hatırlatıcı,ped,ağrı
@@ -48,14 +48,18 @@ HATIRLATICILAR
 Adetin başlamadan önce seçtiğin gün ve saatte nazik bir hatırlatma al.
 
 GİZLİLİK ÖNCE GELİR
-• Hesap yok, sunucu yok
+• Hesap isteğe bağlı: açmazsan hiçbir şey telefonundan çıkmaz; açarsan yedeğin uçtan uca şifrelenir, biz bile okuyamayız
 • Kayıtların reklam için asla kullanılmaz; reklamlar kişiselleştirilmez
 • Kayıtların AES-256 ile şifrelenir ve telefonundan çıkmaz
 • Face ID ya da şifreyle uygulama kilidi
 • Verilerini istediğin zaman dışa aktar (CSV/JSON) ya da tamamen sil
 
 NILEMY PREMIUM
-Tek seferlik satın alma: reklamsız kullanım, tüm zamanların eğilimleri, belirti örüntüleri, ruh hali/enerji/ağrı haritası, doktoruna gösterebileceğin döngü özeti PDF'i, yıllık özet, akıllı hatırlatıcılar ve kendi belirtilerin. Abonelik yok.
+Aylık ya da yıllık abonelik: reklamsız kullanım, tüm zamanların eğilimleri, belirti örüntüleri, ruh hali/enerji/ağrı haritası, doktoruna gösterebileceğin döngü özeti PDF'i, yıllık özet, akıllı hatırlatıcılar ve kendi belirtilerin.
+
+Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse kendiliğinden yenilenir. Ücret Apple Kimliği hesabından alınır. Aboneliği App Store hesap ayarlarından yönetebilir ya da iptal edebilirsin.
+Kullanım koşulları: https://nilemy.com/terms
+Gizlilik politikası: https://nilemy.com/privacy
 
 Türkçe ve İngilizce kullanılabilir.
 
@@ -68,13 +72,13 @@ Nilemy tıbbi bir cihaz değildir ve doğum kontrolü için kullanılmamalıdır
 **Subtitle** [30]: Private, calm cycle calendar
 
 **Promotional text** [170]:
-Log your period in seconds, understand your cycle and plan ahead. No account; your logs stay on your phone, encrypted, and are never used for ads.
+Log your period in seconds, understand your cycle and plan ahead. An account is optional; your logs stay encrypted on your phone, backups are end-to-end encrypted, and nothing is ever used for ads.
 
 **Keywords** [100]:
 period,cycle,menstrual,calendar,ovulation,symptoms,women,health,reminder,pms,tracker,flow
 
 **Description** [4000]:
-Nilemy is a calm, simple way to track your menstrual cycle. No account; your logs stay on your phone, encrypted, and are never used for ads.
+Nilemy is a calm, simple way to track your menstrual cycle. An account is optional; your logs stay encrypted on your phone, backups are end-to-end encrypted, and nothing is ever used for ads.
 
 LOG YOUR PERIOD IN SECONDS
 Scroll to pick start and end dates. Add flow, pain, mood and symptoms with a tap, and a short note if you like.
@@ -92,14 +96,18 @@ REMINDERS
 Get a gentle reminder before your period, on the day and at the time you choose.
 
 PRIVACY FIRST
-• No account, no servers
+• Optional account: without one nothing leaves your phone; with one your backup is end-to-end encrypted so not even we can read it
 • Your logs are never used for ads; ads are never personalised
 • Logs are encrypted with AES-256 and never leave your phone
 • App lock with Face ID or a passcode
 • Export your data (CSV/JSON) or delete everything at any time
 
 NILEMY PREMIUM
-A one-time purchase: no ads, all-time trends, symptom patterns, a mood/energy/pain map, a cycle summary PDF to show your doctor, your year in review, smart reminders and your own symptoms. No subscription.
+A monthly or yearly subscription: no ads, all-time trends, symptom patterns, a mood/energy/pain map, a cycle summary PDF to show your doctor, your year in review, smart reminders and your own symptoms.
+
+The subscription renews automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple ID account. You can manage or cancel it in your App Store account settings.
+Terms of use: https://nilemy.com/terms
+Privacy policy: https://nilemy.com/privacy
 
 Available in English and Turkish.
 
@@ -107,7 +115,7 @@ Nilemy isn't a medical device and shouldn't be used for contraception. Estimates
 
 ## App Review notes (English)
 
-Nilemy has no accounts and no server: there is nothing to sign in to and no demo account is needed. All data stays on the device, encrypted (AES-256-GCM, key in the Keychain). The only network use is loading non-personalised Google AdMob banners in the free version and the in-app purchase through StoreKit; no user data is sent. To see the main screens, finish the short onboarding (name, goal, last period date, cycle length, symptoms, reminders). Estimates are labelled as estimates, and the app states in Terms and on the website that it is not for contraception and is not a medical device. Face ID is only used for the optional app lock. Notifications are local reminders.
+An account is optional (Welcome › "Continue without signing in" skips it), so no demo account is needed to review the app. Sign in with Apple, Google or email is offered for an end-to-end encrypted backup: logs are encrypted on the device with a key wrapped by the user's Nilemy password, and only ciphertext is stored in Firebase. Accounts can be deleted in the app (Me › Account › Delete account). Without an account all data stays on the device, encrypted (AES-256-GCM, key in the Keychain). Other network use: non-personalised Google AdMob banners in the free version and the subscription through StoreKit. To see the main screens, finish the short onboarding (name, goal, last period date, cycle length, symptoms, reminders). Estimates are labelled as estimates, and the app states in Terms and on the website that it is not for contraception and is not a medical device. Face ID is only used for the optional app lock. Notifications are local reminders.
 
 ## Questionnaires (suggested answers)
 

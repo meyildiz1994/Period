@@ -2,10 +2,10 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, Icon, IconBadge, Page, Toast } from '../components';
+import { Button, Icon, IconBadge, OptionCard, Page, Toast } from '../components';
 import { defineCopy, useCopy } from '../i18n';
-import { buyPremium, restorePremium, startStore } from '../lib/store';
-import { usePremium } from '../state/premium';
+import { buyPremium, manageSubscription, restorePremium, startStore } from '../lib/store';
+import { usePremium, type Plan } from '../state/premium';
 import { color, radius, type } from '../theme';
 import type { IconName } from '../theme/icons';
 
@@ -13,7 +13,11 @@ const COPY = defineCopy({
   en: {
     title: 'Nilemy Premium',
     heading: 'Know your cycle better',
-    intro: 'One purchase, yours for good. No subscription.',
+    intro: 'Choose monthly or yearly. Cancel anytime in your store settings.',
+    plans: 'Plan',
+    plan: { yearly: 'Yearly', monthly: 'Monthly' } as Record<Plan, string>,
+    per: { yearly: (p: string) => `${p} a year`, monthly: (p: string) => `${p} a month` } as Record<Plan, (p: string) => string>,
+    loading: 'Loading price…',
     perks: [
       ['ban', 'No ads', 'Every screen stays clean.'],
       ['chart-bars', 'Deeper insights', 'All-time trends, when your symptoms usually show up and a day-by-day map of mood, energy and pain.'],
@@ -22,18 +26,25 @@ const COPY = defineCopy({
       ['plus', 'Your own symptoms', 'Add as many symptoms as you like to your logs.'],
       ['shield-check', 'Same privacy', 'Everything is worked out on this phone. Your logs stay encrypted here.'],
     ] as [IconName, string, string][],
-    buy: (price: string | null) => (price ? `Get Premium · ${price}` : 'Get Premium'),
+    buy: 'Subscribe',
     restore: 'Restore purchase',
     owned: 'You have Premium. Thank you!',
+    manage: 'Manage subscription',
     done: 'Done',
     failed: 'The purchase didn’t go through. Please try again.',
     notFound: 'No earlier purchase was found for this store account.',
-    note: 'Payment is handled by the App Store or Google Play. Nilemy never sees your payment details.',
+    note: 'Payment is charged to your App Store or Google Play account. The subscription renews automatically at the same price for the same period unless you cancel at least 24 hours before it ends; you can cancel in your store account settings. Nilemy never sees your payment details.',
+    terms: 'Terms of service',
+    privacy: 'Privacy policy',
   },
   tr: {
     title: 'Nilemy Premium',
     heading: 'Döngünü daha iyi tanı',
-    intro: 'Tek seferlik satın alma, kalıcı olarak senin. Abonelik yok.',
+    intro: 'Aylık ya da yıllık seç. Dilediğin zaman mağaza ayarlarından iptal edebilirsin.',
+    plans: 'Plan',
+    plan: { yearly: 'Yıllık', monthly: 'Aylık' },
+    per: { yearly: (p: string) => `Yılda ${p}`, monthly: (p: string) => `Ayda ${p}` },
+    loading: 'Fiyat yükleniyor…',
     perks: [
       ['ban', 'Reklam yok', 'Hiçbir ekranda reklam görmezsin.'],
       ['chart-bars', 'Daha derin analiz', 'Tüm zamanların eğilimleri, belirtilerinin genelde ne zaman başladığı ve ruh hali, enerji, ağrının gün gün haritası.'],
@@ -42,21 +53,26 @@ const COPY = defineCopy({
       ['plus', 'Kendi belirtilerin', 'Kayıtlarına istediğin kadar belirti ekle.'],
       ['shield-check', 'Aynı gizlilik', 'Her şey bu telefonda hesaplanır. Kayıtların burada şifreli kalır.'],
     ],
-    buy: (price: string | null) => (price ? `Premium’u al · ${price}` : 'Premium’u al'),
+    buy: 'Abone ol',
     restore: 'Satın alımı geri yükle',
     owned: 'Premium sende. Teşekkürler!',
+    manage: 'Aboneliği yönet',
     done: 'Tamam',
     failed: 'Satın alma tamamlanamadı. Lütfen tekrar dene.',
     notFound: 'Bu mağaza hesabında daha önceki bir satın alma bulunamadı.',
-    note: 'Ödemeyi App Store ya da Google Play alır. Nilemy ödeme bilgilerini hiç görmez.',
+    note: 'Ödeme App Store ya da Google Play hesabından alınır. Abonelik, dönem bitmeden en az 24 saat önce iptal etmezsen aynı süre ve fiyatla kendiliğinden yenilenir; iptali mağaza hesap ayarlarından yapabilirsin. Nilemy ödeme bilgilerini hiç görmez.',
+    terms: 'Kullanım koşulları',
+    privacy: 'Gizlilik politikası',
   },
 });
 
 // Premium: no ads, deeper insights, cycle summary PDF, smart reminders and custom symptoms.
-// One non-consumable purchase.
+// A monthly or yearly auto-renewing subscription; the plan, price, renewal terms and the links
+// to the terms and privacy policy are shown before subscribing (App Store guideline 3.1.2).
 export default function Premium() {
   const c = useCopy(COPY);
-  const { premium, price } = usePremium();
+  const { premium, prices } = usePremium();
+  const [plan, setPlan] = useState<Plan>('yearly');
   const [busy, setBusy] = useState<'buy' | 'restore' | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -68,7 +84,7 @@ export default function Premium() {
     setBusy(kind);
     setMessage(null);
     try {
-      const ok = kind === 'buy' ? await buyPremium() : await restorePremium();
+      const ok = kind === 'buy' ? await buyPremium(plan) : await restorePremium();
       if (!ok && kind === 'restore') setMessage(c.notFound);
     } catch {
       setMessage(c.failed);
@@ -83,10 +99,13 @@ export default function Premium() {
       onBack={router.back}
       footer={
         premium ? (
-          <Button label={c.done} fullWidth onPress={router.back} />
+          <>
+            <Button label={c.done} fullWidth onPress={router.back} />
+            <Button label={c.manage} type="Ghost" fullWidth onPress={() => manageSubscription().catch(() => {})} />
+          </>
         ) : (
           <>
-            <Button label={c.buy(price)} fullWidth loading={busy === 'buy'} disabled={!!busy} onPress={() => run('buy')} />
+            <Button label={c.buy} fullWidth loading={busy === 'buy'} disabled={!!busy || !prices[plan]} onPress={() => run('buy')} />
             <Button label={c.restore} type="Ghost" fullWidth loading={busy === 'restore'} disabled={!!busy} onPress={() => run('restore')} />
           </>
         )
@@ -111,7 +130,25 @@ export default function Premium() {
           </View>
         ))}
       </View>
+      {premium ? null : (
+        <View style={styles.plans} accessibilityRole="radiogroup" accessibilityLabel={c.plans}>
+          {(['yearly', 'monthly'] as Plan[]).map((p) => (
+            <OptionCard
+              key={p}
+              icon={p === 'yearly' ? 'calendar' : 'calendar-day'}
+              title={c.plan[p]}
+              subtitle={prices[p] ? c.per[p](prices[p]) : c.loading}
+              selected={plan === p}
+              onPress={() => setPlan(p)}
+            />
+          ))}
+        </View>
+      )}
       <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{c.note}</Text>
+      <View style={styles.links}>
+        <Text accessibilityRole="link" onPress={() => router.push('/about/terms')} style={[type('Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>{c.terms}</Text>
+        <Text accessibilityRole="link" onPress={() => router.push('/about/privacy')} style={[type('Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>{c.privacy}</Text>
+      </View>
     </Page>
   );
 }
@@ -121,4 +158,6 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   card: { padding: 20, gap: 18, borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
   perk: { flexDirection: 'row', gap: 14, alignItems: 'flex-start' },
+  plans: { gap: 12 },
+  links: { flexDirection: 'row', gap: 20 },
 });

@@ -1,19 +1,23 @@
 import { useSyncExternalStore } from 'react';
 
-// Premium (one-time purchase, lib/store.ts) and whether banner ads may load (lib/ads.ts).
+// Premium (monthly or yearly subscription, lib/store.ts) and whether banner ads may load (lib/ads.ts).
 // Not part of the encrypted data file: the purchase belongs to the store account and is read
 // back from the App Store / Play Store at launch, so Delete all doesn't remove it.
+export type Plan = 'yearly' | 'monthly';
+
 type PremiumState = {
   premium: boolean;
-  /** Localised price from the store, e.g. "₺99,99"; null until the store answers. */
-  price: string | null;
+  /** The active plan, when the store says which. */
+  plan: Plan | null;
+  /** Localised prices from the store, e.g. "₺499,99"; null until the store answers. */
+  prices: Record<Plan, string | null>;
   /** Consent gathered and the ads SDK started; banners render only when true. */
   adsReady: boolean;
   /** The user is in a region where Google asks us to offer a way to change ad consent. */
   adChoicesRequired: boolean;
 };
 
-let state: PremiumState = { premium: false, price: null, adsReady: false, adChoicesRequired: false };
+let state: PremiumState = { premium: false, plan: null, prices: { yearly: null, monthly: null }, adsReady: false, adChoicesRequired: false };
 const listeners = new Set<() => void>();
 
 export function setPremium(patch: Partial<PremiumState>) {

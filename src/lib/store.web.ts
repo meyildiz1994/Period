@@ -1,9 +1,15 @@
+import type { Plan } from '../state/premium';
+
 // The web build is a preview only: no store, so it stays on the free version.
-export const PREMIUM_SKU = 'com.meyildiz.nilemy.premium';
+export const PLANS: Record<Plan, string> = {
+  yearly: 'com.meyildiz.nilemy.premium.yearly',
+  monthly: 'com.meyildiz.nilemy.premium.monthly',
+};
 export async function startStore() {}
-export async function buyPremium() {
+export async function buyPremium(_plan: Plan) {
   return false;
 }
 export async function restorePremium() {
   return false;
 }
+export async function manageSubscription() {}
