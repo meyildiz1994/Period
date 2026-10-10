@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firestore rules tests
+tests/firestore/node_modules/
+firestore-debug.log
