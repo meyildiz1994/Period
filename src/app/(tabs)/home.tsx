@@ -165,7 +165,7 @@ export default function Home() {
         <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         {ongoing ? (
-          <PeriodTodayCard day={s.cycleDay} values={todayValues} onLog={() => router.push('/log/daily')} onEnd={endPeriod} />
+          <PeriodTodayCard day={s.cycleDay} usual={settings.periodLength} values={todayValues} onLog={() => router.push('/log/daily')} onEnd={endPeriod} />
         ) : (
           <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
         )}

@@ -88,9 +88,10 @@ export default function TabsLayout() {
 
     {/* C1 Quick Log */}
     <BottomSheet visible={logOpen} title={c.title} onClose={() => setLogOpen(false)}>
-      {ongoing ? <SheetOption icon="check" brand title={c.ended} subtitle={c.endedSub} onPress={endPeriod} /> : null}
-      <SheetOption icon="drop" brand={!ongoing} title={c.period} subtitle={c.periodSub} onPress={() => go('/log/period')} />
+      <SheetOption icon="drop" brand title={c.period} subtitle={c.periodSub} onPress={() => go('/log/period')} />
       <SheetOption icon="notes" title={c.daily} subtitle={c.dailySub} onPress={() => go('/log/daily')} />
+      {/* Last and lighter: logging is why people open this; ending is the occasional extra. */}
+      {ongoing ? <SheetOption icon="check" title={c.ended} subtitle={c.endedSub} onPress={endPeriod} /> : null}
       {settings.lastPeriodStart ? (
         <View style={styles.footer}>
           <Icon name="history" size={20} color="text/secondary" />

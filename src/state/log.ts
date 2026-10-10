@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 import type { FlowLevelName } from '../components/Cycle';
+import { addDays, diffDays, fromISODate, toISODate } from '../lib/dates';
 
 // Logged periods and daily logs. Saved by persist.ts; screens await `flush()` so a failed
 // write can be shown (C4/C5).
@@ -53,6 +54,18 @@ const EMPTY_DAY: Omit<DayLog, 'loggedAt'> = { flow: null, pain: null, mood: null
 export function updateDay(date: string, patch: Partial<Omit<DayLog, 'loggedAt'>>) {
   const { loggedAt: _, ...current } = state.days[date] ?? { ...EMPTY_DAY, loggedAt: '' };
   saveDay(date, { ...current, ...patch });
+}
+
+/**
+ * A period left open long past its usual length was most likely never marked as ended: close it
+ * at the usual length so the calendar and predictions don't count it as days of bleeding.
+ */
+export function closeForgottenPeriod(today: Date, periodLength: number, grace: number) {
+  const latest = state.periods[0];
+  if (!latest || latest.end) return;
+  const start = fromISODate(latest.start);
+  if (diffDays(start, today) + 1 <= periodLength + grace) return;
+  savePeriod({ start: latest.start, end: toISODate(addDays(start, periodLength - 1)) }, latest.start);
 }
 
 export function deletePeriod(start: string) {

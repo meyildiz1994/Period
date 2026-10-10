@@ -7,7 +7,8 @@ import { Platform } from 'react-native';
 
 import { toISODate } from '../lib/dates';
 import { getLock, setLock, subscribeLock } from './lock';
-import { getLog, replaceLog, subscribeLog } from './log';
+import { ONGOING_GRACE } from './cycle';
+import { closeForgottenPeriod, getLog, replaceLog, subscribeLog } from './log';
 import { getOnboarding, setOnboarding, subscribeOnboarding } from './onboarding';
 import { setPhoto } from './photo';
 
@@ -173,6 +174,8 @@ export async function hydrate() {
   subscribeOnboarding(schedule);
   subscribeLog(schedule);
   subscribeLock(schedule);
+  // After subscribing, so the change is saved.
+  closeForgottenPeriod(new Date(), getOnboarding().periodLength, ONGOING_GRACE);
 }
 
 /**

@@ -16,8 +16,9 @@ const COPY = defineCopy({
     ended: 'My period ended',
     today: 'Today',
     periodDay: (n: number) => `Day ${n} of your period`,
+    longerThanUsual: (n: number, usual: number) => `Day ${n} · usually ${usual} days. Has it ended?`,
     logToday: 'Log today',
-    edit: 'Edit',
+    edit: 'Edit today',
     title: 'Period ended',
     lasted: (range: string, days: string) => `${range} · ${days}`,
     next: (date: string) => `Next one around ${date}`,
@@ -30,8 +31,9 @@ const COPY = defineCopy({
     ended: 'Adetim bitti',
     today: 'Bugün',
     periodDay: (n: number) => `Adetinin ${n}. günü`,
+    longerThanUsual: (n: number, usual: number) => `${n}. gün · genelde ${usual} gün sürüyor. Bitti mi?`,
     logToday: 'Bugünü kaydet',
-    edit: 'Düzenle',
+    edit: 'Bugünü düzenle',
     title: 'Adetin bitti',
     lasted: (range: string, days: string) => `${range} · ${days}`,
     next: (date: string) => `Sonraki adet ${date}`,
@@ -46,7 +48,9 @@ const COPY = defineCopy({
  * Home's "today" card while a period is open: what was logged today, and the two things a user
  * does on a period day, log today or mark the period as ended.
  */
-export function PeriodTodayCard({ day, values, onLog, onEnd }: { day: number; values: string[]; onLog: () => void; onEnd: () => void }) {
+export function PeriodTodayCard({ day, usual, values, onLog, onEnd }: {
+  day: number; usual: number; values: string[]; onLog: () => void; onEnd: () => void;
+}) {
   const c = useCopy(COPY);
   return (
     <View style={styles.card}>
@@ -56,22 +60,17 @@ export function PeriodTodayCard({ day, values, onLog, onEnd }: { day: number; va
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{c.today}</Text>
-          <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{c.periodDay(day)}</Text>
+          <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{day > usual ? c.longerThanUsual(day, usual) : c.periodDay(day)}</Text>
         </View>
+        {/* Secondary on purpose: logging the day is what people come here for. */}
+        <Button label={c.ended} type="Outline" size="Small" onPress={onEnd} />
       </View>
       {values.length ? (
         <View style={styles.values}>
           {values.slice(0, 4).map((v) => <Tag key={v} size="Small" label={v} />)}
         </View>
       ) : null}
-      <View style={styles.buttons}>
-        <View style={{ flex: 1 }}>
-          <Button label={values.length ? c.edit : c.logToday} type="Secondary" size="Medium" fullWidth onPress={onLog} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button label={c.ended} size="Medium" fullWidth onPress={onEnd} />
-        </View>
-      </View>
+      <Button label={values.length ? c.edit : c.logToday} iconLeft={values.length ? 'pencil' : 'plus'} size="Medium" fullWidth onPress={onLog} />
     </View>
   );
 }
@@ -136,7 +135,6 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   badge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   values: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  buttons: { flexDirection: 'row', gap: 8 },
   sheet: { alignItems: 'center', gap: 16, marginTop: -24 },
   bigBadge: { width: 64, height: 64, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   center: { alignItems: 'center', gap: 4 },
