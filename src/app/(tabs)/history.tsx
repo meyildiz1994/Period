@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AdBanner, Divider, EmptyState, Icon, IconBadge, MonthCalendar, SectionHeader, TopBar, useTabBarSpace } from '../../components';
-import { defineCopy, useCopy } from '../../i18n';
+import { defineCopy, useCopy, useWeekStart } from '../../i18n';
 import { addMonths, formatLong, formatMonthDay, startOfMonth, toISODate } from '../../lib/dates';
 import { useCycleSettings } from '../../state/cycle';
 import { cycleOf, daySummary, dayState, pastCycles, periodLength } from '../../state/history';
@@ -49,7 +49,8 @@ export default function History() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { periods, days } = useLog();
-  const { periodLength: usual, showPredicted, weekStartsOn, name } = useOnboarding();
+  const { periodLength: usual, showPredicted, name } = useOnboarding();
+  const weekStartsOn = useWeekStart();
   const { cycleLength } = useCycleSettings();
   const [today] = useState(() => new Date());
   const [month, setMonth] = useState(() => startOfMonth(today));

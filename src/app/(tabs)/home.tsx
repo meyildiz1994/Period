@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodOngoingPill, TipCard, TodayRow, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
-import { defineCopy, useCopy } from '../../i18n';
+import { defineCopy, useCopy, useWeekStart } from '../../i18n';
 import { useCommon } from '../../i18n/common';
 import { useTip } from '../../i18n/tips';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
@@ -76,6 +76,7 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const profile = useOnboarding();
+  const weekStart = useWeekStart();
   const settings = useCycleSettings();
   const log = useLog();
   const { days: logs } = log;
@@ -160,7 +161,7 @@ export default function Home() {
           />
         </View>
         {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
-        <WeekStrip days={weekStrip(settings, today, profile.weekStartsOn)} />
+        <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
         <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
       </>
