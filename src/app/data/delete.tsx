@@ -5,6 +5,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Banner, Button, Icon, Page } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { signOutAccount } from '../../lib/account';
+import { useAccount } from '../../state/account';
 import { resetLock } from '../../state/lock';
 import { resetLog, useLog } from '../../state/log';
 import { resetOnboarding } from '../../state/onboarding';
@@ -23,6 +25,7 @@ const COPY = defineCopy({
     export: 'Export',
     failedTitle: 'Couldn’t delete everything',
     failed: 'Some data couldn’t be removed from this phone. Try again.',
+    account: 'You’ll also be signed out on this phone. Your backup stays in your account; to remove it, use Delete account.',
   },
   tr: {
     title: 'Tüm verileri sil',
@@ -32,6 +35,7 @@ const COPY = defineCopy({
     export: 'Dışa aktar',
     failedTitle: 'Her şey silinemedi',
     failed: 'Bazı veriler bu telefondan kaldırılamadı. Tekrar dene.',
+    account: 'Bu telefonda hesabından da çıkış yapılır. Yedeğin hesabında kalır; onu silmek için Hesabı sil’i kullan.',
   },
 });
 
@@ -43,6 +47,7 @@ export default function DeleteAll() {
   const common = useCommon();
   const { periods, days } = useLog();
   const logged = Object.keys(days).length;
+  const signedIn = useAccount().status !== 'off';
   const [failed, setFailed] = useState(false);
 
   return (
@@ -56,6 +61,8 @@ export default function DeleteAll() {
             type="Destructive"
             fullWidth
             onPress={async () => {
+              // Sign out first, so the emptied phone can't sync over the backup.
+              if (signedIn) await signOutAccount().catch(() => {});
               resetLog();
               resetOnboarding();
               resetLock();
@@ -83,6 +90,7 @@ export default function DeleteAll() {
         {c.body(periods.length, logged)}
       </Text>
       {failed ? <Banner kind="Error" title={c.failedTitle} message={c.failed} /> : null}
+      {signedIn ? <Banner kind="Warning" message={c.account} /> : null}
       <Banner message={c.copyFirst} action={c.export} onAction={() => router.push('/data/export')} />
     </Page>
   );

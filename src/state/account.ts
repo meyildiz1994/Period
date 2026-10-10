@@ -20,9 +20,11 @@ export type AccountState = {
   syncedAt: string | null;
   /** The last sync attempt failed; it is retried on the next change or launch. */
   error: 'offline' | 'failed' | null;
+  /** A recovery code just made, held only until the code screen has shown it. */
+  newCode: string | null;
 };
 
-const initial: AccountState = { ready: false, status: 'off', email: null, method: null, syncing: false, syncedAt: null, error: null };
+const initial: AccountState = { ready: false, status: 'off', email: null, method: null, syncing: false, syncedAt: null, error: null, newCode: null };
 
 let state = initial;
 const listeners = new Set<() => void>();

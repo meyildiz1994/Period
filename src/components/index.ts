@@ -22,3 +22,4 @@ export * from './ScrollLock';
 export * from './AdBanner';
 export * from './PremiumOnly';
 export * from './PremiumInsights';
+export * from './Account';

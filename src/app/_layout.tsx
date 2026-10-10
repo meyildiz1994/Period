@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { LockGate } from '../components';
+import { startAccount } from '../lib/account';
 import { startAds } from '../lib/ads';
 import { useLock } from '../state/lock';
 import { useOnboarding } from '../state/onboarding';
@@ -25,6 +26,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (ready) startAds();
   }, [ready]);
+  // Optional account (1.2): resumes syncing once saved data is loaded. Loads nothing without one.
+  useEffect(() => {
+    if (hydrated) startAccount();
+  }, [hydrated]);
   if (!loaded) return null;
 
   return (

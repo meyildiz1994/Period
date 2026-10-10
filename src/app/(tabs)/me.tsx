@@ -5,9 +5,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar, Button, Divider, Icon, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { defineCopy, LANGUAGES, useCopy, useLang } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { accountsAvailable } from '../../lib/account';
 import { showAdChoices } from '../../lib/ads';
 import { APP_VERSION } from '../../lib/app';
 import { biometricName, useBiometricKind } from '../../lib/biometrics';
+import { useAccount } from '../../state/account';
 import { resetLock, useLock } from '../../state/lock';
 import { resetLog } from '../../state/log';
 import { resetOnboarding, useOnboarding } from '../../state/onboarding';
@@ -18,6 +20,11 @@ const COPY = defineCopy({
   en: {
     title: 'Me',
     saved: 'Saved on this device',
+    backedUp: 'Backed up, end-to-end encrypted',
+    backUp: 'Back up with an account',
+    account: 'Account',
+    accountOn: 'On',
+    accountNeeds: 'Needs password',
     editName: 'Change your name',
     addName: 'Add your name',
     settings: 'Settings',
@@ -42,6 +49,11 @@ const COPY = defineCopy({
   tr: {
     title: 'Ben',
     saved: 'Bu cihazda kayıtlı',
+    backedUp: 'Uçtan uca şifreli yedekleniyor',
+    backUp: 'Hesapla yedekle',
+    account: 'Hesap',
+    accountOn: 'Açık',
+    accountNeeds: 'Parola gerekli',
     editName: 'Adını değiştir',
     addName: 'Adını ekle',
     settings: 'Ayarlar',
@@ -65,13 +77,15 @@ const COPY = defineCopy({
   },
 });
 
-// G1 Me. v1 has no accounts, so the design's "Back up with an account" button is left out.
+// G1 Me. "Back up with an account" opens the optional account (1.2); once signed in, the Account row.
 export default function Me() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { name, reminder } = useOnboarding();
   const lock = useLock();
   const { premium, adChoicesRequired } = usePremium();
+  const account = useAccount();
+  const signedIn = account.status !== 'off';
   const kind = useBiometricKind();
   const c = useCopy(COPY);
   const common = useCommon();
@@ -90,11 +104,20 @@ export default function Me() {
           </Pressable>
           <View style={styles.pill}>
             <View style={styles.dot} />
-            <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{c.saved}</Text>
+            <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{account.status === 'on' ? c.backedUp : c.saved}</Text>
           </View>
+          {accountsAvailable && account.ready && !signedIn ? (
+            <Button label={c.backUp} size="Medium" iconLeft="refresh" onPress={() => router.push('/account')} />
+          ) : null}
         </View>
 
         <View style={styles.list}>
+          {signedIn ? (
+            <>
+              <ListRow title={c.account} icon="user-circle" trailing="Value" value={account.status === 'on' ? c.accountOn : c.accountNeeds} onPress={() => router.push('/account/manage')} />
+              <Divider inset={0} />
+            </>
+          ) : null}
           <ListRow title={c.premium} icon="sparkles" trailing="Value" value={premium ? c.premiumOn : c.premiumOff} onPress={() => router.push('/premium')} />
           {!premium && adChoicesRequired ? (
             <>
