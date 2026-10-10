@@ -1,4 +1,4 @@
-/* Text pages (privacy, support): a readable column in the landing page's colours and type. */
+/* Text pages (privacy, terms, support): a readable column in the landing page's colours and type. */
 :root {
   --bg: #FCF5F6; --fg: #2A1520; --muted: #4D3943; --brand: #80244E; --blush: #FDE9F0; --line: #F5E4EA;
   --wordmark: #62414E;
