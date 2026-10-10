@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nilemy",
     "slug": "nilemy",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -62,7 +62,36 @@
           ]
         }
       ],
-      "expo-iap"
+      "expo-iap",
+      [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "Plum",
+            "ios": "./assets/icons/icon-plum.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#80244E"
+            }
+          },
+          {
+            "name": "Night",
+            "ios": "./assets/icons/icon-night.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#2A1520"
+            }
+          },
+          {
+            "name": "White",
+            "ios": "./assets/icons/icon-white.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#FFFFFF"
+            }
+          }
+        ]
+      ]
     ],
     "scheme": "nilemy",
     "backgroundColor": "#FCF5F6",

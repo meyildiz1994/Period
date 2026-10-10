@@ -15,7 +15,7 @@ Copy these into App Store Connect. Character limits are Apple's; counts are in b
 | Support URL | https://nilemy.com/support |
 | Marketing URL | https://nilemy.com |
 | Copyright | 2026 Nilufer Akten |
-| App Privacy | 1.0.1'den itibaren değişti: bkz. reklam-ve-premium-1.0.1.md |
+| App Privacy | 1.0.1'den itibaren değişti: bkz. reklam-ve-premium-1.1.md |
 
 ## Türkçe
 
@@ -55,7 +55,7 @@ GİZLİLİK ÖNCE GELİR
 • Verilerini istediğin zaman dışa aktar (CSV/JSON) ya da tamamen sil
 
 NILEMY PREMIUM
-Tek seferlik satın alma ile reklamları kaldır ve Nilemy'yi destekle. Abonelik yok.
+Tek seferlik satın alma: reklamsız kullanım, tüm zamanların eğilimleri, belirti örüntüleri, ruh hali/enerji/ağrı haritası, doktoruna gösterebileceğin döngü özeti PDF'i, yıllık özet, akıllı hatırlatıcılar ve kendi belirtilerin. Abonelik yok.
 
 Türkçe ve İngilizce kullanılabilir.
 
@@ -99,7 +99,7 @@ PRIVACY FIRST
 • Export your data (CSV/JSON) or delete everything at any time
 
 NILEMY PREMIUM
-A one-time purchase removes ads and supports Nilemy. No subscription.
+A one-time purchase: no ads, all-time trends, symptom patterns, a mood/energy/pain map, a cycle summary PDF to show your doctor, your year in review, smart reminders and your own symptoms. No subscription.
 
 Available in English and Turkish.
 
@@ -111,7 +111,7 @@ Nilemy has no accounts and no server: there is nothing to sign in to and no demo
 
 ## Questionnaires (suggested answers)
 
-- **App Privacy:** 1.0.0: Data Not Collected. 1.0.1 and later: see reklam-ve-premium-1.0.1.md (AdMob data, not linked, not tracking).
+- **App Privacy:** 1.0.0: Data Not Collected. 1.0.1 and later: see reklam-ve-premium-1.1.md (AdMob data, not linked, not tracking).
 - **Age rating:** No to everything except "Medical/Treatment Information": Infrequent/Mild (the app shows general wellbeing tips and cycle estimates).
 - **Export compliance (encryption):** The app uses standard encryption (AES-256-GCM) only to protect the user's own data on the device. Answer the questions together when App Store Connect asks; don't guess.
 - **EU (DSA) trader status:** not a trader for now (the app is free and earns nothing). **1.0.1 earns money (ads and Premium), so switch to trader before it ships**; Apple then shows the trader's address, phone and email on the EU store page.

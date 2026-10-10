@@ -12,12 +12,15 @@ import type { IconName } from '../theme/icons';
 const COPY = defineCopy({
   en: {
     title: 'Nilemy Premium',
-    heading: 'Support Nilemy, go ad-free',
-    intro: 'One purchase, yours for good. No subscription and no account.',
+    heading: 'Know your cycle better',
+    intro: 'One purchase, yours for good. No subscription.',
     perks: [
       ['ban', 'No ads', 'Every screen stays clean.'],
-      ['heart', 'Support Nilemy', 'Your purchase keeps Nilemy growing, with new features on the way.'],
-      ['shield-check', 'Same privacy', 'Your logs stay encrypted on this phone, with or without Premium.'],
+      ['chart-bars', 'Deeper insights', 'All-time trends, when your symptoms usually show up and a day-by-day map of mood, energy and pain.'],
+      ['file-text', 'Cycle summary PDF', 'A tidy record of your logs to keep or show your doctor, plus your year in review.'],
+      ['bell-ring', 'Smart reminders', 'A heads-up naming what you usually feel before your period, and your own daily reminders.'],
+      ['plus', 'Your own symptoms', 'Add as many symptoms as you like to your logs.'],
+      ['shield-check', 'Same privacy', 'Everything is worked out on this phone. Your logs stay encrypted here.'],
     ] as [IconName, string, string][],
     buy: (price: string | null) => (price ? `Get Premium · ${price}` : 'Get Premium'),
     restore: 'Restore purchase',
@@ -29,12 +32,15 @@ const COPY = defineCopy({
   },
   tr: {
     title: 'Nilemy Premium',
-    heading: 'Nilemy’yi destekle, reklamsız kullan',
-    intro: 'Tek seferlik satın alma, kalıcı olarak senin. Abonelik ya da hesap yok.',
+    heading: 'Döngünü daha iyi tanı',
+    intro: 'Tek seferlik satın alma, kalıcı olarak senin. Abonelik yok.',
     perks: [
       ['ban', 'Reklam yok', 'Hiçbir ekranda reklam görmezsin.'],
-      ['heart', 'Nilemy’yi destekle', 'Satın alman Nilemy’nin gelişmesine ve yeni özelliklere destek olur.'],
-      ['shield-check', 'Aynı gizlilik', 'Kayıtların Premium olsa da olmasa da bu telefonda şifreli kalır.'],
+      ['chart-bars', 'Daha derin analiz', 'Tüm zamanların eğilimleri, belirtilerinin genelde ne zaman başladığı ve ruh hali, enerji, ağrının gün gün haritası.'],
+      ['file-text', 'Döngü özeti PDF', 'Kayıtlarının düzenli bir dökümü; saklamak ya da doktoruna göstermek için. Yanında yıllık özetin.'],
+      ['bell-ring', 'Akıllı hatırlatıcılar', 'Adetinden önce genelde ne hissettiğini söyleyen bir uyarı ve kendi günlük hatırlatıcıların.'],
+      ['plus', 'Kendi belirtilerin', 'Kayıtlarına istediğin kadar belirti ekle.'],
+      ['shield-check', 'Aynı gizlilik', 'Her şey bu telefonda hesaplanır. Kayıtların burada şifreli kalır.'],
     ],
     buy: (price: string | null) => (price ? `Premium’u al · ${price}` : 'Premium’u al'),
     restore: 'Satın alımı geri yükle',
@@ -46,7 +52,8 @@ const COPY = defineCopy({
   },
 });
 
-// Premium: removes ads; later Premium-only features use <PremiumOnly>. One non-consumable purchase.
+// Premium: no ads, deeper insights, cycle summary PDF, smart reminders and custom symptoms.
+// One non-consumable purchase.
 export default function Premium() {
   const c = useCopy(COPY);
   const { premium, price } = usePremium();

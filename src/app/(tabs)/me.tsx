@@ -29,6 +29,7 @@ const COPY = defineCopy({
     lock: 'App lock',
     passcode: 'Passcode',
     language: 'Language',
+    appIcon: 'App icon',
     about: 'About',
     aboutApp: 'About Nilemy',
     privacy: 'Privacy policy',
@@ -52,6 +53,7 @@ const COPY = defineCopy({
     lock: 'Uygulama kilidi',
     passcode: 'Şifre',
     language: 'Dil',
+    appIcon: 'Uygulama ikonu',
     about: 'Hakkında',
     aboutApp: 'Nilemy hakkında',
     privacy: 'Gizlilik politikası',
@@ -125,6 +127,8 @@ export default function Me() {
             value={LANGUAGES.find((l) => l.id === lang)?.name}
             onPress={() => router.push('/settings/language')}
           />
+          <Divider inset={0} />
+          <ListRow title={c.appIcon} icon="smartphone" onPress={() => router.push('/settings/icon')} />
         </View>
 
         <SectionHeader title={c.about} />

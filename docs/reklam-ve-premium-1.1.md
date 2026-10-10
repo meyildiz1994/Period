@@ -1,6 +1,19 @@
-# 1.0.1: Reklam ve Premium yayın listesi
+# 1.1: Reklam ve Premium yayın listesi
 
-Uygulama ücretsiz kalıyor. Ücretsiz sürüm Ana sayfa, Geçmiş ve Analiz ekranlarının altında kişiselleştirilmemiş AdMob banner'ı gösterir (adet kaydı, günlük kayıt ve ayar ekranlarında reklam yok). **Nilemy Premium** tek seferlik bir satın alma (abonelik değil): 1.0.1'de reklamları kaldırır. Mevcut Analiz ekranı herkese açık kalır. İleride gelecek yeni analizler `<PremiumOnly>` bileşeniyle Premium'a özel yapılabilir. Mağaza metninde ve Premium ekranında henüz çıkmamış özellik vaat etme; Apple bunu reddedebilir (2.3.1 / 3.1.1). Yeni analiz çıktığında o sürümde Premium ekranına eklenir.
+Uygulama ücretsiz kalıyor.
+
+**Reklam kuralları**
+- Kişiselleştirilmemiş AdMob banner'ı yalnızca Ana sayfa, Geçmiş ve Analiz ekranlarının en altında çıkar. Adet kaydı, günlük kayıt ve ayar ekranlarında reklam yok.
+- Onboarding'den sonraki ilk 7 gün hiç reklam gösterilmez; reklam SDK'sı ve izin formu bile başlatılmaz. 1.0.0'dan güncelleyenler için bu 7 gün güncellemenin ilk açılışından itibaren sayılır.
+
+**Nilemy Premium** tek seferlik bir satın almadır (abonelik değil) ve şunları içerir:
+- Reklamsız kullanım
+- Analiz'de: tüm zamanlar (yıllara göre ortalamalar, olağan fark), belirti örüntüleri (en az 3 döngüde görülen), ruh hali / enerji / ağrı döngü haritası
+- Döngü özeti PDF'i (yorumsuz döküm, "tıbbi değerlendirme değildir" notuyla) ve paylaşılabilir yıllık özet görseli
+- Akıllı hatırlatıcılar: belirti uyarısı ve kullanıcının kendi günlük hatırlatıcıları
+- Günlük kayda sınırsız özel belirti ekleme
+
+Ücretsiz sürümde mevcut Analiz ekranı aynen kalır. Günlük kayda eklenen enerji alanı herkese açıktır.
 
 ## Yayından önce yapılması gerekenler
 
@@ -39,7 +52,7 @@ Uygulama ücretsiz kalıyor. Ücretsiz sürüm Ana sayfa, Geçmiş ve Analiz ekr
 
 ## Apple'a 1.0.1 inceleme notu (taslak)
 
-> Nilemy 1.0.1 adds two things. (1) The free version shows Google AdMob banner ads at the bottom of the Home, History and Insights screens. Only non-personalised ads are requested, no advertising identifier is used and the app does not track users, so there is no App Tracking Transparency prompt. Google's consent form (UMP) is shown first where required. No health data or user logs are ever passed to the ads SDK; logs remain encrypted on the device. (2) A non-consumable in-app purchase, "Nilemy Premium" (com.meyildiz.nilemy.premium), removes ads. It is available from Me › Nilemy Premium and from the "Remove ads" link above each banner; a Restore purchase button is on the same screen. The App Privacy section and Privacy Policy (https://nilemy.com/privacy) have been updated accordingly.
+> Nilemy 1.1 adds two things. (1) The free version shows Google AdMob banner ads at the bottom of the Home, History and Insights screens. Only non-personalised ads are requested, no advertising identifier is used and the app does not track users, so there is no App Tracking Transparency prompt. Google's consent form (UMP) is shown first where required. No health data or user logs are ever passed to the ads SDK; logs remain encrypted on the device. (2) A non-consumable in-app purchase, "Nilemy Premium" (com.meyildiz.nilemy.premium), removes ads and unlocks deeper insights (all-time trends, symptom patterns, a mood/energy/pain map), a cycle summary PDF, a year-in-review image, smart reminders and custom symptoms. All Premium features run on the device. It is available from Me › Nilemy Premium, from Insights and from the "Remove ads" link above each banner; a Restore purchase button is on the same screen. The App Privacy section and Privacy Policy (https://nilemy.com/privacy) have been updated accordingly.
 
 ## Test
 - Development build gerekiyor (`eas build --profile development` ya da `npx expo run:ios`); Expo Go'da reklam ve satın alma modülleri yok.
