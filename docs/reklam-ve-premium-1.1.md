@@ -23,7 +23,7 @@ Uygulama ücretsiz kalıyor.
 3. `app.json` içindeki `iosAppId` / `androidAppId` değerlerini (şu an Google'ın test kimlikleri) kendi uygulama kimliklerinle değiştir.
 4. `src/lib/ads.ts` içindeki `UNITS.ios` / `UNITS.android` değerlerini kendi banner birimi kimliklerinle değiştir.
 5. AdMob → Gizlilik ve mesajlaşma: **GDPR mesajı** oluştur ve yayınla (AB/BK/İsviçre için izin formu bu mesajdan gelir). İstersen ABD eyaletleri mesajını da aç.
-6. AdMob → Engelleme kontrolleri: hassas kategorileri (ör. kumar, alkol, flört, kilo verme) kapat; içerik derecesini en fazla **PG** bırak (kod da PG ile sınırlıyor).
+6. AdMob → Engelleme kontrolleri: hassas kategorileri (ör. kumar, alkol, flört, kilo verme) kapat; içerik derecesini en fazla **T (Teen)** yap (kod da T ile sınırlıyor).
 7. nilemy.com'a `app-ads.txt` ekle (AdMob kurulumda içeriğini verir).
 
 ### App Store Connect
