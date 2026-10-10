@@ -1,16 +1,16 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodOngoingPill, TodayRow, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodTodayCard, TodayRow, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
 import { defineCopy, useCopy, useWeekStart } from '../../i18n';
 import { useCommon } from '../../i18n/common';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
-import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
-import { latestPeriod, savePeriod, useLog } from '../../state/log';
+import { cycleStatus, ongoingPeriod, useCycleSettings, weekStrip } from '../../state/cycle';
+import { savePeriod, useLog } from '../../state/log';
 import { flush } from '../../state/persist';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, type } from '../../theme';
@@ -66,8 +66,6 @@ const COPY = defineCopy({
 // and home indicator) without scrolling. The ring is the focus; everything else is one card or one row.
 // The ScrollView only matters on shorter phones or with large text.
 const RING = 232;
-/** Days past the usual length that an unfinished period still offers "My period ended". */
-const ONGOING_GRACE = 5;
 export default function Home() {
   const c = useCopy(COPY);
   const common = useCommon();
@@ -83,9 +81,15 @@ export default function Home() {
   const status = cycleStatus(settings, today);
   const todayLog = logs[toISODate(today)];
   const openLog = () => router.push('/log/period');
-  const latest = latestPeriod(log);
-  const ongoing = status.kind === 'cycle' && latest && !latest.end && status.cycleDay <= profile.periodLength + ONGOING_GRACE ? latest : null;
-  const [endedStart, setEndedStart] = useState<string | null>(null);
+  const ongoing = status.kind === 'cycle' ? ongoingPeriod(log, settings, today) : null;
+  // The summary sheet opens after ending here, or when the "+" menu ended it (?ended=start).
+  const params = useLocalSearchParams<{ ended?: string }>();
+  const [endedHere, setEndedHere] = useState<string | null>(null);
+  const endedStart = endedHere ?? params.ended ?? null;
+  const setEndedStart = (start: string | null) => {
+    setEndedHere(start);
+    if (!start && params.ended) router.setParams({ ended: undefined });
+  };
   const ongoingStart = ongoing?.start;
   const endPeriod = () => {
     if (!ongoingStart) return;
@@ -160,7 +164,11 @@ export default function Home() {
         </View>
         <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
-        <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
+        {ongoing ? (
+          <PeriodTodayCard day={s.cycleDay} values={todayValues} onLog={() => router.push('/log/daily')} onEnd={endPeriod} />
+        ) : (
+          <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
+        )}
       </>
     );
   }
@@ -168,16 +176,10 @@ export default function Home() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <TopBar kind="Root" title={profile.name ? c.hi(profile.name) : c.hiThere} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
-      <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom + (ongoing ? 64 : 0) }]}>
+      <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom }]}>
         {body}
         <AdBanner />
       </ScrollView>
-      {/* Floats above the tab bar on the right, where the thumb rests. */}
-      {ongoing ? (
-        <View style={[styles.float, { bottom: bottom - 4 }]}>
-          <PeriodOngoingPill onEnd={endPeriod} />
-        </View>
-      ) : null}
       <PeriodEndSheet
         period={endedStart ? log.periods.find((p) => p.start === endedStart) ?? null : null}
         days={logs}
@@ -196,7 +198,6 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
-  float: { position: 'absolute', right: layout.gutter },
   content: { paddingHorizontal: layout.gutter, gap: 10 },
   ring: { alignItems: 'center', marginTop: 4, marginBottom: 4 },
   date: { marginTop: 8, color: color['text/secondary'] },

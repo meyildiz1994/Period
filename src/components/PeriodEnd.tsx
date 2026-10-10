@@ -1,13 +1,11 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { defineCopy, useCopy } from '../i18n';
 import { useCommon } from '../i18n/common';
-import { withTick } from '../lib/haptics';
 import { addDays, diffDays, formatMonthDay, formatMonthDayLong, fromISODate, toISODate } from '../lib/dates';
 import type { CycleSettings } from '../state/cycle';
 import type { DayLog, Period } from '../state/log';
-import { color, elevation, type } from '../theme';
+import { color, radius, type } from '../theme';
 import { Button } from './Button';
 import { Tag } from './Display';
 import { Icon } from './Icon';
@@ -16,7 +14,10 @@ import { BottomSheet } from './Sheet';
 const COPY = defineCopy({
   en: {
     ended: 'My period ended',
-    endedLabel: 'Mark my period as ended',
+    today: 'Today',
+    periodDay: (n: number) => `Day ${n} of your period`,
+    logToday: 'Log today',
+    edit: 'Edit',
     title: 'Period ended',
     lasted: (range: string, days: string) => `${range} · ${days}`,
     next: (date: string) => `Next one around ${date}`,
@@ -27,7 +28,10 @@ const COPY = defineCopy({
   },
   tr: {
     ended: 'Adetim bitti',
-    endedLabel: 'Adetimi bitti olarak işaretle',
+    today: 'Bugün',
+    periodDay: (n: number) => `Adetinin ${n}. günü`,
+    logToday: 'Bugünü kaydet',
+    edit: 'Düzenle',
     title: 'Adetin bitti',
     lasted: (range: string, days: string) => `${range} · ${days}`,
     next: (date: string) => `Sonraki adet ${date}`,
@@ -39,37 +43,38 @@ const COPY = defineCopy({
 });
 
 /**
- * While a logged period has no end yet (Home, floating bottom right): a pill the user checks off
- * like a to-do. The circle fills, then `onEnd` runs.
+ * Home's "today" card while a period is open: what was logged today, and the two things a user
+ * does on a period day, log today or mark the period as ended.
  */
-export function PeriodOngoingPill({ onEnd }: { onEnd: () => void }) {
+export function PeriodTodayCard({ day, values, onLog, onEnd }: { day: number; values: string[]; onLog: () => void; onEnd: () => void }) {
   const c = useCopy(COPY);
-  const [checked, setChecked] = useState(false);
-  const check = () => {
-    setChecked(true);
-    setTimeout(() => {
-      onEnd();
-      setChecked(false);
-    }, 350);
-  };
   return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityLabel={c.endedLabel}
-      accessibilityState={{ checked }}
-      disabled={checked}
-      onPress={withTick(check)}
-      hitSlop={8}
-      style={({ pressed }) => [styles.pill, elevation.brand, pressed && { opacity: 0.9 }]}
-    >
-      <View style={[styles.check, checked && styles.checked]}>
-        {checked ? <Icon name="check" size={14} color="text/brand" /> : null}
+    <View style={styles.card}>
+      <View style={styles.head}>
+        <View style={styles.badge}>
+          <Icon name="drop-fill" size={16} color="text/brand" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{c.today}</Text>
+          <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{c.periodDay(day)}</Text>
+        </View>
       </View>
-      <Text style={[type('Body/Default', 'SemiBold'), { color: color['text/on-brand'] }]}>{c.ended}</Text>
-    </Pressable>
+      {values.length ? (
+        <View style={styles.values}>
+          {values.slice(0, 4).map((v) => <Tag key={v} size="Small" label={v} />)}
+        </View>
+      ) : null}
+      <View style={styles.buttons}>
+        <View style={{ flex: 1 }}>
+          <Button label={values.length ? c.edit : c.logToday} type="Secondary" size="Medium" fullWidth onPress={onLog} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button label={c.ended} size="Medium" fullWidth onPress={onEnd} />
+        </View>
+      </View>
+    </View>
   );
 }
-
 
 /** Shown on Home right after "It ended": the period at a glance and the next estimate. */
 export function PeriodEndSheet({ period, days, settings, usualLength, onClose, onChangeEnd }: {
@@ -98,7 +103,7 @@ export function PeriodEndSheet({ period, days, settings, usualLength, onClose, o
   return (
     <BottomSheet visible title="" onClose={onClose}>
       <View style={styles.sheet}>
-        <View style={styles.badge}>
+        <View style={styles.bigBadge}>
           <Icon name="drop-fill" size={28} color="text/brand" />
         </View>
         <View style={styles.center}>
@@ -127,14 +132,13 @@ export function PeriodEndSheet({ period, days, settings, usualLength, onClose, o
 }
 
 const styles = StyleSheet.create({
-  pill: {
-    flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, paddingLeft: 16, paddingRight: 20,
-    borderRadius: 999, backgroundColor: color['surface/brand'],
-  },
-  check: { width: 22, height: 22, borderRadius: 999, borderWidth: 1.5, borderColor: color['text/on-brand'], alignItems: 'center', justifyContent: 'center' },
-  checked: { backgroundColor: color['surface/default'] },
+  card: { gap: 12, padding: 16, borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  badge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
+  values: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  buttons: { flexDirection: 'row', gap: 8 },
   sheet: { alignItems: 'center', gap: 16, marginTop: -24 },
-  badge: { width: 64, height: 64, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
+  bigBadge: { width: 64, height: 64, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   center: { alignItems: 'center', gap: 4 },
   text: { textAlign: 'center' },
   tags: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },

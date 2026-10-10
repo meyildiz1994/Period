@@ -5,8 +5,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BottomSheet, Icon, SheetOption, TabBar, type TabName } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
-import { formatShort, fromISODate } from '../../lib/dates';
-import { cycleStatus, useCycleSettings } from '../../state/cycle';
+import { formatShort, fromISODate, toISODate } from '../../lib/dates';
+import { cycleStatus, ongoingPeriod, useCycleSettings } from '../../state/cycle';
+import { savePeriod, useLog } from '../../state/log';
+import { flush } from '../../state/persist';
 import { color, type } from '../../theme';
 
 const ROUTES: Record<TabName, string> = { Home: 'home', History: 'history', Insights: 'insights', Me: 'me' };
@@ -16,6 +18,8 @@ const COPY = defineCopy({
     title: 'Log',
     period: 'Period',
     periodSub: 'Log a start or end date',
+    ended: 'My period ended',
+    endedSub: 'Mark today as the last day',
     daily: 'Daily log',
     dailySub: 'Flow, pain, mood, symptoms or a note',
     started: (date: string) => `Period started ${date}`,
@@ -26,6 +30,8 @@ const COPY = defineCopy({
     title: 'Kaydet',
     period: 'Adet',
     periodSub: 'Başlangıç ya da bitiş tarihi kaydet',
+    ended: 'Adetim bitti',
+    endedSub: 'Bugünü son gün olarak işaretle',
     daily: 'Günlük kayıt',
     dailySub: 'Akış, ağrı, ruh hali, belirtiler ya da not',
     started: (date: string) => `Adet başladı: ${date}`,
@@ -42,6 +48,15 @@ export default function TabsLayout() {
   const settings = useCycleSettings();
   const status = cycleStatus(settings, new Date());
   const inPeriod = status.kind === 'cycle' && status.periodDay !== null;
+  const ongoing = ongoingPeriod(useLog(), settings, new Date());
+  // Ends the open period today and shows its summary on Home.
+  const endPeriod = () => {
+    if (!ongoing) return;
+    setLogOpen(false);
+    savePeriod({ start: ongoing.start, end: toISODate(new Date()) }, ongoing.start);
+    flush().catch((e) => console.warn('Nilemy: saving failed', e));
+    router.navigate({ pathname: '/home', params: { ended: ongoing.start } });
+  };
   const go = (path: '/log/period' | '/log/daily') => {
     setLogOpen(false);
     router.push(path);
@@ -73,7 +88,8 @@ export default function TabsLayout() {
 
     {/* C1 Quick Log */}
     <BottomSheet visible={logOpen} title={c.title} onClose={() => setLogOpen(false)}>
-      <SheetOption icon="drop" brand title={c.period} subtitle={c.periodSub} onPress={() => go('/log/period')} />
+      {ongoing ? <SheetOption icon="check" brand title={c.ended} subtitle={c.endedSub} onPress={endPeriod} /> : null}
+      <SheetOption icon="drop" brand={!ongoing} title={c.period} subtitle={c.periodSub} onPress={() => go('/log/period')} />
       <SheetOption icon="notes" title={c.daily} subtitle={c.dailySub} onPress={() => go('/log/daily')} />
       {settings.lastPeriodStart ? (
         <View style={styles.footer}>

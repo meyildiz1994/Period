@@ -126,3 +126,14 @@ export function weekStrip(s: CycleSettings, today: Date, weekStartsOn: 0 | 1 = 0
     return { date, state: 'Default' };
   });
 }
+
+/** Days past the usual length that an unfinished period still counts as ongoing on Home. */
+const ONGOING_GRACE = 5;
+
+/** The latest period while it has no end yet (and hasn't run implausibly long), else null. */
+export function ongoingPeriod(log: LogState, s: CycleSettings, today: Date) {
+  const latest = latestPeriod(log);
+  if (!latest || latest.end) return null;
+  const day = diffDays(fromISODate(latest.start), today) + 1;
+  return day >= 1 && day <= s.periodLength + ONGOING_GRACE ? latest : null;
+}
