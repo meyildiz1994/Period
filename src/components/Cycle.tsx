@@ -29,6 +29,9 @@ const PHASE_COLOR: Record<Phase, { arc: ColorToken; track: ColorToken; drop: Col
   Empty: { arc: 'surface/strong', track: 'surface/strong', drop: 'surface/neutral', day: 'text/accent' },
 };
 
+/** Arc and track colours of a phase's ring, for pieces that sit beside it. */
+export const phaseTone = (phase: Phase) => ({ ink: PHASE_COLOR[phase].arc, soft: PHASE_COLOR[phase].track });
+
 type CycleRingProps = {
   phase: Phase;
   /** 0–1 progress through the cycle. Ignored for Empty; Late draws a full ring. */

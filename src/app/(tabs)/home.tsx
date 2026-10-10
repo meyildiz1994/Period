@@ -147,7 +147,7 @@ export default function Home() {
             label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
             day={common.day(s.cycleDay)}
           />
-          {s.fertile ? <FertileBadge fertile={s.fertile} /> : null}
+          {s.fertile ? <FertileBadge fertile={s.fertile} phase={s.phase} /> : null}
         </View>
         <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />

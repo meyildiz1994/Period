@@ -7,7 +7,7 @@ import { formatLong, weekdayInitial } from '../lib/dates';
 import type { Fertile, StripDay } from '../state/cycle';
 import { color, overline, radius, type } from '../theme';
 import type { IconName } from '../theme/icons';
-import { DayCell } from './Cycle';
+import { DayCell, phaseTone, type Phase } from './Cycle';
 import { Skeleton } from './Display';
 import { Icon } from './Icon';
 
@@ -168,7 +168,8 @@ export function TipCard({ heading, text }: { heading: string; text: string }) {
  * A little smiling flower beside the ring (in the empty top-right corner, never over it) while
  * today is in the estimated fertile window. Pops in, then sways gently; still with Reduce Motion.
  */
-export function FertileBadge({ fertile }: { fertile: Exclude<Fertile, null> }) {
+/** `phase` is the ring's phase today; the flower takes the ring's colours. */
+export function FertileBadge({ fertile, phase }: { fertile: Exclude<Fertile, null>; phase: Phase }) {
   const c = useCopy(COPY);
   const [pop] = useState(() => new Animated.Value(0));
   const [sway] = useState(() => new Animated.Value(0));
@@ -194,16 +195,17 @@ export function FertileBadge({ fertile }: { fertile: Exclude<Fertile, null> }) {
   return (
     <View style={styles.buddy} accessible accessibilityLabel={`${label}${c.estimate}`}>
       <Animated.View style={{ opacity: pop, transform: [{ translateY: lift }, { scale }, { rotate }] }}>
-        <FlowerBuddy size={48} sparkles={fertile === 'ovulation' ? 2 : 1} />
+        <FlowerBuddy size={48} sparkles={fertile === 'ovulation' ? 2 : 1} phase={phase} />
       </Animated.View>
-      <Animated.Text numberOfLines={2} style={[type('Caption', 'SemiBold'), styles.buddyText, { opacity: pop }]}>{label}</Animated.Text>
+      <Animated.Text numberOfLines={2} style={[type('Caption', 'SemiBold'), styles.buddyText, { color: color[phaseTone(phase).ink], opacity: pop }]}>{label}</Animated.Text>
     </View>
   );
 }
 
 /** Six lilac petals around a white face with dot eyes, rosy cheeks and a small smile. */
-function FlowerBuddy({ size, sparkles }: { size: number; sparkles: 1 | 2 }) {
-  const ink = color['phase/ovulation'];
+function FlowerBuddy({ size, sparkles, phase }: { size: number; sparkles: 1 | 2; phase: Phase }) {
+  const tone = phaseTone(phase);
+  const ink = color[tone.ink];
   const petals = [0, 1, 2, 3, 4, 5].map((i) => {
     const a = (i * Math.PI) / 3 - Math.PI / 2;
     return { x: 30 + 15 * Math.cos(a), y: 31 + 15 * Math.sin(a) };
@@ -214,7 +216,7 @@ function FlowerBuddy({ size, sparkles }: { size: number; sparkles: 1 | 2 }) {
     <Svg width={size} height={size} viewBox="0 0 60 60">
       {/* Outline layer first, fill on top: one soft outer edge instead of overlapping rings. */}
       {petals.map((p, i) => <Circle key={`o${i}`} cx={p.x} cy={p.y} r={10.5} fill={ink} stroke={ink} strokeWidth={3.2} />)}
-      {petals.map((p, i) => <Circle key={`f${i}`} cx={p.x} cy={p.y} r={10.5} fill={color['phase/ovulation-track']} />)}
+      {petals.map((p, i) => <Circle key={`f${i}`} cx={p.x} cy={p.y} r={10.5} fill={color[tone.soft]} />)}
       <Circle cx={30} cy={31} r={13} fill={color['surface/default']} stroke={ink} strokeWidth={1.6} />
       <Circle cx={25.2} cy={29.5} r={1.9} fill={ink} />
       <Circle cx={34.8} cy={29.5} r={1.9} fill={ink} />
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
   tip: { height: 76, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, borderRadius: radius.xl, backgroundColor: color['surface/subtle'], borderWidth: 1, borderColor: color['border/subtle'] },
   // In the corner of the full-width ring row, outside the 232 pt ring, so it stays narrow.
   buddy: { position: 'absolute', top: -6, right: -6, width: 80, alignItems: 'center', gap: 2 },
-  buddyText: { color: color['phase/ovulation'], textAlign: 'center', lineHeight: 15 },
+  buddyText: { textAlign: 'center', lineHeight: 15 },
   tipBadge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   skeleton: { alignItems: 'center', gap: 16 },
   skeletonBlocks: { alignSelf: 'stretch', gap: 12 },
