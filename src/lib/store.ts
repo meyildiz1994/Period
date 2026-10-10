@@ -14,8 +14,8 @@ import {
 import { getPremium, setPremium } from '../state/premium';
 
 // Nilemy Premium: one non-consumable in-app purchase through the App Store / Google Play
-// (StoreKit / Play Billing, no third-party service). It removes ads and opens the detailed
-// insights. The store remembers it, so it is read back at every launch and with Restore.
+// (StoreKit / Play Billing, no third-party service). It removes ads, and new features can be
+// kept for Premium with <PremiumOnly>. The store remembers it, so it is read back at every launch and with Restore.
 export const PREMIUM_SKU = 'com.meyildiz.nilemy.premium';
 
 const owns = (purchases: Purchase[]) => purchases.some((p) => p.productId === PREMIUM_SKU && p.purchaseState !== 'pending');

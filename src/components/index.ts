@@ -20,3 +20,4 @@ export * from './ReminderTiming';
 export * from './Sheet';
 export * from './ScrollLock';
 export * from './AdBanner';
+export * from './PremiumOnly';

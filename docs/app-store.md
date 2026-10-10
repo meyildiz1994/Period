@@ -55,7 +55,7 @@ GİZLİLİK ÖNCE GELİR
 • Verilerini istediğin zaman dışa aktar (CSV/JSON) ya da tamamen sil
 
 NILEMY PREMIUM
-Tek seferlik satın alma ile reklamları kaldır ve detaylı analizi aç: döngü aralığı, döngü süresi grafiği ve en sık belirtilerin. Abonelik yok.
+Tek seferlik satın alma ile reklamları kaldır ve Nilemy'yi destekle. Abonelik yok.
 
 Türkçe ve İngilizce kullanılabilir.
 
@@ -99,7 +99,7 @@ PRIVACY FIRST
 • Export your data (CSV/JSON) or delete everything at any time
 
 NILEMY PREMIUM
-A one-time purchase removes ads and opens detailed insights: cycle range, a cycle length chart and your most common symptoms. No subscription.
+A one-time purchase removes ads and supports Nilemy. No subscription.
 
 Available in English and Turkish.
 

@@ -16,7 +16,7 @@ const COPY = defineCopy({
     intro: 'One purchase, yours for good. No subscription and no account.',
     perks: [
       ['ban', 'No ads', 'Every screen stays clean.'],
-      ['chart-bars', 'Detailed insights', 'Cycle length chart, cycle range, logged cycles and your most common symptoms.'],
+      ['heart', 'Support Nilemy', 'Your purchase keeps Nilemy growing, with new features on the way.'],
       ['shield-check', 'Same privacy', 'Your logs stay encrypted on this phone, with or without Premium.'],
     ] as [IconName, string, string][],
     buy: (price: string | null) => (price ? `Get Premium · ${price}` : 'Get Premium'),
@@ -33,7 +33,7 @@ const COPY = defineCopy({
     intro: 'Tek seferlik satın alma, kalıcı olarak senin. Abonelik ya da hesap yok.',
     perks: [
       ['ban', 'Reklam yok', 'Hiçbir ekranda reklam görmezsin.'],
-      ['chart-bars', 'Detaylı analiz', 'Döngü süresi grafiği, döngü aralığı, kaydedilen döngüler ve en sık belirtilerin.'],
+      ['heart', 'Nilemy’yi destekle', 'Satın alman Nilemy’nin gelişmesine ve yeni özelliklere destek olur.'],
       ['shield-check', 'Aynı gizlilik', 'Kayıtların Premium olsa da olmasa da bu telefonda şifreli kalır.'],
     ],
     buy: (price: string | null) => (price ? `Premium’u al · ${price}` : 'Premium’u al'),
@@ -46,7 +46,7 @@ const COPY = defineCopy({
   },
 });
 
-// Premium: removes ads and opens the detailed insights. One non-consumable purchase.
+// Premium: removes ads; later Premium-only features use <PremiumOnly>. One non-consumable purchase.
 export default function Premium() {
   const c = useCopy(COPY);
   const { premium, price } = usePremium();
