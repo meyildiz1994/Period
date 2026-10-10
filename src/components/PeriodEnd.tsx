@@ -60,12 +60,12 @@ export function PeriodTodayCard({ day, usual, values, onLog }: { day: number; us
           <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{c.today}</Text>
           <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{day > usual ? c.longerThanUsual(day, usual) : c.periodDay(day)}</Text>
         </View>
+        {values.length ? (
+          <View style={styles.values}>
+            {values.slice(0, 2).map((v) => <Tag key={v} size="Small" label={v} />)}
+          </View>
+        ) : null}
       </View>
-      {values.length ? (
-        <View style={styles.values}>
-          {values.slice(0, 4).map((v) => <Tag key={v} size="Small" label={v} />)}
-        </View>
-      ) : null}
       <Button label={values.length ? c.edit : c.logToday} iconLeft={values.length ? 'pencil' : 'plus'} size="Medium" fullWidth onPress={onLog} />
     </View>
   );
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   card: { gap: 12, padding: 16, borderRadius: radius.xl, borderWidth: 1, borderColor: color['border/subtle'], backgroundColor: color['surface/default'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   badge: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
-  values: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  values: { flexDirection: 'row', flexShrink: 1, justifyContent: 'flex-end', gap: 6 },
   sheet: { alignItems: 'center', gap: 16, marginTop: -24 },
   bigBadge: { width: 64, height: 64, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: color['surface/muted'] },
   center: { alignItems: 'center', gap: 4 },
