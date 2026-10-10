@@ -4,7 +4,9 @@ import { Platform } from 'react-native';
 
 import { defineCopy, getCopy } from '../i18n';
 import { cycleSettings } from '../state/cycle';
+import { getCommon } from '../i18n/common';
 import { pastCycles } from '../state/history';
+import { beforePeriodSymptoms } from '../state/patterns';
 import { latestPeriod, getLog, subscribeLog } from '../state/log';
 import { getOnboarding, subscribeOnboarding } from '../state/onboarding';
 import { addDays, fromISODate } from './dates';
@@ -26,6 +28,8 @@ const COPY = defineCopy({
     logIt: 'Log it in Nilemy when it starts.',
     past: 'Your period is 2 days past the estimate',
     shift: 'Cycles often shift a little. Log it whenever it starts.',
+    pattern: (days: number) => (days === 1 ? 'Your period may start tomorrow' : `Your period may start in ${days} days`),
+    usually: (list: string) => `Around this time you often log: ${list}.`,
   },
   tr: {
     channel: 'Adet hatırlatıcıları',
@@ -37,6 +41,8 @@ const COPY = defineCopy({
     logIt: 'Başladığında Nilemy’de kaydet.',
     past: 'Tahmini tarihin üzerinden 2 gün geçti',
     shift: 'Döngüler sık sık biraz kayar. Ne zaman başlarsa kaydet.',
+    pattern: (days: number) => (days === 1 ? 'Adetin yarın başlayabilir' : `Adetin ${days} gün içinde başlayabilir`),
+    usually: (list: string) => `Bu dönemde genelde şunları kaydediyorsun: ${list}.`,
   },
 });
 
@@ -89,7 +95,20 @@ export async function rescheduleReminders() {
   const { reminder, periodLength } = onboarding;
   const log = getLog();
   const latest = latestPeriod(log);
-  if (!reminder.enabled || !latest || (await notificationAccess()) !== 'granted') return;
+  if ((await notificationAccess()) !== 'granted') return;
+  await ensureChannel();
+
+  // Premium: the user's own daily reminders (vitamins, medication…). Kept even if Premium can't
+  // be confirmed at launch (offline), so a reminder someone relies on never silently stops.
+  for (const r of onboarding.customReminders) {
+    if (!r.enabled) continue;
+    const [hour, minute] = r.time.split(':').map(Number);
+    await Notifications.scheduleNotificationAsync({
+      content: { title: r.title, data: { url: '/home' } },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour, minute, channelId: CHANNEL },
+    });
+  }
+  if (!reminder.enabled || !latest) return;
 
   // Irregular cycles: remind before the earliest expected day, count "late" from the latest.
   const { window } = cycleSettings(onboarding, log);
@@ -108,8 +127,25 @@ export async function rescheduleReminders() {
     { when: at(expected, reminder.time), title: window.min === window.max ? c.today : c.anyDay, body: c.logIt, url: '/log/period' },
     { when: at(addDays(latestExpected, 2), reminder.time), title: c.past, body: c.shift, url: '/home' },
   ];
+  // Premium: a heads-up naming what the user usually logs before a period, if there's a pattern.
+  if (onboarding.patternReminder) {
+    const before = beforePeriodSymptoms(pastCycles(log.periods, periodLength), log.days);
+    if (before.length) {
+      const lead2 = Math.min(7, Math.max(...before.map((p) => p.days)));
+      const common = getCommon();
+      if (lead2 !== lead) {
+        messages.push({
+          when: at(addDays(expected, -lead2), reminder.time),
+          title: c.pattern(lead2),
+          body: c.usually(before.slice(0, 3).map((p) => (common.symptom[p.name] ?? p.name).toLocaleLowerCase()).join(', ')),
+          url: '/home',
+        });
+      } else {
+        messages[0].body = c.usually(before.slice(0, 3).map((p) => (common.symptom[p.name] ?? p.name).toLocaleLowerCase()).join(', '));
+      }
+    }
+  }
   const now = Date.now();
-  await ensureChannel();
   for (const m of messages) {
     if (m.when.getTime() <= now) continue;
     await Notifications.scheduleNotificationAsync({

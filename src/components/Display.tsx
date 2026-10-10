@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Image, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { usePhoto } from '../state/photo';
 import { color, elevation, radius, type, type ColorToken } from '../theme';
 import type { IconName } from '../theme/icons';
 import { Toggle } from './Controls';
@@ -57,10 +58,13 @@ export function IconBadge({ icon, tone = 'Subtle', size = 40 }: { icon: IconName
 }
 
 // Figma: Avatar (Size × Type). Initial when a name exists, Icon before onboarding.
+/** The user's avatar: their profile photo if they added one, else the initial of their name. */
 export function Avatar({ name, size = 'Medium' }: { name?: string; size?: 'Small' | 'Medium' | 'Large' }) {
+  const photo = usePhoto();
   const s = { Small: 32, Medium: 40, Large: 96 }[size];
   const initial = name?.trim()[0]?.toUpperCase();
   const fs = s >= 96 ? 40 : s >= 40 ? 16 : 14;
+  if (photo) return <Image source={{ uri: photo }} accessibilityIgnoresInvertColors style={{ width: s, height: s, borderRadius: 999, backgroundColor: color['surface/strong'] }} />;
   return (
     <View style={[styles.center, { width: s, height: s, borderRadius: 999, backgroundColor: color[initial ? 'surface/brand' : 'surface/strong'] }]}>
       {initial ? (
@@ -129,7 +133,8 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
 }
 
 // Figma: Stat Tile. Single metric with unit, used in a 2-column grid.
-export function StatTile({ label, value, unit, icon = 'calendar' }: { label: string; value: string; unit?: string; icon?: IconName }) {
+/** `badge` is a small reassuring tag beside the value, such as "Normal". */
+export function StatTile({ label, value, unit, icon = 'calendar', badge }: { label: string; value: string; unit?: string; icon?: IconName; badge?: string }) {
   return (
     <View style={styles.stat}>
       <View style={styles.statHead}>
@@ -139,6 +144,12 @@ export function StatTile({ label, value, unit, icon = 'calendar' }: { label: str
       <View style={styles.baseline}>
         <Text style={[type('Title/Small', 'SemiBold'), { color: color['text/primary'] }]}>{value}</Text>
         {unit ? <Text style={[type('Caption'), { color: color['text/secondary'] }]}>{unit}</Text> : null}
+        {badge ? (
+          <View style={styles.statBadge}>
+            <Icon name="check" size={12} color="feedback/success" />
+            <Text numberOfLines={1} style={[type('Caption', 'SemiBold'), { color: color['feedback/success'] }]}>{badge}</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -171,4 +182,5 @@ const styles = StyleSheet.create({
   stat: { flex: 1, padding: 16, gap: 8, borderRadius: 16, backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'] },
   statHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
   baseline: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
+  statBadge: { marginLeft: 'auto', alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999, backgroundColor: color['feedback/success-subtle'] },
 });

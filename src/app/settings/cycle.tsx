@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Banner, Button, CYCLE_RANGE, Divider, LengthRow, ListRow, Page, PERIOD_RANGE } from '../../components';
-import { defineCopy, useCopy } from '../../i18n';
+import { defineCopy, useCopy, useLang } from '../../i18n';
 import { pastCycles } from '../../state/history';
 import { insights } from '../../state/insights';
 import { getLog } from '../../state/log';
@@ -50,6 +50,7 @@ const COPY = defineCopy({
 // G2 Cycle settings. Edits a draft; Save changes applies it.
 export default function CycleSettings() {
   const c = useCopy(COPY);
+  const lang = useLang();
   const [draft, setDraft] = useState(() => {
     const s = getOnboarding();
     return { cycleLength: s.cycleLength, periodLength: s.periodLength, showPredicted: s.showPredicted, weekStartsOn: s.weekStartsOn };
@@ -104,14 +105,15 @@ export default function CycleSettings() {
           toggled={draft.showPredicted}
           onToggle={(v) => patch({ showPredicted: v })}
         />
-        <Divider inset={0} />
-        <ListRow
+        {/* Turkish weeks always start on Monday (useWeekStart), so the choice is English only. */}
+        {lang === 'tr' ? null : <Divider inset={0} />}
+        {lang === 'tr' ? null : <ListRow
           title={c.weekStart}
           icon="calendar-grid"
           trailing="Value"
           value={draft.weekStartsOn === 0 ? c.sunday : c.monday}
           onPress={() => patch({ weekStartsOn: draft.weekStartsOn === 0 ? 1 : 0 })}
-        />
+        />}
       </View>
 
       <Banner message={c.note} />

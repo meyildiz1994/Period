@@ -18,7 +18,7 @@ function rows(periods: Period[], days: Record<string, DayLog>, inc: ExportInclud
     for (const date of Object.keys(days).sort()) {
       const d = days[date];
       const row: Record<string, string> = { type: 'day', date };
-      if (inc.days) Object.assign(row, { flow: d.flow ?? '', pain: d.pain ?? '', mood: d.mood ?? '', symptoms: d.symptoms.join('; ') });
+      if (inc.days) Object.assign(row, { flow: d.flow ?? '', pain: d.pain ?? '', mood: d.mood ?? '', energy: d.energy ?? '', symptoms: d.symptoms.join('; ') });
       if (inc.notes) row.note = d.note;
       if (inc.days || d.note) out.push(row);
     }
@@ -26,7 +26,7 @@ function rows(periods: Period[], days: Record<string, DayLog>, inc: ExportInclud
   return out;
 }
 
-const COLUMNS = ['type', 'date', 'end', 'flow', 'pain', 'mood', 'symptoms', 'note'];
+const COLUMNS = ['type', 'date', 'end', 'flow', 'pain', 'mood', 'energy', 'symptoms', 'note'];
 // A leading = + - @ (or tab/CR) would run as a formula when the CSV is opened in a spreadsheet;
 // a leading apostrophe keeps it as text.
 const safe = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);

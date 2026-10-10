@@ -1,23 +1,39 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar, Button, Divider, Icon, ListRow, SectionHeader, TopBar, useTabBarSpace } from '../../components';
 import { defineCopy, LANGUAGES, useCopy, useLang } from '../../i18n';
 import { useCommon } from '../../i18n/common';
+import { accountsAvailable } from '../../lib/account';
+import { showAdChoices } from '../../lib/ads';
 import { APP_VERSION } from '../../lib/app';
+import { pickPhoto, removePhoto } from '../../lib/photo';
 import { biometricName, useBiometricKind } from '../../lib/biometrics';
+import { useAccount } from '../../state/account';
 import { resetLock, useLock } from '../../state/lock';
 import { resetLog } from '../../state/log';
 import { resetOnboarding, useOnboarding } from '../../state/onboarding';
+import { usePhoto } from '../../state/photo';
+import { usePremium } from '../../state/premium';
 import { color, layout, radius, type } from '../../theme';
 
 const COPY = defineCopy({
   en: {
     title: 'Me',
     saved: 'Saved on this device',
+    backedUp: 'Backed up, end-to-end encrypted',
+    backUp: 'Back up with an account',
+    account: 'Account',
+    accountOn: 'On',
+    accountNeeds: 'Needs password',
     editName: 'Change your name',
     addName: 'Add your name',
+    addPhoto: 'Add a profile photo',
+    changePhoto: 'Change your profile photo',
+    removePhoto: 'Remove photo',
+    photoFailed: 'That photo couldn’t be added. Try another one.',
     settings: 'Settings',
     cycle: 'Cycle settings',
     cycleSub: 'Cycle and period length',
@@ -27,16 +43,30 @@ const COPY = defineCopy({
     lock: 'App lock',
     passcode: 'Passcode',
     language: 'Language',
+    appIcon: 'App icon',
     about: 'About',
     aboutApp: 'About Nilemy',
     privacy: 'Privacy policy',
     terms: 'Terms of service',
+    premium: 'Nilemy Premium',
+    premiumOn: 'Active',
+    premiumOff: 'Remove ads',
+    adChoices: 'Ad privacy choices',
   },
   tr: {
     title: 'Ben',
     saved: 'Bu cihazda kayıtlı',
+    backedUp: 'Uçtan uca şifreli yedekleniyor',
+    backUp: 'Hesapla yedekle',
+    account: 'Hesap',
+    accountOn: 'Açık',
+    accountNeeds: 'Parola gerekli',
     editName: 'Adını değiştir',
     addName: 'Adını ekle',
+    addPhoto: 'Profil fotoğrafı ekle',
+    changePhoto: 'Profil fotoğrafını değiştir',
+    removePhoto: 'Fotoğrafı kaldır',
+    photoFailed: 'Bu fotoğraf eklenemedi. Başka bir tane dene.',
     settings: 'Ayarlar',
     cycle: 'Döngü ayarları',
     cycleSub: 'Döngü ve adet süresi',
@@ -46,39 +76,87 @@ const COPY = defineCopy({
     lock: 'Uygulama kilidi',
     passcode: 'Şifre',
     language: 'Dil',
+    appIcon: 'Uygulama ikonu',
     about: 'Hakkında',
     aboutApp: 'Nilemy hakkında',
     privacy: 'Gizlilik politikası',
     terms: 'Kullanım koşulları',
+    premium: 'Nilemy Premium',
+    premiumOn: 'Etkin',
+    premiumOff: 'Reklamları kaldır',
+    adChoices: 'Reklam gizlilik seçenekleri',
   },
 });
 
-// G1 Me. v1 has no accounts, so the design's "Back up with an account" button is left out.
+// G1 Me. "Back up with an account" opens the optional account (1.2); once signed in, the Account row.
 export default function Me() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const { name, reminder } = useOnboarding();
   const lock = useLock();
+  const { premium, adChoicesRequired } = usePremium();
+  const account = useAccount();
+  const signedIn = account.status !== 'off';
   const kind = useBiometricKind();
   const c = useCopy(COPY);
   const common = useCommon();
   const lang = useLang();
   const biometric = kind ? biometricName(kind) : null;
+  const photo = usePhoto();
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  const choosePhoto = () => {
+    setPhotoFailed(false);
+    pickPhoto().catch((e) => {
+      console.warn('Nilemy: profile photo failed', e);
+      setPhotoFailed(true);
+    });
+  };
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <TopBar kind="Root" title={c.title} userName={name ?? undefined} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottom }]} showsVerticalScrollIndicator={false}>
         <View style={styles.profile}>
-          <Avatar name={name ?? undefined} size="Large" />
+          <Pressable accessibilityRole="button" accessibilityLabel={photo ? c.changePhoto : c.addPhoto} onPress={choosePhoto} hitSlop={4}>
+            <Avatar name={name ?? undefined} size="Large" />
+            <View style={styles.camera}>
+              <Icon name="camera" size={16} color="text/brand" />
+            </View>
+          </Pressable>
+          {photo ? (
+            <Text accessibilityRole="button" onPress={() => removePhoto().catch(() => {})} style={[type('Body/Small', 'SemiBold'), { color: color['text/brand'] }]}>
+              {c.removePhoto}
+            </Text>
+          ) : null}
+          {photoFailed ? <Text style={[type('Body/Small'), { color: color['feedback/danger'], textAlign: 'center' }]}>{c.photoFailed}</Text> : null}
           <Pressable accessibilityRole="button" accessibilityLabel={c.editName} onPress={() => router.push('/settings/name')} hitSlop={8} style={styles.name}>
             <Text style={[type('Headline', 'SemiBold'), { color: color['text/primary'] }]}>{name || c.addName}</Text>
             <Icon name="pencil" size={16} color="text/brand" />
           </Pressable>
           <View style={styles.pill}>
             <View style={styles.dot} />
-            <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{c.saved}</Text>
+            <Text style={[type('Body/Small', 'Medium'), { color: color['text/primary'] }]}>{account.status === 'on' ? c.backedUp : c.saved}</Text>
           </View>
+          {accountsAvailable && account.ready && !signedIn ? (
+            <Button label={c.backUp} size="Medium" iconLeft="refresh" onPress={() => router.push('/account')} />
+          ) : null}
+        </View>
+
+        <View style={styles.list}>
+          {signedIn ? (
+            <>
+              <ListRow title={c.account} icon="user-circle" trailing="Value" value={account.status === 'on' ? c.accountOn : c.accountNeeds} onPress={() => router.push('/account/manage')} />
+              <Divider inset={0} />
+            </>
+          ) : null}
+          <ListRow title={c.premium} icon="sparkles" trailing="Value" value={premium ? c.premiumOn : c.premiumOff} onPress={() => router.push('/premium')} />
+          {!premium && adChoicesRequired ? (
+            <>
+              <Divider inset={0} />
+              <ListRow title={c.adChoices} icon="sliders" onPress={() => showAdChoices().catch(() => {})} />
+            </>
+          ) : null}
         </View>
 
         <SectionHeader title={c.settings} />
@@ -104,6 +182,8 @@ export default function Me() {
             value={LANGUAGES.find((l) => l.id === lang)?.name}
             onPress={() => router.push('/settings/language')}
           />
+          <Divider inset={0} />
+          <ListRow title={c.appIcon} icon="smartphone" onPress={() => router.push('/settings/icon')} />
         </View>
 
         <SectionHeader title={c.about} />
@@ -142,6 +222,10 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color['bg/canvas'] },
   content: { paddingHorizontal: layout.gutter, gap: 12 },
   name: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  camera: {
+    position: 'absolute', right: -2, bottom: -2, width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: color['surface/default'], borderWidth: 1, borderColor: color['border/subtle'],
+  },
   profile: { alignItems: 'center', gap: 12, paddingVertical: 24, paddingHorizontal: 20, borderRadius: radius.xl, backgroundColor: color['surface/muted'] },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: color['surface/default'] },
   dot: { width: 6, height: 6, borderRadius: 999, backgroundColor: color['text/primary'] },

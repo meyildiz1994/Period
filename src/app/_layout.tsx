@@ -5,6 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { LockGate } from '../components';
+import { startAccount } from '../lib/account';
+import { startAds } from '../lib/ads';
+import { useLock } from '../state/lock';
+import { useOnboarding } from '../state/onboarding';
 import { hydrate } from '../state/persist';
 import { color, fontAssets } from '../theme';
 
@@ -14,6 +18,18 @@ export default function RootLayout() {
   useEffect(() => {
     hydrate();
   }, []);
+  // Free version: ad consent and ads start once onboarding is done and the app is unlocked, so
+  // Google's consent form never covers onboarding or the lock screen.
+  const { hydrated, done } = useOnboarding();
+  const lock = useLock();
+  const ready = hydrated && done && !(lock.enabled && lock.locked);
+  useEffect(() => {
+    if (ready) startAds();
+  }, [ready]);
+  // Optional account (1.2): resumes syncing once saved data is loaded. Loads nothing without one.
+  useEffect(() => {
+    if (hydrated) startAccount();
+  }, [hydrated]);
   if (!loaded) return null;
 
   return (

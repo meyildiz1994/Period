@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Icon, ListRow, Page } from '../../components';
+import { Divider, Icon, ListRow, Page } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
+import { accountsAvailable } from '../../lib/account';
+import { useAccount } from '../../state/account';
 import { useLog } from '../../state/log';
 import { color, radius, type } from '../../theme';
 
@@ -16,6 +18,12 @@ const COPY = defineCopy({
     keepCopy: 'Keep a copy',
     export: 'Export data',
     exportSub: 'Download a CSV or JSON file',
+    backup: 'Account backup',
+    backupSub: 'Restore on a new phone',
+    on: 'On',
+    off: 'Off',
+    deleteAccount: 'Delete account',
+    deleteAccountSub: 'Removes your backup and account',
     delete: 'Delete',
     deleteAll: 'Delete all data',
     deleteSub: 'Removes every log from this phone',
@@ -27,16 +35,24 @@ const COPY = defineCopy({
     keepCopy: 'Bir kopya sakla',
     export: 'Verileri dışa aktar',
     exportSub: 'CSV ya da JSON dosyası indir',
+    backup: 'Hesap yedeği',
+    backupSub: 'Yeni bir telefonda geri yükle',
+    on: 'Açık',
+    off: 'Kapalı',
+    deleteAccount: 'Hesabı sil',
+    deleteAccountSub: 'Yedeğini ve hesabını siler',
     delete: 'Sil',
     deleteAll: 'Tüm verileri sil',
     deleteSub: 'Bu telefondaki tüm kayıtları siler',
   },
 });
 
-// H1 Your data. v1 has no accounts, so Account backup and Delete account are left out.
+// H1 Your data, with Account backup and Delete account once accounts exist (1.2).
 export default function YourData() {
   const c = useCopy(COPY);
   const { periods, days } = useLog();
+  const account = useAccount();
+  const signedIn = account.status !== 'off';
   const logged = Object.keys(days).length;
 
   return (
@@ -56,11 +72,30 @@ export default function YourData() {
       <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{c.keepCopy}</Text>
       <View style={styles.card}>
         <ListRow title={c.export} subtitle={c.exportSub} icon="download" onPress={() => router.push('/data/export')} />
+        {accountsAvailable ? (
+          <>
+            <Divider inset={0} />
+            <ListRow
+              title={c.backup}
+              subtitle={c.backupSub}
+              icon="refresh"
+              trailing="Value"
+              value={account.status === 'on' ? c.on : c.off}
+              onPress={() => router.push(signedIn ? '/account/manage' : '/account')}
+            />
+          </>
+        ) : null}
       </View>
 
       <Text accessibilityRole="header" style={[type('Body/Large', 'SemiBold'), styles.section]}>{c.delete}</Text>
       <View style={styles.card}>
         <ListRow title={c.deleteAll} subtitle={c.deleteSub} icon="trash" destructive onPress={() => router.push('/data/delete')} />
+        {signedIn ? (
+          <>
+            <Divider inset={0} />
+            <ListRow title={c.deleteAccount} subtitle={c.deleteAccountSub} icon="trash-x" destructive onPress={() => router.push('/account/delete')} />
+          </>
+        ) : null}
       </View>
     </Page>
   );

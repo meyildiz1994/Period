@@ -1,7 +1,7 @@
 import { getLocales } from 'expo-localization';
 import { useSyncExternalStore } from 'react';
 
-import { getOnboarding, subscribeOnboarding } from '../state/onboarding';
+import { getOnboarding, subscribeOnboarding, useOnboarding } from '../state/onboarding';
 
 // Turkish and English. Each screen keeps its own copy next to its code (`defineCopy`), and
 // shared words (flow, mood, symptoms, "3 days"…) live in ./common. The language is the user's
@@ -43,4 +43,11 @@ export function useCopy<T>(copy: { en: T; tr: T }): T {
 /** Outside React (notifications, export). */
 export function getCopy<T>(copy: { en: T; tr: T }): T {
   return copy[getLang()];
+}
+
+/** First day of the week: always Monday in Turkish, otherwise the user's setting. */
+export function useWeekStart(): 0 | 1 {
+  const lang = useLang();
+  const { weekStartsOn } = useOnboarding();
+  return lang === 'tr' ? 1 : weekStartsOn;
 }

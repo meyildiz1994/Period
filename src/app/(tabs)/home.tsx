@@ -1,15 +1,14 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Button, CycleRing, EmptyState, HomeSkeleton, NextPeriodCard, TipCard, TodayLogCard, TopBar, WeekStrip, useTabBarSpace,
+  AdBanner, Button, CycleRing, EmptyState, FertileBadge, HomeSkeleton, NextPeriodCard, PeriodEndSheet, PeriodTodayCard, TodayRow, TopBar, WeekStrip, useTabBarSpace,
 } from '../../components';
-import { defineCopy, useCopy } from '../../i18n';
+import { defineCopy, useCopy, useWeekStart } from '../../i18n';
 import { useCommon } from '../../i18n/common';
-import { useTip } from '../../i18n/tips';
 import { diffDays, formatLong, formatMonthDay, formatShort, toISODate } from '../../lib/dates';
-import { cycleStatus, useCycleSettings, weekStrip } from '../../state/cycle';
+import { cycleStatus, ongoingPeriod, useCycleSettings, weekStrip } from '../../state/cycle';
 import { useLog } from '../../state/log';
 import { useOnboarding } from '../../state/onboarding';
 import { color, layout, type } from '../../theme';
@@ -62,9 +61,9 @@ const COPY = defineCopy({
 });
 
 // B1 Home (in cycle), B2 empty, B3 loading, B4 late. Fits an 844 pt phone (with the status bar
-// and home indicator) without scrolling: the ring is 184 and the tip card has a fixed height.
+// and home indicator) without scrolling. The ring is the focus; everything else is one card or one row.
 // The ScrollView only matters on shorter phones or with large text.
-const RING = 184;
+const RING = 232;
 export default function Home() {
   const c = useCopy(COPY);
   const common = useCommon();
@@ -72,13 +71,18 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const bottom = useTabBarSpace();
   const profile = useOnboarding();
+  const weekStart = useWeekStart();
   const settings = useCycleSettings();
-  const { days: logs } = useLog();
+  const log = useLog();
+  const { days: logs } = log;
   const today = new Date();
   const status = cycleStatus(settings, today);
   const todayLog = logs[toISODate(today)];
-  const tip = useTip(status.kind === 'cycle' ? status.phase : 'Empty', today);
   const openLog = () => router.push('/log/period');
+  const ongoing = status.kind === 'cycle' ? ongoingPeriod(log, settings, today) : null;
+  // The "+" menu ends the period and opens Home with ?ended=start to show its summary.
+  const { ended: endedStart } = useLocalSearchParams<{ ended?: string }>();
+  const closeSummary = () => router.setParams({ ended: undefined });
 
   let body;
   if (!profile.hydrated) {
@@ -127,6 +131,12 @@ export default function Home() {
       : s.daysUntilNext <= 0
         ? { title: c.anyDay, subtitle: c.expectedBy(formatShort(s.latestStart)) }
         : { title: c.inRange(s.daysUntilNext, days(untilLatest)), subtitle: c.range(formatMonthDay(s.nextStart), formatMonthDay(s.latestStart)) };
+    const todayValues = [
+      todayLog?.flow && todayLog.flow !== 'None' ? common.flow[todayLog.flow] : null,
+      todayLog?.pain && todayLog.pain !== 'None' ? common.pain[todayLog.pain] : null,
+      todayLog?.mood ? common.mood[todayLog.mood] : null,
+      ...(todayLog?.symptoms ?? []).map((x) => common.symptom[x] ?? x),
+    ].filter((v): v is string => !!v);
     body = (
       <>
         <View style={styles.ring}>
@@ -137,19 +147,15 @@ export default function Home() {
             label={s.phase === 'Neutral' ? common.phase.Neutral : undefined}
             day={common.day(s.cycleDay)}
           />
+          {s.fertile ? <FertileBadge fertile={s.fertile} phase={s.phase} /> : null}
         </View>
-        {tip ? <TipCard heading={tip.heading(common.phase[s.phase])} text={tip.text} /> : null}
-        <WeekStrip days={weekStrip(settings, today)} />
+        <WeekStrip days={weekStrip(settings, today, weekStart)} />
         <NextPeriodCard title={next.title} subtitle={next.subtitle} onCalendar={() => router.navigate('/history')} />
-        <TodayLogCard
-          onEdit={() => router.push('/log/daily')}
-          items={[
-            // Logged values are stored in English; show them in the app language.
-            { label: c.flow, value: todayLog?.flow ? common.flow[todayLog.flow] : null, icon: 'drop-fill' },
-            { label: c.pain, value: todayLog?.pain ? common.pain[todayLog.pain] : null, icon: 'bandage' },
-            { label: c.mood, value: todayLog?.mood ? common.mood[todayLog.mood] : null, icon: 'meh' },
-          ]}
-        />
+        {ongoing ? (
+          <PeriodTodayCard day={s.cycleDay} usual={settings.periodLength} values={todayValues} onLog={() => router.push('/log/daily')} />
+        ) : (
+          <TodayRow values={todayValues} onPress={() => router.push('/log/daily')} />
+        )}
       </>
     );
   }
@@ -159,7 +165,20 @@ export default function Home() {
       <TopBar kind="Root" title={profile.name ? c.hi(profile.name) : c.hiThere} userName={profile.name ?? undefined} onAvatar={() => router.navigate('/me')} />
       <ScrollView alwaysBounceVertical={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: bottom }]}>
         {body}
+        <AdBanner />
       </ScrollView>
+      <PeriodEndSheet
+        period={endedStart ? log.periods.find((p) => p.start === endedStart) ?? null : null}
+        days={logs}
+        settings={settings}
+        usualLength={profile.periodLength}
+        onClose={closeSummary}
+        onChangeEnd={() => {
+          const start = endedStart;
+          closeSummary();
+          if (start) router.push({ pathname: '/log/period', params: { start } });
+        }}
+      />
     </View>
   );
 }

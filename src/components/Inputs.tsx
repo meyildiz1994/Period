@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
 import { defineCopy, useCopy } from '../i18n';
 import { color, fontFamily, type } from '../theme';
@@ -27,9 +27,12 @@ type InputProps = Omit<TextInputProps, 'style' | 'editable'> & {
   disabled?: boolean;
   iconLeft?: IconName;
   iconRight?: IconName;
+  /** Makes the right icon a button (e.g. show/hide a password); `iconRightLabel` names it. */
+  onIconRight?: () => void;
+  iconRightLabel?: string;
 };
 
-export function Input({ label, helper, error, disabled, iconLeft, iconRight, ...rest }: InputProps) {
+export function Input({ label, helper, error, disabled, iconLeft, iconRight, onIconRight, iconRightLabel, ...rest }: InputProps) {
   const [focused, setFocused] = useState(false);
   const borderColor = error ? color['feedback/danger'] : focused ? color['border/focus'] : color['border/subtle'];
   const message = error ?? helper;
@@ -48,7 +51,13 @@ export function Input({ label, helper, error, disabled, iconLeft, iconRight, ...
           onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }}
           style={[styles.input, { color: color[disabled ? 'text/tertiary' : 'text/primary'] }]}
         />
-        {iconRight ? <Icon name={iconRight} size={20} color="text/secondary" /> : null}
+        {iconRight && onIconRight ? (
+          <Pressable accessibilityRole="button" accessibilityLabel={iconRightLabel} onPress={onIconRight} hitSlop={12}>
+            <Icon name={iconRight} size={20} color="text/secondary" />
+          </Pressable>
+        ) : iconRight ? (
+          <Icon name={iconRight} size={20} color="text/secondary" />
+        ) : null}
       </View>
       {message ? (
         <View style={styles.helper}>

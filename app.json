@@ -2,13 +2,17 @@
   "expo": {
     "name": "Nilemy",
     "slug": "nilemy",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.meyildiz.nilemy"
+      "bundleIdentifier": "com.meyildiz.nilemy",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +22,14 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.meyildiz.nilemy"
+      "package": "com.meyildiz.nilemy",
+      "blockedPermissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -48,7 +59,62 @@
           "backgroundColor": "#FCF5F6"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "skAdNetworkItems": [
+            "cstr6suwn9.skadnetwork"
+          ]
+        }
+      ],
+      "expo-iap",
+      [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "Plum",
+            "ios": "./assets/icons/icon-plum.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#80244E"
+            }
+          },
+          {
+            "name": "Night",
+            "ios": "./assets/icons/icon-night.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#2A1520"
+            }
+          },
+          {
+            "name": "White",
+            "ios": "./assets/icons/icon-white.png",
+            "android": {
+              "foregroundImage": "./assets/android-icon-foreground.png",
+              "backgroundColor": "#FFFFFF"
+            }
+          }
+        ]
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.745565714522-lsre4asflclkglu912qbp1875psrj36i"
+        }
+      ],
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Nilemy uses a photo only when you choose one as your profile picture. It stays on this phone.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "scheme": "nilemy",
     "backgroundColor": "#FCF5F6",

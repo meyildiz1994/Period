@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, IconBadge, OnboardingStep } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
+import { toISODate } from '../../lib/dates';
 import { savePeriod } from '../../state/log';
 import { getOnboarding, setOnboarding } from '../../state/onboarding';
 import { color, type, type IconName } from '../../theme';
@@ -15,7 +16,7 @@ const COPY = defineCopy({
     points: [
       { title: 'Saved on this phone', body: 'Your logs never leave this phone unless you export them.' },
       { title: 'Export anytime', body: 'Download a copy of your logs from Your data.' },
-      { title: 'Never sold or shared', body: 'No ads and no selling of your data.' },
+      { title: 'Never sold or shared', body: 'Your logs are never sold, shared or used for ads.' },
     ],
   },
   tr: {
@@ -25,7 +26,7 @@ const COPY = defineCopy({
     points: [
       { title: 'Bu telefonda saklanır', body: 'Sen dışa aktarmadıkça kayıtların bu telefondan çıkmaz.' },
       { title: 'İstediğin zaman dışa aktar', body: 'Kayıtlarının bir kopyasını Verilerin bölümünden indir.' },
-      { title: 'Asla satılmaz ya da paylaşılmaz', body: 'Reklam yok, verilerin satılmaz.' },
+      { title: 'Asla satılmaz ya da paylaşılmaz', body: 'Kayıtların satılmaz, paylaşılmaz ve reklam için kullanılmaz.' },
     ],
   },
 });
@@ -50,7 +51,7 @@ export default function Done() {
           onPress={() => {
             const { lastPeriodStart } = getOnboarding();
             if (lastPeriodStart) savePeriod({ start: lastPeriodStart, end: null });
-            setOnboarding({ done: true });
+            setOnboarding({ done: true, startedAt: toISODate(new Date()) });
             router.replace('/home');
           }}
         />
