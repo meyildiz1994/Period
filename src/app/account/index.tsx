@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Banner, Button, IconBadge, LegalLine, Page, useAuthProblems } from '../../components';
+import { AuthPage, Banner, Button, GoogleMark, LegalLine, OrDivider, ProviderButton, useAuthProblems } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { appleAvailable, authProblem, signInWith, type AuthProblem } from '../../lib/account';
 import { afterSignIn, type Then } from '../../lib/accountFlow';
@@ -15,6 +15,7 @@ const COPY = defineCopy({
     heading: 'Keep your logs safe',
     intro: 'Optional. With an account your logs are backed up end-to-end encrypted, so you can restore them on a new phone. Nilemy works fully without one.',
     google: 'Continue with Google',
+    or: 'or',
     email: 'Sign up with email',
     haveEmail: 'Signed up with email?',
     signIn: 'Sign in',
@@ -25,6 +26,7 @@ const COPY = defineCopy({
     heading: 'Kayıtların güvende kalsın',
     intro: 'İsteğe bağlı. Hesapla kayıtların uçtan uca şifrelenerek yedeklenir; yeni bir telefonda geri yükleyebilirsin. Nilemy hesapsız da tamamen çalışır.',
     google: 'Google ile devam et',
+    or: 'ya da',
     email: 'E-posta ile kayıt ol',
     haveEmail: 'E-postayla mı kayıt oldun?',
     signIn: 'Giriş yap',
@@ -55,26 +57,25 @@ export default function Account() {
   };
 
   return (
-    <Page title={c.title} onBack={router.back}>
-      <View style={styles.hero}>
-        <IconBadge icon="shield-lock" size={64} />
-        <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.center, { color: color['text/primary'] }]}>{c.heading}</Text>
-        <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>{c.intro}</Text>
-      </View>
+    <AuthPage heading={c.heading} intro={c.intro} onBack={router.back}>
       {problem ? <Banner kind={problem === 'offline' ? 'Warning' : 'Error'} title={c.errorTitle} message={problems[problem]} /> : null}
-      <View style={styles.buttons}>
+      {/* Google first; on iPhone the Apple button sits right under it (Android shows Google only). */}
+      <View style={styles.providers}>
+        <ProviderButton label={c.google} disabled={!!busy} onPress={() => go('google')}>
+          <GoogleMark />
+        </ProviderButton>
         {appleAvailable ? (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-            cornerRadius={28}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+            cornerRadius={26}
             style={styles.apple}
             onPress={() => (busy ? undefined : go('apple'))}
           />
         ) : null}
-        <Button label={c.google} type="Outline" fullWidth loading={busy === 'google'} disabled={!!busy} onPress={() => go('google')} />
-        <Button label={c.email} type="Secondary" iconLeft="mail" fullWidth disabled={!!busy} onPress={() => router.push({ pathname: '/account/email', params: { mode: 'signup', then } })} />
       </View>
+      <OrDivider label={c.or} />
+      <Button label={c.email} iconLeft="mail" fullWidth disabled={!!busy} onPress={() => router.push({ pathname: '/account/email', params: { mode: 'signup', then } })} />
       <View style={styles.row}>
         <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{c.haveEmail}</Text>
         <Text
@@ -86,14 +87,12 @@ export default function Account() {
         </Text>
       </View>
       <LegalLine />
-    </Page>
+    </AuthPage>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', gap: 12, paddingTop: 8 },
-  center: { textAlign: 'center' },
-  buttons: { gap: 12, marginTop: 8 },
-  apple: { height: 56, width: '100%' },
+  providers: { gap: 12 },
+  apple: { height: 52, width: '100%' },
   row: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 6 },
 });

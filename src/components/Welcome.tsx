@@ -1,7 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { ReactNode } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
-import { color, fontFamily, palette, radius } from '../theme';
+import { defineCopy, useCopy } from '../i18n';
+import { useCommon } from '../i18n/common';
+import { color, fontFamily, layout, palette, radius, type } from '../theme';
 import { FlowerBuddy } from './Home';
 import { Icon } from './Icon';
 import { LogoFull } from './Logo';
@@ -11,7 +15,9 @@ import { LogoFull } from './Logo';
  * and tagline on the left, and the smiling flower on a soft blob with a little calendar card
  * on the right. `top` is the safe-area inset so the gradient runs under the status bar.
  */
-export function WelcomeHero({ tagline, top, corner }: { tagline: string; top: number; corner?: React.ReactNode }) {
+export function WelcomeHero({ tagline, top, corner, onBack, backLabel }: {
+  tagline: string; top: number; corner?: React.ReactNode; onBack?: () => void; backLabel?: string;
+}) {
   return (
     <View style={[styles.hero, { paddingTop: top + 8 }]}>
       <Svg style={StyleSheet.absoluteFill} preserveAspectRatio="none" viewBox="0 0 100 100">
@@ -24,7 +30,16 @@ export function WelcomeHero({ tagline, top, corner }: { tagline: string; top: nu
         </Defs>
         <Rect x="0" y="0" width="100" height="100" fill="url(#welcome-hero)" />
       </Svg>
-      {corner ? <View style={styles.corner}>{corner}</View> : null}
+      {corner || onBack ? (
+        <View style={styles.corner}>
+          {onBack ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={backLabel} onPress={onBack} hitSlop={8} style={({ pressed }) => [styles.back, pressed && { opacity: 0.7 }]}>
+              <Icon name="chevron-left" size={24} color="text/on-brand" />
+            </Pressable>
+          ) : <View />}
+          {corner}
+        </View>
+      ) : null}
       <View style={styles.row}>
         <View style={styles.brand}>
           <LogoFull width={104} wordmark={palette['neutral/0']} />
@@ -32,6 +47,55 @@ export function WelcomeHero({ tagline, top, corner }: { tagline: string; top: nu
         </View>
         <HeroArt />
       </View>
+    </View>
+  );
+}
+
+const COPY = defineCopy({
+  en: { tagline: 'Your cycle,\nalways with you.' },
+  tr: { tagline: 'Döngün,\nhep yanında.' },
+});
+
+/**
+ * Account screens (sign up, sign in, reset, Nilemy password…) in the Welcome style: the plum hero
+ * with a back button, then a left-aligned heading, optional intro and the content with pill fields.
+ * Leave out `onBack` where going back isn't allowed (the recovery code).
+ */
+export function AuthPage({ heading, intro, onBack, overlay, children }: {
+  heading: string; intro?: string; onBack?: () => void; overlay?: ReactNode; children: ReactNode;
+}) {
+  const insets = useSafeAreaInsets();
+  const c = useCopy(COPY);
+  const common = useCommon();
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <WelcomeHero tagline={c.tagline} top={insets.top} onBack={onBack} backLabel={common.back} />
+        <View style={styles.body}>
+          <View style={styles.head}>
+            <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), { color: color['text/primary'] }]}>{heading}</Text>
+            {intro ? <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{intro}</Text> : null}
+          </View>
+          {children}
+        </View>
+      </ScrollView>
+      {overlay ? <View style={[styles.overlay, { top: insets.top + 16 }]} pointerEvents="box-none">{overlay}</View> : null}
+    </KeyboardAvoidingView>
+  );
+}
+
+/** "or continue with" line between the email form and the Google / Apple buttons. */
+export function OrDivider({ label }: { label: string }) {
+  return (
+    <View style={styles.divider}>
+      <View style={styles.line} />
+      <Text style={[type('Body/Small'), { color: color['text/tertiary'] }]}>{label}</Text>
+      <View style={styles.line} />
     </View>
   );
 }
@@ -88,8 +152,15 @@ export function ProviderButton({ label, onPress, disabled, children }: { label: 
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: color['bg/canvas'] },
+  body: { paddingHorizontal: layout.gutter, paddingTop: 24, gap: 16 },
+  head: { gap: 8 },
+  overlay: { position: 'absolute', left: layout.gutter, right: layout.gutter },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  line: { flex: 1, height: 1, backgroundColor: color['surface/divider'] },
   hero: { borderBottomLeftRadius: radius['2xl'], borderBottomRightRadius: radius['2xl'], overflow: 'hidden', paddingHorizontal: 20, paddingBottom: 20 },
-  corner: { alignItems: 'flex-end' },
+  corner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  back: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255, 255, 255, 0.16)' },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   brand: { flex: 1, gap: 12, paddingTop: 4 },
   tagline: { fontFamily: fontFamily.Medium, fontSize: 16, lineHeight: 22, color: color['text/softest'] },

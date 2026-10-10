@@ -1,11 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { Banner, Button, IconBadge, Input, Page, useAuthProblems } from '../../components';
+import { AuthPage, Banner, Button, Input, useAuthProblems } from '../../components';
 import { defineCopy, useCopy } from '../../i18n';
 import { authProblem, sendPasswordReset, type AuthProblem } from '../../lib/account';
-import { color, type } from '../../theme';
 
 const COPY = defineCopy({
   en: {
@@ -62,28 +61,25 @@ export default function ResetPassword() {
 
   if (sent) {
     return (
-      <Page title={c.title} onBack={router.back} footer={<><Button label={c.back} fullWidth onPress={router.back} /><Button label={c.resend} type="Ghost" fullWidth loading={busy} onPress={send} /></>}>
-        <View style={styles.hero}>
-          <IconBadge icon="mail-check" size={64} />
-          <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), styles.center, { color: color['text/primary'] }]}>{c.sentTitle}</Text>
-          <Text style={[type('Body/Medium'), styles.center, { color: color['text/secondary'] }]}>{c.sent(email.trim())}</Text>
+      <AuthPage heading={c.sentTitle} intro={c.sent(email.trim())} onBack={router.back}>
+        <View style={styles.actions}>
+          <Button label={c.back} fullWidth onPress={router.back} />
+          <Button label={c.resend} type="Ghost" size="Medium" fullWidth loading={busy} onPress={send} />
         </View>
-      </Page>
+      </AuthPage>
     );
   }
 
   return (
-    <Page title={c.title} onBack={router.back} footer={<Button label={c.send} fullWidth loading={busy} disabled={busy || !email.trim()} onPress={send} />}>
-      <Text accessibilityRole="header" style={[type('Title/Medium', 'Bold'), { color: color['text/primary'] }]}>{c.heading}</Text>
-      <Text style={[type('Body/Medium'), { color: color['text/secondary'] }]}>{c.body}</Text>
+    <AuthPage heading={c.heading} intro={c.body} onBack={router.back}>
       {problem && problem !== 'cancelled' ? <Banner kind={problem === 'offline' ? 'Warning' : 'Error'} message={problems[problem]} /> : null}
-      <Input label={c.email} iconLeft="mail" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" autoFocus disabled={busy} onSubmitEditing={send} />
+      <Input pill label={c.email} iconLeft="mail" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" autoFocus disabled={busy} onSubmitEditing={send} />
+      <Button label={c.send} fullWidth loading={busy} disabled={busy || !email.trim()} onPress={send} />
       <Banner message={c.note} />
-    </Page>
+    </AuthPage>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', gap: 12, paddingTop: 24 },
-  center: { textAlign: 'center' },
+  actions: { gap: 4 },
 });
