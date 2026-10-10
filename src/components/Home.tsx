@@ -203,7 +203,7 @@ export function FertileBadge({ fertile, phase }: { fertile: Exclude<Fertile, nul
 }
 
 /** Six lilac petals around a white face with dot eyes, rosy cheeks and a small smile. */
-function FlowerBuddy({ size, sparkles, phase }: { size: number; sparkles: 1 | 2; phase: Phase }) {
+export function FlowerBuddy({ size, sparkles, phase }: { size: number; sparkles: 1 | 2; phase: Phase }) {
   const tone = phaseTone(phase);
   const ink = color[tone.ink];
   const petals = [0, 1, 2, 3, 4, 5].map((i) => {

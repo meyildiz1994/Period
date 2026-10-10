@@ -30,19 +30,22 @@ type InputProps = Omit<TextInputProps, 'style' | 'editable'> & {
   /** Makes the right icon a button (e.g. show/hide a password); `iconRightLabel` names it. */
   onIconRight?: () => void;
   iconRightLabel?: string;
+  /** Pill field with the label as its placeholder (Welcome sign-in); screen readers still hear it. */
+  pill?: boolean;
 };
 
-export function Input({ label, helper, error, disabled, iconLeft, iconRight, onIconRight, iconRightLabel, ...rest }: InputProps) {
+export function Input({ label, helper, error, disabled, iconLeft, iconRight, onIconRight, iconRightLabel, pill, ...rest }: InputProps) {
   const [focused, setFocused] = useState(false);
   const borderColor = error ? color['feedback/danger'] : focused ? color['border/focus'] : color['border/subtle'];
   const message = error ?? helper;
   return (
     <View style={styles.wrap}>
-      <Text style={[type('Body/Small', 'Medium'), { color: color[disabled ? 'text/disabled' : 'text/secondary'] }]}>{label}</Text>
-      <View style={[styles.field, { borderColor, borderWidth: error || focused ? 2 : 1, backgroundColor: color[disabled ? 'surface/subtle' : 'surface/default'] }]}>
+      {pill ? null : <Text style={[type('Body/Small', 'Medium'), { color: color[disabled ? 'text/disabled' : 'text/secondary'] }]}>{label}</Text>}
+      <View style={[styles.field, pill && styles.pill, { borderColor, borderWidth: error || focused ? 2 : 1, backgroundColor: color[disabled ? 'surface/subtle' : 'surface/default'] }]}>
         {iconLeft ? <Icon name={iconLeft} size={20} color={error ? 'feedback/danger' : disabled ? 'text/disabled' : 'text/secondary'} /> : null}
         <TextInput
           {...rest}
+          placeholder={rest.placeholder ?? (pill ? label : undefined)}
           accessibilityLabel={label}
           editable={!disabled}
           placeholderTextColor={color['text/tertiary']}
@@ -105,6 +108,7 @@ export function TextArea({ value, onChangeText, placeholder, max = 250 }: {
 const styles = StyleSheet.create({
   wrap: { gap: 8, alignSelf: 'stretch' },
   field: { flexDirection: 'row', alignItems: 'center', height: 56, paddingHorizontal: 16, gap: 12, borderRadius: 16 },
+  pill: { borderRadius: 999, paddingHorizontal: 20 },
   input: { flex: 1, fontFamily: fontFamily.Regular, fontSize: 16, paddingVertical: 0 },
   helper: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   area: { height: 132, padding: 16, gap: 8, borderRadius: 16, backgroundColor: color['surface/default'], justifyContent: 'space-between' },

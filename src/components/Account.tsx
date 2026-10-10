@@ -56,7 +56,7 @@ export function useAuthProblems() {
 }
 
 /** Password field with a show/hide button. */
-export function PasswordInput(props: Omit<TextInputProps, 'style' | 'editable' | 'secureTextEntry'> & { label: string; helper?: string; error?: string; disabled?: boolean }) {
+export function PasswordInput(props: Omit<TextInputProps, 'style' | 'editable' | 'secureTextEntry'> & { label: string; helper?: string; error?: string; disabled?: boolean; pill?: boolean }) {
   const c = useCopy(COPY);
   const [shown, setShown] = useState(false);
   return (
