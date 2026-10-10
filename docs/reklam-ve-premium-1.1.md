@@ -1,4 +1,4 @@
-# 1.1: Reklam ve Premium yayın listesi
+# Yayın listesi: reklam, Premium aboneliği ve hesap (aynı sürümde)
 
 Uygulama ücretsiz kalıyor.
 
@@ -67,3 +67,35 @@ Uygulama ücretsiz kalıyor.
 - Development build'lerde her zaman Google'ın test reklamları gelir.
 - Aboneliği iOS'ta Sandbox hesabıyla, Android'de lisans test kullanıcısıyla dene. Sandbox'ta abonelikler hızlı yenilenir (1 ay ≈ 5 dakika); bittiğinde uygulama öne gelince reklamların geri geldiğini kontrol et.
 - İzin formunu Türkiye'den görmek için geçici olarak `AdsConsent.gatherConsent({ debugGeography: AdsConsentDebugGeography.EEA, testDeviceIdentifiers: [...] })` kullanılabilir.
+
+
+## Hesap ve şifreli yedek (aynı sürüme eklendi)
+
+**Firebase'de yapılacaklar (kurulum bitti, kalanlar):**
+- Android derlemesi yapılınca EAS'teki imza sertifikasının SHA-1'ini Firebase → Proje ayarları → Android uygulaması'na ekle (Google ile giriş Android'de bunsuz çalışmaz). `npx eas-cli@latest credentials -p android` SHA-1'i gösterir.
+- Apple ile girişte hesap silinirken Apple jetonunun iptali için: Apple Developer → Keys → "Sign in with Apple" anahtarı oluştur; Firebase → Authentication → Apple → "OAuth code flow configuration" bölümüne Team ID, Key ID ve özel anahtarı gir. Bu yapılmazsa hesap yine silinir, yalnızca Apple tarafındaki bağlantı kullanıcı kendi Apple Kimliği ayarlarından kaldırana kadar kalır.
+- Firebase → Authentication → Templates: parola sıfırlama e-postasının dilini Türkçe yap, gönderen adını "Nilemy" yap.
+- Firebase → Authentication → Settings → "User account linking": "Link accounts that use the same email" seçili kalsın (varsayılan).
+
+**App Store Connect → App Privacy (hesap için eklenecekler):**
+- İletişim bilgileri → E-posta adresi: Uygulama işlevselliği; kullanıcıya bağlı: Evet; izleme: Hayır.
+- İletişim bilgileri → Ad: Uygulama işlevselliği; kullanıcıya bağlı: Evet; izleme: Hayır. (Google ile girişte Firebase profil adını kaydediyor.)
+- Tanımlayıcılar → Kullanıcı kimliği: Uygulama işlevselliği; kullanıcıya bağlı: Evet; izleme: Hayır.
+- Sağlık ve fitness → Sağlık: Uygulama işlevselliği; kullanıcıya bağlı: Evet; izleme: Hayır. Yedek uçtan uca şifreli olduğu için Apple'ın tanımına göre bu beyan isteğe bağlı sayılabilir, ama temkinli olmak için beyan etmeni öneririm.
+- Reklam (AdMob) satırları yukarıdaki gibi kalır; hiçbiri hesapla ilişkilendirilmez.
+
+**Google Play → Veri güvenliği (hesap için eklenecekler):**
+- Kişisel bilgiler → Ad, E-posta adresi, Kullanıcı kimlikleri: toplanıyor, paylaşılmıyor; amaç Uygulama işlevselliği ve Hesap yönetimi; isteğe bağlı.
+- Sağlık ve fitness → Sağlık bilgileri: toplanıyor (uçtan uca şifreli), paylaşılmıyor; amaç Uygulama işlevselliği; isteğe bağlı.
+- Aktarım sırasında şifreleniyor: Evet. Kullanıcı verilerin silinmesini isteyebilir: Evet (uygulama içinde ve info@nilemy.com).
+- **Hesap silme bağlantısı** (Play zorunlu kılıyor): https://nilemy.com/support/ (SSS'de "Hesabımı nasıl silerim?" bölümü).
+
+**App Review notu eki:**
+> Accounts are optional. Reviewers can tap "Continue without signing in" on the Welcome screen to use the app without an account. To try the account flow, sign in with Apple or Google, or sign up with any email, then create a Nilemy password (it encrypts the backup on the device). Accounts can be deleted in Me › Account › Delete account.
+
+**Test:**
+- Google ile giriş: development build gerekiyor (Expo Go'da yok). iOS'ta çalışır; Android'de SHA-1 eklenmeden çalışmaz.
+- Apple ile giriş: gerçek bir iPhone'da (simülatörde Apple Kimliği ile giriş yapılmış olmalı).
+- İki telefonla dene: birinde kayıt ekle, diğerinde uygulamayı öne getir; değişikliğin birkaç saniye içinde gelmesi gerekir.
+- Uçak modunda kayıt ekle, interneti aç, uygulamayı öne getir: eşitlenmeli.
+- Kurtarma koduyla parolayı sıfırla, sonra yeni parolayla başka telefonda yedeği aç.
