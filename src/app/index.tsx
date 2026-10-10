@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
-import { AnimatedLogoMark } from '../components';
+import { AnimatedLogoMark, LogoWordmark } from '../components';
 import { defineCopy, useCopy } from '../i18n';
 import { color, type } from '../theme';
 import { startReminders } from '../lib/notifications';
@@ -55,7 +55,9 @@ export default function Splash() {
       <StatusBar style="dark" />
       <AnimatedLogoMark size={168} onDone={() => setDrawn(true)} />
       <Animated.View style={{ opacity: name, alignItems: 'center' }}>
-        <Animated.Text style={[type('Display', 'Bold'), styles.name]}>Nilemy</Animated.Text>
+        <View style={styles.name}>
+          <LogoWordmark width={148} />
+        </View>
         <Animated.Text style={[type('Body/Medium'), styles.tagline]}>{c.tagline}</Animated.Text>
       </Animated.View>
     </View>
@@ -64,6 +66,6 @@ export default function Splash() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: color['bg/canvas'] },
-  name: { marginTop: 16, color: color['text/brand'] },
+  name: { marginTop: 16 },
   tagline: { marginTop: 8, color: color['text/secondary'] },
 });

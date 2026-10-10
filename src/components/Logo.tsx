@@ -80,6 +80,15 @@ export function LogoFull({ width, wordmark = '#62414E' }: { width: number; wordm
   );
 }
 
+/** The "nilemy" wordmark on its own, same shape and colour as in the full logo (I1 Splash). */
+export function LogoWordmark({ width, fill = '#62414E' }: { width: number; fill?: string }) {
+  return (
+    <Svg width={width} height={(width * 190) / 574} viewBox="8 340 574 190" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Path d={WORDMARK} fill={fill} fillRule="evenodd" />
+    </Svg>
+  );
+}
+
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
