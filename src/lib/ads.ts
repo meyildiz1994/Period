@@ -43,7 +43,7 @@ export function startAds() {
       const info = await AdsConsent.gatherConsent();
       setPremium({ adChoicesRequired: info.privacyOptionsRequirementStatus === 'REQUIRED' });
       if (!info.canRequestAds) return;
-      await mobileAds().setRequestConfiguration({ maxAdContentRating: MaxAdContentRating.PG });
+      await mobileAds().setRequestConfiguration({ maxAdContentRating: MaxAdContentRating.T });
       await mobileAds().initialize();
       if (!getPremium().premium) setPremium({ adsReady: true });
     } catch (e) {
